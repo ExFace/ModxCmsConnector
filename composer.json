@@ -1,0 +1,18 @@
+{
+	"name" : "ExFace/ModxCmsConnector",
+	"description" : "CMS connector for the MODx CMS 1.x",
+	"type" : "library",
+	"license" : "GPL-3.0+",
+	"authors" : [{
+			"name" : "Andrej Kabachnik",
+			"email" : "kabachnik@gmail.com",
+			"role" : "Creator"
+		}
+	],
+	"support" : {
+		"issues" : "https://github.com/exface/ModxCmsConnector/issues"
+	},
+	"require" : {
+		"exface/core" : ">=1.0"
+	}
+}
