@@ -13,6 +13,6 @@
 		"issues" : "https://github.com/exface/ModxCmsConnector/issues"
 	},
 	"require" : {
-		"exface/core" : ">=1.0"
+		"exface/core" : "~0.1"
 	}
 }
