@@ -36,7 +36,7 @@ class ModxDb extends AbstractDataConnector implements SqlDataConnectorInterface 
 	 * {@inheritDoc}
 	 * @see \exface\Core\CommonLogic\AbstractDataConnector::perform_query()
 	 */
-	protected function perform_query($sql) {
+	protected function perform_query($sql, $options = null) {
 		global $modx;
 		$query = $modx->db->query($sql);
 		return $this->make_array($query);
