@@ -1,14 +1,18 @@
 <?php namespace exface\ModxCmsConnector\CmsConnectors;
 
 use exface\Core\Interfaces\CmsConnectorInterface;
+use exface\Core\CommonLogic\Workbench;
+use exface\ModxCmsConnector\ModxCmsConnectorApp;
 
 class Modx implements CmsConnectorInterface {
 	private $user_name = null;
+	private $workbench = null;
 	
-	function __construct(){
+	function __construct(Workbench $exface){
+		$this->workbench = $exface;
 		global $modx;
 		if (!$modx){
-			require_once __DIR__.'../../../../../../index-exface.php';
+			require_once ($this->get_workbench()->get_installation_path() . DIRECTORY_SEPARATOR . $this->get_app()->get_config_value('PATH_TO_MODX'));
 		}
 		$this->user_name = $modx->getLoginUserName('mgr') ? $modx->getLoginUserName('mgr') : $modx->getLoginUserName('web');
 	}
@@ -65,6 +69,22 @@ class Modx implements CmsConnectorInterface {
 	 */
 	function get_user_name(){
 		return $this->user_name;
+	}
+	
+	/**
+	 * 
+	 * {@inheritDoc}
+	 * @see \exface\Core\Interfaces\ExfaceClassInterface::get_workbench()
+	 */
+	public function get_workbench(){
+		return $this->workbench;
+	}
+	
+	/**
+	 * @return ModxCmsConnectorApp
+	 */
+	public function get_app(){
+		return $this->get_workbench()->get_app('exface.ModxCmsConnector');
 	}
 }
 ?>
