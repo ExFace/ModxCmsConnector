@@ -12,7 +12,7 @@ class Modx implements CmsConnectorInterface {
 		$this->workbench = $exface;
 		global $modx;
 		if (!$modx){
-			require_once ($this->get_workbench()->get_installation_path() . DIRECTORY_SEPARATOR . $this->get_app()->get_config_value('PATH_TO_MODX'));
+			require_once ($this->get_workbench()->get_installation_path() . DIRECTORY_SEPARATOR . $this->get_app()->get_config()->get_option('PATH_TO_MODX'));
 		}
 		$this->user_name = $modx->getLoginUserName('mgr') ? $modx->getLoginUserName('mgr') : $modx->getLoginUserName('web');
 	}
