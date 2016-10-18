@@ -89,14 +89,7 @@
     "totals_rows": [],
     "filters": {
         "operator": "AND",
-        "conditions": [
-            {
-                "expression": "APP",
-                "comparator": "=",
-                "value": "0x11e680a7f9cdf732a177c0f8dae36b4f",
-                "object_alias": "exface.Core.DATASRC"
-            }
-        ],
+        "conditions": [],
         "nested_groups": []
     },
     "rows_on_page": null,
