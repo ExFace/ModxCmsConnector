@@ -6,9 +6,15 @@ use exface\ModxCmsConnector\ModxCmsConnectorApp;
 
 class Modx implements CmsConnectorInterface {
 	private $user_name = null;
+	private $user_settings = null;
+	private $user_locale = null;
 	private $workbench = null;
 	
-	function __construct(Workbench $exface){
+	/**
+	 * @deprecated use CmsConnectorFactory instead
+	 * @param Workbench $exface
+	 */
+	public function __construct(Workbench $exface){
 		$this->workbench = $exface;
 		global $modx;
 		if (!$modx){
@@ -17,12 +23,22 @@ class Modx implements CmsConnectorInterface {
 		$this->user_name = $modx->getLoginUserName('mgr') ? $modx->getLoginUserName('mgr') : $modx->getLoginUserName('web');
 	}
 	
-	function get_page_id(){
+	/**
+	 * 
+	 * {@inheritDoc}
+	 * @see \exface\Core\Interfaces\CmsConnectorInterface::get_page_id()
+	 */
+	public function get_page_id(){
 		global $modx;
 		return $modx->documentIdentifier;
 	}
 	
-	function get_page($doc_id){
+	/**
+	 *
+	 * {@inheritDoc}
+	 * @see \exface\Core\Interfaces\CmsConnectorInterface::get_page_contents()
+	 */
+	public function get_page_contents($doc_id){
 		global $modx;
 	
 		$q = $modx->db->select('content', $modx->getFullTableName('site_content'), 'id = ' . intval($doc_id));
@@ -31,17 +47,21 @@ class Modx implements CmsConnectorInterface {
 	}
 	
 	/**
+	 * 
+	 * {@inheritDoc}
 	 * @see \exface\Core\Interfaces\CMSInterface::create_link_internal()
 	 */
-	function create_link_internal($doc_id, $url_params=''){
+	public function create_link_internal($doc_id, $url_params=''){
 		global $modx;
 		return $modx->makeUrl($doc_id, null, $url_params, 'full');
 	}
 	
 	/**
+	 * 
+	 * {@inheritDoc}
 	 * @see \exface\Core\Interfaces\CMSInterface::create_link_external()
 	 */
-	function create_link_external($url){
+	public function create_link_external($url){
 		return $url;
 	}
 	
@@ -50,11 +70,16 @@ class Modx implements CmsConnectorInterface {
 	 * This way they are only removed on regular requests - not on AJAX.
 	 * @see \exface\Core\Interfaces\CMSInterface::remove_system_request_params()
 	 */
-	function remove_system_request_params(array $param_array){
+	public function remove_system_request_params(array $param_array){
 		return $param_array;
 	}
 	
-	function get_page_name($resource_id = null){
+	/**
+	 *
+	 * {@inheritDoc}
+	 * @see \exface\Core\Interfaces\CmsConnectorInterface::get_paget_title()
+	 */
+	public function get_page_title($resource_id = null){
 		global $modx;
 		if (is_null($resource_id) || $resource_id == $modx->documentIdentifier){
 			return $modx->documentObject['pagetitle'];
@@ -65,10 +90,54 @@ class Modx implements CmsConnectorInterface {
 	}
 	
 	/**
+	 * 
+	 * {@inheritDoc}
 	 * @see \exface\Core\Interfaces\CMSInterface::get_user_name()
 	 */
-	function get_user_name(){
+	public function get_user_name(){
 		return $this->user_name;
+	}
+	
+	/**
+	 *
+	 * {@inheritDoc}
+	 * @see \exface\Core\Interfaces\CMSInterface::get_user_locale()
+	 */
+	public function get_user_locale(){
+		if (is_null($this->user_locale)){
+			switch ($this->get_user_settings('manager_locale')){
+				case 'bulagrian': $loc = 'bg_BG'; break;
+				case 'chinese': $loc = 'zh_CN'; break;
+				case 'german': $loc = 'de_DE'; break;
+				default: $loc = 'en_US';
+			}
+			$this->user_locale = $loc;
+		}
+		return $this->user_locale;
+	}
+	
+	protected function get_user_settings($setting_name=null){
+		if (is_null($this->user_settings)){
+			global $modx;
+			// Create the settings array an populate it with defaults
+			$this->user_settings = array(
+					'manager_language' => $modx->config['manager_language']
+			);
+			// Overload with user specific values
+			$rs = $modx->db->select('setting_name, setting_value', $modx->getFullTableName('user_settings'), "user=".$modx->getLoginUserID()." AND setting_name IN ('" . implode("','", array_keys($this->user_settings)) . "')");
+			while ($row = $modx->db->getRow($rs)) {
+				$this->user_settings[$row['setting_name']] = $row['setting_value'];
+				if (isset($modx->config)) {
+					$modx->config[$row['setting_name']] = $row['setting_value'];
+				}
+			}
+		}
+		
+		if (is_null($setting_name)){
+			return $this->user_settings;
+		} else {
+			return $this->user_settings[$setting_name];
+		}
 	}
 	
 	/**
@@ -86,5 +155,6 @@ class Modx implements CmsConnectorInterface {
 	public function get_app(){
 		return $this->get_workbench()->get_app('exface.ModxCmsConnector');
 	}
+
 }
 ?>
