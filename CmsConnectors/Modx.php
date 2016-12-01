@@ -105,7 +105,7 @@ class Modx implements CmsConnectorInterface {
 	 */
 	public function get_user_locale(){
 		if (is_null($this->user_locale)){
-			switch ($this->get_user_settings('manager_locale')){
+			switch ($this->get_user_settings('manager_language')){
 				case 'bulagrian': $loc = 'bg_BG'; break;
 				case 'chinese': $loc = 'zh_CN'; break;
 				case 'german': $loc = 'de_DE'; break;
@@ -113,6 +113,7 @@ class Modx implements CmsConnectorInterface {
 			}
 			$this->user_locale = $loc;
 		}
+		
 		return $this->user_locale;
 	}
 	
@@ -127,12 +128,8 @@ class Modx implements CmsConnectorInterface {
 			$rs = $modx->db->select('setting_name, setting_value', $modx->getFullTableName('user_settings'), "user=".$modx->getLoginUserID()." AND setting_name IN ('" . implode("','", array_keys($this->user_settings)) . "')");
 			while ($row = $modx->db->getRow($rs)) {
 				$this->user_settings[$row['setting_name']] = $row['setting_value'];
-				if (isset($modx->config)) {
-					$modx->config[$row['setting_name']] = $row['setting_value'];
-				}
 			}
 		}
-		
 		if (is_null($setting_name)){
 			return $this->user_settings;
 		} else {
