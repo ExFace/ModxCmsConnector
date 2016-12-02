@@ -124,10 +124,12 @@ class Modx implements CmsConnectorInterface {
 			$this->user_settings = array(
 					'manager_language' => $modx->config['manager_language']
 			);
-			// Overload with user specific values
-			$rs = $modx->db->select('setting_name, setting_value', $modx->getFullTableName('user_settings'), "user=".$modx->getLoginUserID()." AND setting_name IN ('" . implode("','", array_keys($this->user_settings)) . "')");
-			while ($row = $modx->db->getRow($rs)) {
-				$this->user_settings[$row['setting_name']] = $row['setting_value'];
+			// Overload with user specific values if a user is logged on
+			if ($modx->getLoginUserID()){
+				$rs = $modx->db->select('setting_name, setting_value', $modx->getFullTableName('user_settings'), "user=".$modx->getLoginUserID()." AND setting_name IN ('" . implode("','", array_keys($this->user_settings)) . "')");
+				while ($row = $modx->db->getRow($rs)) {
+					$this->user_settings[$row['setting_name']] = $row['setting_value'];
+				}
 			}
 		}
 		if (is_null($setting_name)){
