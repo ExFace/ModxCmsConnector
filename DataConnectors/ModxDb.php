@@ -1,6 +1,9 @@
 <?php namespace exface\ModxCmsConnector\DataConnectors;
 use exface\Core\CommonLogic\AbstractDataConnector;
 use exface\SqlDataConnector\Interfaces\SqlDataConnectorInterface;
+use exface\Core\Interfaces\DataSources\DataQueryInterface;
+use exface\Core\Exceptions\DataConnectionError;
+use exface\SqlDataConnector\SqlDataQuery;
 
 class ModxDb extends AbstractDataConnector implements SqlDataConnectorInterface {
 
@@ -35,11 +38,18 @@ class ModxDb extends AbstractDataConnector implements SqlDataConnectorInterface 
 	 * 
 	 * {@inheritDoc}
 	 * @see \exface\Core\CommonLogic\AbstractDataConnector::perform_query()
+	 * @param SqlDataConnectorInterface $query
 	 */
-	protected function perform_query($sql, $options = null) {
+	protected function perform_query(DataQueryInterface $query) {
 		global $modx;
-		$query = $modx->db->query($sql);
-		return $this->make_array($query);
+		
+		if (!($query instanceof SqlDataQuery)){
+			throw new DataConnectionError('The MODx DB data connector expects an SqlDataQuery as input: "' . get_class($query) . '" given instead!');
+		}
+		
+		$result = $modx->db->query($query->get_sql());
+		$query->set_result_array($this->make_array($result));
+		return $query;
 	}
 
 	function get_insert_id($conn=NULL) {
@@ -57,7 +67,7 @@ class ModxDb extends AbstractDataConnector implements SqlDataConnectorInterface 
 		return $modx->db->getLastError($conn);
 	}
 	
-	function make_array($rs=''){
+	function make_array($rs){
 		global $modx;
 		$array = $modx->db->makeArray($rs);
 		if (!is_array($array)){
@@ -100,6 +110,17 @@ class ModxDb extends AbstractDataConnector implements SqlDataConnectorInterface 
 	 */
 	public function transaction_is_started(){
 		return true;
+	}
+	
+	/**
+	 *
+	 * {@inheritDoc}
+	 * @see \exface\SqlDataConnector\Interfaces\SqlDataConnectorInterface::run_sql()
+	 */
+	public function run_sql($string){
+		$query = new SqlDataQuery();
+		$query->set_sql($string);
+		return $this->query($query);
 	}
 }
 ?>
