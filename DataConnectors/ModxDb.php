@@ -4,8 +4,10 @@ use exface\SqlDataConnector\Interfaces\SqlDataConnectorInterface;
 use exface\Core\Interfaces\DataSources\DataQueryInterface;
 use exface\Core\Exceptions\DataConnectionError;
 use exface\SqlDataConnector\SqlDataQuery;
+use exface\Core\Exceptions\DataSources\DataQueryFailedError;
+use exface\SqlDataConnector\DataConnectors\AbstractSqlConnector;
 
-class ModxDb extends AbstractDataConnector implements SqlDataConnectorInterface {
+class ModxDb extends AbstractSqlConnector {
 
 	var $conn;
 	var $isConnected;
@@ -40,36 +42,29 @@ class ModxDb extends AbstractDataConnector implements SqlDataConnectorInterface 
 	 * @see \exface\Core\CommonLogic\AbstractDataConnector::perform_query()
 	 * @param SqlDataConnectorInterface $query
 	 */
-	protected function perform_query(DataQueryInterface $query) {
-		global $modx;
-		
-		if (!($query instanceof SqlDataQuery)){
-			throw new DataConnectionError('The MODx DB data connector expects an SqlDataQuery as input: "' . get_class($query) . '" given instead!');
-		}
-		
+	protected function perform_query_sql(SqlDataQuery $query) {
+		global $modx;		
 		$result = $modx->db->query($query->get_sql());
-		$query->set_result_array($this->make_array($result));
+		if ($error = $modx->db->getLastError($result)){
+			throw new DataQueryFailedError($query, $error);
+		}
+		$query->set_result_resource($result);
 		return $query;
 	}
-
-	function get_insert_id($conn=NULL) {
+	
+	public function get_insert_id(SqlDataQuery $query) {
 		global $modx;
-		return $modx->db->getInsertId($conn);
-	}
-
-	function get_affected_rows_count($conn=NULL) {
-		global $modx;
-		return $modx->db->getAffectedRows($conn);
+		return $modx->db->getInsertId($query->get_result_resource());
 	}
 	
-	function get_last_error($conn=NULL) {
+	public function get_affected_rows_count(SqlDataQuery $query) {
 		global $modx;
-		return $modx->db->getLastError($conn);
+		return $modx->db->getAffectedRows($query->get_result_resource());
 	}
-	
-	function make_array($rs){
+		
+	public function make_array(SqlDataQuery $query){
 		global $modx;
-		$array = $modx->db->makeArray($rs);
+		$array = $modx->db->makeArray($query->get_result_resource());
 		if (!is_array($array)){
 			$array = array();
 		}
@@ -121,6 +116,10 @@ class ModxDb extends AbstractDataConnector implements SqlDataConnectorInterface 
 		$query = new SqlDataQuery();
 		$query->set_sql($string);
 		return $this->query($query);
+	}
+	
+	public function free_result(SqlDataQuery $query){
+		return;
 	}
 }
 ?>
