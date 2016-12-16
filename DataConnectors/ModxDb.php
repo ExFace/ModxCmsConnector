@@ -1,13 +1,11 @@
 <?php namespace exface\ModxCmsConnector\DataConnectors;
 use exface\Core\CommonLogic\AbstractDataConnector;
 use exface\SqlDataConnector\Interfaces\SqlDataConnectorInterface;
-use exface\Core\Interfaces\DataSources\DataQueryInterface;
-use exface\Core\Exceptions\DataConnectionError;
 use exface\SqlDataConnector\SqlDataQuery;
 use exface\Core\Exceptions\DataSources\DataQueryFailedError;
-use exface\SqlDataConnector\DataConnectors\AbstractSqlConnector;
+use exface\SqlDataConnector\DataConnectors\MySQL;
 
-class ModxDb extends AbstractSqlConnector {
+class ModxDb extends MySQL {
 
 	var $conn;
 	var $isConnected;
@@ -21,9 +19,9 @@ class ModxDb extends AbstractSqlConnector {
 		global $modx;
 		
 		if (!$modx->db->isConnected){
-			$modx->db->connect($this->get_config_array()['host'], $this->get_config_array()['dbase'], $this->get_config_array()['user'], $this->get_config_array()['pass'], $this->get_config_array()['connection_method']);
+			$modx->db->connect($this->get_host(), $this->get_dbase(), $this->get_user(), $this->get_password(), $this->get_connection_method());
 		}
-		
+		$this->set_current_connection($modx->db->conn);
 		$this->isConnected = $modx->db->isConnected;
 	}
 	
@@ -69,42 +67,6 @@ class ModxDb extends AbstractSqlConnector {
 			$array = array();
 		}
 		return $array; 
-	}
-	
-	/**
-	 * 
-	 * {@inheritDoc}
-	 * @see \exface\Core\CommonLogic\AbstractDataConnector::transaction_start()
-	 */
-	public function transaction_start(){
-		return true;
-	}
-	
-	/**
-	 * 
-	 * {@inheritDoc}
-	 * @see \exface\Core\CommonLogic\AbstractDataConnector::transaction_commit()
-	 */
-	public function transaction_commit(){
-		return true;
-	}
-	
-	/**
-	 * 
-	 * {@inheritDoc}
-	 * @see \exface\Core\CommonLogic\AbstractDataConnector::transaction_rollback()
-	 */
-	public function transaction_rollback(){
-		return false;
-	}
-	
-	/**
-	 * 
-	 * {@inheritDoc}
-	 * @see \exface\Core\CommonLogic\AbstractDataConnector::transaction_is_started()
-	 */
-	public function transaction_is_started(){
-		return true;
 	}
 	
 	/**
