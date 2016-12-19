@@ -37,6 +37,34 @@
             "attribute_alias": "UID"
         },
         {
+            "expression": "SORTABLEFLAG",
+            "name": "SORTABLEFLAG",
+            "hidden": false,
+            "data_type": "Boolean",
+            "attribute_alias": "SORTABLEFLAG"
+        },
+        {
+            "expression": "FILTERABLEFLAG",
+            "name": "FILTERABLEFLAG",
+            "hidden": false,
+            "data_type": "Boolean",
+            "attribute_alias": "FILTERABLEFLAG"
+        },
+        {
+            "expression": "AGGREGATABLEFLAG",
+            "name": "AGGREGATABLEFLAG",
+            "hidden": false,
+            "data_type": "Boolean",
+            "attribute_alias": "AGGREGATABLEFLAG"
+        },
+        {
+            "expression": "DEFAULT_AGGREGATE_FUNCTION",
+            "name": "DEFAULT_AGGREGATE_FUNCTION",
+            "hidden": false,
+            "data_type": "String",
+            "attribute_alias": "DEFAULT_AGGREGATE_FUNCTION"
+        },
+        {
             "expression": "LABEL",
             "name": "LABEL",
             "hidden": false,
