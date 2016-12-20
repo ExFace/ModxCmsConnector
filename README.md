@@ -1,2 +1,2 @@
 # ModxCmsConnector
-CMS connector for the MODx CMS 1.x
+This CMS connector makes it possible to use the axenox business application plattform within MODx (1.x). It includes a corresponding CMS adapter for axenox as well as MODx snippets and plugins
