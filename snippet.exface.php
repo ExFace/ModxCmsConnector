@@ -32,7 +32,7 @@ $template = $exface->ui()->get_template();
 
 switch ($function){
 	case "headers": 
-		$result = $template->process_request($docId, $widget->get_id(), 'exface.Core.ShowHeaders'); 
+		$result = $template->process_request($docId, $widget->get_id(), 'exface.Core.ShowHeaders', true); 
 		break;
 	case "draw": 
 		$result = $template->process_request($docId, $widget->get_id(), 'exface.Core.ShowWidget');
