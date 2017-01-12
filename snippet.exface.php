@@ -1,10 +1,13 @@
 <?php
+
 global $exface, $modx;
 $function = $function ? $function : 'draw';
 $template_frameworks = array('5' => 'exface.JEasyUiTemplate', '10' => 'exface.JQueryMobileTemplate', '11' => 'exface.AdminLteTemplate');
 $docId = $docId ? $docId : $modx->documentIdentifier;
+$error = null;
+
 if (!$content) $content = $modx->documentObject['content'];
-if (strpos($content, '{') !== 0) {
+if (substr(trim($content), 0, 1) !== '{') {
 	if ($function == "draw"){
 		return $content;
 	} else {
@@ -24,18 +27,22 @@ if (!$exface){
 	include_once($modx->config['base_path'].'exface/exface.php');
 }
 
-$widget = $exface->ui()->get_widget(null, $docId);
-if (!$widget) return $content;
 $template_name = $template_frameworks[$modx->documentObject['template']];
 $exface->ui()->set_base_template_alias($template_name);
 $template = $exface->ui()->get_template();
 
 switch ($function){
-	case "headers": 
-		$result = $template->process_request($docId, $widget->get_id(), 'exface.Core.ShowHeaders', true); 
+	case "headers":
+		try {
+			$result = $template->process_request($docId, null, 'exface.Core.ShowHeaders', true); 
+		} catch (\exface\Core\Interfaces\Exceptions\ErrorExceptionInterface $e){
+			$ui = $exface->ui();
+			$page = \exface\Core\Factories\UiPageFactory::create($ui, 0);
+			$result = $template->draw_headers($e->create_widget($page));	
+		}
 		break;
 	case "draw": 
-		$result = $template->process_request($docId, $widget->get_id(), 'exface.Core.ShowWidget');
+		$result = $template->process_request($docId, null, 'exface.Core.ShowWidget'); 
 		$exface->stop(); 
 		break;
 }
