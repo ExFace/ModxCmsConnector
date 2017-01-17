@@ -1,5 +1,4 @@
 <?php
-
 global $exface, $modx;
 $function = $function ? $function : 'draw';
 $template_frameworks = array('5' => 'exface.JEasyUiTemplate', '10' => 'exface.JQueryMobileTemplate', '11' => 'exface.AdminLteTemplate');
@@ -30,7 +29,6 @@ if (!$exface){
 $template_name = $template_frameworks[$modx->documentObject['template']];
 $exface->ui()->set_base_template_alias($template_name);
 $template = $exface->ui()->get_template();
-
 switch ($function){
 	case "headers":
 		try {
@@ -38,8 +36,12 @@ switch ($function){
 		} catch (\exface\Core\Interfaces\Exceptions\ErrorExceptionInterface $e){
 			$ui = $exface->ui();
 			$page = \exface\Core\Factories\UiPageFactory::create($ui, 0);
-			$result = $template->draw_headers($e->create_widget($page));	
-		}
+			try {
+				$result = $template->draw_headers($e->create_widget($page));
+			} catch (\Exception $e){
+				// If the exception widget cannot be rendered either, output no headers in order not to break them.	
+			}
+		} 
 		break;
 	case "draw": 
 		$result = $template->process_request($docId, null, 'exface.Core.ShowWidget'); 
