@@ -161,7 +161,7 @@ class Modx implements CmsConnectorInterface {
 	 * @see \exface\Core\Interfaces\CMSInterface::sanitize_output()
 	 */
 	public function sanitize_output($string){
-		return str_replace(array('[[', '[!', '{{'), array('[ [', '[!', '{ {'), $string);
+		return str_replace(array('[[', '[!', '{{'), array('[ [', '[ !', '{ {'), $string);
 	}
 	
 	/**
