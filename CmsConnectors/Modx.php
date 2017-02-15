@@ -154,6 +154,23 @@ class Modx implements CmsConnectorInterface {
 	public function get_app(){
 		return $this->get_workbench()->get_app('exface.ModxCmsConnector');
 	}
-
+	
+	/**
+	 *
+	 * {@inheritDoc}
+	 * @see \exface\Core\Interfaces\CMSInterface::sanitize_output()
+	 */
+	public function sanitize_output($string){
+		return str_replace(array('[[', '[!', '{{'), array('[ [', '[!', '{ {'), $string);
+	}
+	
+	/**
+	 *
+	 * {@inheritDoc}
+	 * @see \exface\Core\Interfaces\CMSInterface::sanitize_error_output()
+	 */
+	public function sanitize_error_output($string){
+		return $this->sanitize_output($string);
+	}
 }
 ?>
