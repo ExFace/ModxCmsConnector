@@ -1,5 +1,5 @@
 <?php
-global $exface, $modx;
+global $exface, $exface_cache, $modx;
 $function = $function ? $function : 'draw';
 $template_frameworks = array('5' => 'exface.JEasyUiTemplate', '10' => 'exface.JQueryMobileTemplate', '11' => 'exface.AdminLteTemplate');
 $docId = $docId ? $docId : $modx->documentIdentifier;
@@ -29,6 +29,11 @@ if (!$exface){
 $template_name = $template_frameworks[$modx->documentObject['template']];
 $exface->ui()->set_base_template_alias($template_name);
 $template = $exface->ui()->get_template();
+
+if ($cache = $exface_cache[$docId][$function]){
+	return $cache;
+}
+
 switch ($function){
 	case "headers":
 		try {
@@ -44,10 +49,11 @@ switch ($function){
 		} 
 		break;
 	case "draw": 
-		$result = $template->process_request($docId, null, 'exface.Core.ShowWidget'); 
-		$exface->stop(); 
+		$result = $template->process_request($docId, null, 'exface.Core.ShowWidget');
 		break;
 }
+
+$exface_cache[$docId][$function] = $result;
 
 return $result;
 ?>
