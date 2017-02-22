@@ -23,7 +23,7 @@ class ModxCmsConnectorInstaller extends AbstractAppInstaller {
 		// Copy index-exface.php to the root of the MODx installation
 		try {
 			$this->get_workbench()->filemanager()->copy(
-					$this->get_app()->get_directory_absolute_path() . DIRECTORY_SEPARATOR . 'modx' . DIRECTORY_SEPARATOR . 'index-exface.php',
+					$this->get_app()->get_directory_absolute_path() . DIRECTORY_SEPARATOR . 'Install' . DIRECTORY_SEPARATOR . 'index-exface.php',
 					$this->get_app()->get_modx_ajax_index_path(),
 					true
 					);

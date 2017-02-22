@@ -3,6 +3,7 @@
 use exface\Core\Interfaces\CmsConnectorInterface;
 use exface\Core\CommonLogic\Workbench;
 use exface\ModxCmsConnector\ModxCmsConnectorApp;
+use exface\Core\Factories\UiPageFactory;
 
 class Modx implements CmsConnectorInterface {
 	private $user_name = null;
@@ -171,6 +172,22 @@ class Modx implements CmsConnectorInterface {
 	 */
 	public function sanitize_error_output($string){
 		return $this->sanitize_output($string);
+	}
+	
+	public function is_ui_page($content, $id = null){
+		$content = trim($content);
+		if (substr($content, 0, 1) !== '{' || substr($content, -1, 1) !== '}'){
+			return false;
+		}
+		
+		UiPageFactory::create_from_string($this->get_workbench()->ui(), (is_null($id) ? 0 : $id), $content);
+		try {
+			UiPageFactory::create_from_string($this->get_workbench()->ui(), (is_null($id) ? 0 : $id), $content);
+		} catch (\Throwable $e){
+			return false;
+		}
+		
+		return true;
 	}
 }
 ?>
