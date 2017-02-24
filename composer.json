@@ -1,5 +1,5 @@
 {
-    "name": "ExFace/ModxCmsConnector",
+    "name": "exface/ModxCmsConnector",
     "description": "CMS connector for the MODx CMS 1.x",
     "type": "library",
     "license": "GPL-3.0+",
