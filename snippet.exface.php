@@ -1,16 +1,37 @@
 <?php
+/**
+ * ExFace
+ *
+ * Outputs the output of an ExFace action.
+ *
+ * @category 	snippet
+ * @version 	0.6.2
+ * @license 	http://www.gnu.org/copyleft/gpl.html GNU Public License (GPL)
+ * @internal	@properties
+ * @internal	@modx_category ExFace
+ * @internal    @installset base, sample
+ */
+
+/*
+ * Parameters:
+ * &action - Qualified alias of the ExFace action, that is to be performed. Default: exface.Core.ShowWidget
+ * &docId - MODx document id to call the action for. Default: the id of the current document, i.e. [*id*]
+ * &fallback_field - The key of the attribute of $modx->documentObject to be displayed if the content is not valid UXON
+ */
 global $exface, $exface_cache, $modx;
-$function = $function ? $function : 'draw';
-$template_frameworks = array('5' => 'exface.JEasyUiTemplate', '10' => 'exface.JQueryMobileTemplate', '11' => 'exface.AdminLteTemplate');
+
+$action = $action ? $action : 'exface.Core.ShowWidget';
+$template_mapping = array('5' => 'exface.JEasyUiTemplate', '10' => 'exface.JQueryMobileTemplate', '11' => 'exface.AdminLteTemplate');
 $docId = $docId ? $docId : $modx->documentIdentifier;
+$fallback_field = $fallback_field ? $fallback_field : '';
 $error = null;
 
 if (!$content) $content = $modx->documentObject['content'];
 if (substr(trim($content), 0, 1) !== '{') {
-	if ($function == "draw"){
-		return $content;
+	if ($fallback_field){
+		return $modx->documentObject[$fallback_field];
 	} else {
-		return;	
+		return;
 	}
 }
 
@@ -26,16 +47,16 @@ if (!$exface){
 	include_once($modx->config['base_path'].'exface/exface.php');
 }
 
-$template_name = $template_frameworks[$modx->documentObject['template']];
+$template_name = $template_mapping[$modx->documentObject['template']];
 $exface->ui()->set_base_template_alias($template_name);
 $template = $exface->ui()->get_template();
 
-if ($cache = $exface_cache[$docId][$function]){
+if ($cache = $exface_cache[$docId][$action]){
 	return $cache;
 }
 
-switch ($function){
-	case "headers":
+switch ($action){
+	case "exface.Core.ShowHeaders":
 		try {
 			$result = $template->process_request($docId, null, 'exface.Core.ShowHeaders', true); 
 		} catch (\exface\Core\Interfaces\Exceptions\ErrorExceptionInterface $e){
@@ -48,12 +69,11 @@ switch ($function){
 			}
 		} 
 		break;
-	case "draw": 
-		$result = $template->process_request($docId, null, 'exface.Core.ShowWidget');
+	default: 
+		$result = $template->process_request($docId, null, $action);
 		break;
 }
 
-$exface_cache[$docId][$function] = $result;
+$exface_cache[$docId][$action] = $result;
 
 return $result;
-?>
