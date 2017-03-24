@@ -1,3 +1,4 @@
 {
-	"PATH_TO_MODX": "../index-exface.php"
+	"PATH_TO_MODX": "../index-exface.php",
+	"LAST_PERFORMED_MODEL_SOURCE_UPDATE_ID": 1
 }
