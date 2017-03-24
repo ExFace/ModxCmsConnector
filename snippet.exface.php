@@ -14,14 +14,23 @@
 
 /*
  * Parameters:
+ * &tempalte - Qualified alias of the ExFace template to be used: e.g. exface.AdminLteTemplate.
  * &action - Qualified alias of the ExFace action, that is to be performed. Default: exface.Core.ShowWidget
  * &docId - MODx document id to call the action for. Default: the id of the current document, i.e. [*id*]
  * &fallback_field - The key of the attribute of $modx->documentObject to be displayed if the content is not valid UXON
  */
+
+if (!function_exists('exf_get_default_template')) {
+	function exf_get_default_template(){
+		// TODO get the template from the config of the connector app
+		return 'exface.JEasyUiTemplate';
+	}
+}
+
 global $exface, $exface_cache, $modx;
 
+$template = $template ? $template : exf_get_default_template();
 $action = $action ? $action : 'exface.Core.ShowWidget';
-$template_mapping = array('5' => 'exface.JEasyUiTemplate', '10' => 'exface.JQueryMobileTemplate', '11' => 'exface.AdminLteTemplate');
 $docId = $docId ? $docId : $modx->documentIdentifier;
 $fallback_field = $fallback_field ? $fallback_field : '';
 $error = null;
@@ -47,9 +56,8 @@ if (!$exface){
 	include_once($modx->config['base_path'].'exface/exface.php');
 }
 
-$template_name = $template_mapping[$modx->documentObject['template']];
-$exface->ui()->set_base_template_alias($template_name);
-$template = $exface->ui()->get_template();
+$exface->ui()->set_base_template_alias($template);
+$template_instance = $exface->ui()->get_template();
 
 if ($cache = $exface_cache[$docId][$action]){
 	return $cache;
@@ -58,19 +66,19 @@ if ($cache = $exface_cache[$docId][$action]){
 switch ($action){
 	case "exface.Core.ShowHeaders":
 		try {
-			$result = $template->process_request($docId, null, 'exface.Core.ShowHeaders', true); 
+			$result = $template_instance->process_request($docId, null, 'exface.Core.ShowHeaders', true); 
 		} catch (\exface\Core\Interfaces\Exceptions\ErrorExceptionInterface $e){
 			$ui = $exface->ui();
 			$page = \exface\Core\Factories\UiPageFactory::create($ui, 0);
 			try {
-				$result = $template->draw_headers($e->create_widget($page));
+				$result = $template_instance->draw_headers($e->create_widget($page));
 			} catch (\Exception $e){
 				// If the exception widget cannot be rendered either, output no headers in order not to break them.	
 			}
 		} 
 		break;
 	default: 
-		$result = $template->process_request($docId, null, $action);
+		$result = $template_instance->process_request($docId, null, $action);
 		break;
 }
 

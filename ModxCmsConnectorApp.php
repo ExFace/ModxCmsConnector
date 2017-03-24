@@ -1,5 +1,6 @@
 <?php namespace exface\ModxCmsConnector;
 use exface\Core\Interfaces\InstallerInterface;
+use exface\SqlDataConnector\SqlSchemaInstaller;
 
 class ModxCmsConnectorApp extends \exface\Core\CommonLogic\AbstractApp {
 	
@@ -21,8 +22,14 @@ class ModxCmsConnectorApp extends \exface\Core\CommonLogic\AbstractApp {
 	 * @see \exface\Core\CommonLogic\AbstractApp::get_installer($injected_installer)
 	 */
 	public function get_installer(InstallerInterface $injected_installer = null){
+		// Add the custom MODx installer
 		$installer = parent::get_installer($injected_installer);
 		$installer->add_installer(new ModxCmsConnectorInstaller($this->get_name_resolver()));
+		
+		// Add the SQL schema installer for DB fixes
+		$schema_installer = new SqlSchemaInstaller($this->get_name_resolver());
+		$schema_installer->set_data_connection($this->get_workbench()->model()->get_object('exface.ModxCmsConnector.modx_site_content')->get_data_connection());
+		$installer->add_installer($schema_installer);
 		return $installer;
 	}
 }
