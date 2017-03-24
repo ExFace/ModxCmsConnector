@@ -28,7 +28,9 @@ class ModxCmsConnectorApp extends \exface\Core\CommonLogic\AbstractApp {
 		
 		// Add the SQL schema installer for DB fixes
 		$schema_installer = new SqlSchemaInstaller($this->get_name_resolver());
-		$schema_installer->set_data_connection($this->get_workbench()->model()->get_object('exface.ModxCmsConnector.modx_site_content')->get_data_connection());
+		// FIXME how to get to the MODx data connection without knowing, that is used for the model loader. The model loader could
+		// theoretically use another connection?
+		$schema_installer->set_data_connection($this->get_workbench()->model()->get_model_loader()->get_data_connection());
 		$installer->add_installer($schema_installer);
 		return $installer;
 	}
