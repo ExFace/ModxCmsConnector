@@ -44,11 +44,11 @@
             "attribute_alias": "APP"
         },
         {
-            "expression": "CONNECTION",
-            "name": "CONNECTION",
+            "expression": "DEFAULT_CONNECTION",
+            "name": "DEFAULT_CONNECTION",
             "hidden": false,
             "data_type": "Relation",
-            "attribute_alias": "CONNECTION"
+            "attribute_alias": "DEFAULT_CONNECTION"
         },
         {
             "expression": "BASE_OBJECT",
@@ -89,12 +89,12 @@
     "rows": [
         {
             "CREATED_ON": "2017-03-24 14:32:53",
-            "MODIFIED_ON": "2011-01-01 00:00:00",
+            "MODIFIED_ON": "2017-04-19 10:35:03",
             "CREATED_BY_USER": "0x31000000000000000000000000000000",
             "MODIFIED_BY_USER": "0x31000000000000000000000000000000",
             "UID": "0x11e7109eb7d53d24beb2e4b318306b9a",
             "APP": "0x11e680a7f9cdf732a177c0f8dae36b4f",
-            "CONNECTION": "0x32000000000000000000000000000000",
+            "DEFAULT_CONNECTION": "0x32000000000000000000000000000000",
             "BASE_OBJECT": "",
             "READONLY": "0",
             "LABEL": "MODx DB",
