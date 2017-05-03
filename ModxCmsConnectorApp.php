@@ -34,5 +34,10 @@ class ModxCmsConnectorApp extends \exface\Core\CommonLogic\AbstractApp {
 		$installer->add_installer($schema_installer);
 		return $installer;
 	}
+	
+	public function get_modx(){
+		global $modx;
+		return $modx;
+	}
 }
 ?>

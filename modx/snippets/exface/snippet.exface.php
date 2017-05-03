@@ -33,10 +33,10 @@ $template = $template ? $template : exf_get_default_template();
 $action = $action ? $action : 'exface.Core.ShowWidget';
 $docId = $docId ? $docId : $modx->documentIdentifier;
 $fallback_field = $fallback_field ? $fallback_field : '';
-$error = null;
+$file = $file ? $file : null;
 
 if (!$content) $content = $modx->documentObject['content'];
-if (substr(trim($content), 0, 1) !== '{') {
+if (strcasecmp($action, 'exface.Core.ShowWidget') === 0 && substr(trim($content), 0, 1) !== '{') {
 	if ($fallback_field){
 		return $modx->documentObject[$fallback_field];
 	} else {
@@ -76,6 +76,9 @@ switch ($action){
 				// If the exception widget cannot be rendered either, output no headers in order not to break them.	
 			}
 		} 
+		break;
+	case "exface.ModxCmsConnector.ShowTemplate":
+		$result = file_get_contents($exface->filemanager()->get_path_to_base_folder() . DIRECTORY_SEPARATOR . $file);
 		break;
 	default: 
 		$result = $template_instance->process_request($docId, null, $action);
