@@ -18,6 +18,7 @@
  * &action - Qualified alias of the ExFace action, that is to be performed. Default: exface.Core.ShowWidget
  * &docId - MODx document id to call the action for. Default: the id of the current document, i.e. [*id*]
  * &fallback_field - The key of the attribute of $modx->documentObject to be displayed if the content is not valid UXON
+ * &file - path to file to use for contents (relative to the exface installation folder)
  */
 
 if (!function_exists('exf_get_default_template')) {
