@@ -52,6 +52,10 @@ if ($_REQUEST['quickmanagerclose']){
 	unset($_REQUEST['id']);
 }
 
+// Backup and close session
+$session_id = session_id();
+session_write_close();
+
 // load exface
 if (!$exface){
 	include_once($modx->config['base_path'].'exface/exface.php');
@@ -87,5 +91,9 @@ switch ($action){
 }
 
 $exface_cache[$docId][$action] = $result;
+
+// Restore session
+session_id($session_id);
+session_start();
 
 return $result;
