@@ -10,4 +10,4 @@
  * @internal 	@modx_category ExFace
  * @internal    @installset base, sample
  */
-[[ExFace? &action=`exface.ModxCmsConnector.ShowTemplate` &file=`vendor/exface/ModxCmsConnector/modx/templates/exface.JQueryMobileTemplate.html`]]
+[[ExFace? &template=`exface.JQueryMobileTemplate` &action=`exface.ModxCmsConnector.ShowTemplate` &file=`vendor/exface/ModxCmsConnector/modx/templates/exface.JQueryMobileTemplate.html`]]
