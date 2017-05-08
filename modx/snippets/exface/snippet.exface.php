@@ -58,7 +58,9 @@ session_write_close();
 
 // load exface
 if (!$exface){
-	include_once($modx->config['base_path'].'exface/exface.php');
+	require_once($modx->config['base_path'].'exface/vendor/exface/Core/CommonLogic/Workbench.php');
+	$exface = new \exface\Core\CommonLogic\Workbench();
+	$exface->start();
 }
 
 $exface->ui()->set_base_template_alias($template);
