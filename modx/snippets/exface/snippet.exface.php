@@ -28,7 +28,7 @@ if (!function_exists('exf_get_default_template')) {
 	}
 }
 
-global $exface, $exface_cache, $modx;
+global $exface, $modx;
 
 $template = $template ? $template : exf_get_default_template();
 $action = $action ? $action : 'exface.Core.ShowWidget';
@@ -66,10 +66,6 @@ if (!$exface){
 $exface->ui()->set_base_template_alias($template);
 $template_instance = $exface->ui()->get_template();
 
-if ($cache = $exface_cache[$docId][$action]){
-	return $cache;
-}
-
 switch ($action){
 	case "exface.Core.ShowHeaders":
 		try {
@@ -91,8 +87,6 @@ switch ($action){
 		$result = $template_instance->process_request($docId, null, $action);
 		break;
 }
-
-$exface_cache[$docId][$action] = $result;
 
 // Restore session
 session_id($session_id);
