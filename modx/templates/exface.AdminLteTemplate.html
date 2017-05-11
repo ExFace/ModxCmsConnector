@@ -48,9 +48,16 @@ folder instead of downloading all of them to reduce the load. -->
 		<link type="text/css" rel="stylesheet" href="exface/vendor/exface/AdminLteTemplate/Template/js/animate.css/animate.min.css"/>
 		<script type="text/javascript" src="exface/vendor/exface/AdminLteTemplate/Template/js/remarkable-bootstrap-notify/bootstrap-notify.min.js"></script>
 
+		<!-- jQuery-Plugin to run in iOS-WebApp window -->
+		<script type="text/javascript" src="exface/vendor/exface/AdminLteTemplate/Template/js/jquery.stayInWebApp.js"></script>
+		<script type="text/javascript">
+			$(function() {
+				$.stayInWebApp();
+			});
+		</script>
 		
 		<!-- AdminLTE helper functions -->
-		<script src="exface/vendor/exface/AdminLteTemplate/Template/js/template.js" type="text/javascript"></script>
+		<script type="text/javascript" src="exface/vendor/exface/AdminLteTemplate/Template/js/template.js"></script>
 		
 		<!-- jQuery.NumPad -->
 		<link href="exface/vendor/bower-asset/jquery-numpad/jquery.numpad.css" rel="stylesheet" type="text/css" />
