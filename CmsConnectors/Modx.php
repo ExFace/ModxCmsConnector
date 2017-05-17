@@ -6,7 +6,11 @@ use exface\ModxCmsConnector\ModxCmsConnectorApp;
 use exface\Core\Factories\UiPageFactory;
 
 class Modx implements CmsConnectorInterface {
+	const USER_TYPE_MGR = 'mgr';
+	const USER_TYPE_WEB = 'web';
+	
 	private $user_name = null;
+	private $user_type = null;
 	private $user_settings = null;
 	private $user_locale = null;
 	private $workbench = null;
@@ -18,10 +22,19 @@ class Modx implements CmsConnectorInterface {
 	public function __construct(Workbench $exface){
 		$this->workbench = $exface;
 		global $modx;
+		
 		if (!$modx){
 			require_once $this->get_app()->get_modx_ajax_index_path();
 		}
-		$this->user_name = $modx->getLoginUserName('mgr') ? $modx->getLoginUserName('mgr') : $modx->getLoginUserName('web');
+		
+		if ($mgr = $modx->getLoginUserName('mgr')){
+			$this->user_name = $mgr;
+			$this->user_type = self::USER_TYPE_MGR;
+		} else {
+			$this->user_name = $modx->getLoginUserName('web');
+			$this->user_type = self::USER_TYPE_WEB;
+		}
+		
 	}
 
 	/**
@@ -108,6 +121,15 @@ class Modx implements CmsConnectorInterface {
 	 */
 	public function get_user_name(){
 		return $this->user_name;
+	}
+	
+	/**
+	 * 
+	 * {@inheritDoc}
+	 * @see \exface\Core\Interfaces\CmsConnectorInterface::is_user_admin()
+	 */
+	public function is_user_admin(){
+		return $this->user_type == self::USER_TYPE_MGR ? true : false;
 	}
 
 	/**
