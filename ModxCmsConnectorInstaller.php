@@ -6,7 +6,7 @@ use exface\Core\CommonLogic\AbstractAppInstaller;
 
 /**
  *
- * @method ModxCmsConnectorApp get_app()
+ * @method ModxCmsConnectorApp getApp()
  *        
  * @author Andrej Kabachnik
  *        
