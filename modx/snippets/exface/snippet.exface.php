@@ -73,14 +73,14 @@ switch ($action) {
         try {
             $result = $template_instance->processRequest($docId, null, 'exface.Core.ShowHeaders', true);
         } catch (\exface\Core\Interfaces\Exceptions\ErrorExceptionInterface $e) {
-            $exface->getLogger()->log($e->getLogLevel(), $e->getMessage, array(), $e);
+            $exface->getLogger()->log($e->getLogLevel(), $e->getMessage(), array(), $e);
             $ui = $exface->ui();
             $page = \exface\Core\Factories\UiPageFactory::create($ui, 0);
             try {
                 $result = $template_instance->drawHeaders($e->createWidget($page));
             } catch (\Exception $ee) {
                 // If the exception widget cannot be rendered either, output no headers in order not to break them.
-                $exface->getLogger()->log($ee->getLogLevel(), $ee->getMessage, array(), $ee);
+                $exface->getLogger()->log($ee->getLogLevel(), $ee->getMessage(), array(), $ee);
             }
         }
         break;
