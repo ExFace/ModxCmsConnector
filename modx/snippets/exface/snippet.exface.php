@@ -20,12 +20,13 @@
  * &fallback_field - The key of the attribute of $modx->documentObject to be displayed if the content is not valid UXON
  * &file - path to file to use for contents (relative to the exface installation folder)
  */
+if (! function_exists('exf_get_default_template')) {
 
-if (!function_exists('exf_get_default_template')) {
-	function exf_get_default_template(){
-		// TODO get the template from the config of the connector app
-		return 'exface.JEasyUiTemplate';
-	}
+    function exf_get_default_template()
+    {
+        // TODO get the template from the config of the connector app
+        return 'exface.JEasyUiTemplate';
+    }
 }
 
 global $exface, $modx;
@@ -36,20 +37,21 @@ $docId = $docId ? $docId : $modx->documentIdentifier;
 $fallback_field = $fallback_field ? $fallback_field : '';
 $file = $file ? $file : null;
 
-if (!$content) $content = $modx->documentObject['content'];
+if (! $content)
+    $content = $modx->documentObject['content'];
 if (strcasecmp($action, 'exface.Core.ShowWidget') === 0 && substr(trim($content), 0, 1) !== '{') {
-	if ($fallback_field){
-		return $modx->documentObject[$fallback_field];
-	} else {
-		return;
-	}
+    if ($fallback_field) {
+        return $modx->documentObject[$fallback_field];
+    } else {
+        return;
+    }
 }
 
 unset($_REQUEST['q']); // remove the q parameter, that is used by modx internally
-// Remove URL-params added when using quickmanager
-if ($_REQUEST['quickmanagerclose']){
-	unset($_REQUEST['quickmanagerclose']);
-	unset($_REQUEST['id']);
+                       // Remove URL-params added when using quickmanager
+if ($_REQUEST['quickmanagerclose']) {
+    unset($_REQUEST['quickmanagerclose']);
+    unset($_REQUEST['id']);
 }
 
 // Backup and close session
@@ -57,35 +59,35 @@ $session_id = session_id();
 session_write_close();
 
 // load exface
-if (!$exface){
-	require_once($modx->config['base_path'].'exface/vendor/exface/Core/CommonLogic/Workbench.php');
-	$exface = new \exface\Core\CommonLogic\Workbench();
-	$exface->start();
+if (! $exface) {
+    require_once ($modx->config['base_path'] . 'exface/vendor/exface/Core/CommonLogic/Workbench.php');
+    $exface = new \exface\Core\CommonLogic\Workbench();
+    $exface->start();
 }
 
-$exface->ui()->set_base_template_alias($template);
-$template_instance = $exface->ui()->get_template();
+$exface->ui()->setBaseTemplateAlias($template);
+$template_instance = $exface->ui()->getTemplate();
 
-switch ($action){
-	case "exface.Core.ShowHeaders":
-		try {
-			$result = $template_instance->process_request($docId, null, 'exface.Core.ShowHeaders', true); 
-		} catch (\exface\Core\Interfaces\Exceptions\ErrorExceptionInterface $e){
-			$ui = $exface->ui();
-			$page = \exface\Core\Factories\UiPageFactory::create($ui, 0);
-			try {
-				$result = $template_instance->draw_headers($e->create_widget($page));
-			} catch (\Exception $e){
-				// If the exception widget cannot be rendered either, output no headers in order not to break them.	
-			}
-		} 
-		break;
-	case "exface.ModxCmsConnector.ShowTemplate":
-		$result = file_get_contents($exface->filemanager()->get_path_to_base_folder() . DIRECTORY_SEPARATOR . $file);
-		break;
-	default: 
-		$result = $template_instance->process_request($docId, null, $action);
-		break;
+switch ($action) {
+    case "exface.Core.ShowHeaders":
+        try {
+            $result = $template_instance->processRequest($docId, null, 'exface.Core.ShowHeaders', true);
+        } catch (\exface\Core\Interfaces\Exceptions\ErrorExceptionInterface $e) {
+            $ui = $exface->ui();
+            $page = \exface\Core\Factories\UiPageFactory::create($ui, 0);
+            try {
+                $result = $template_instance->drawHeaders($e->createWidget($page));
+            } catch (\Exception $e) {
+                // If the exception widget cannot be rendered either, output no headers in order not to break them.
+            }
+        }
+        break;
+    case "exface.ModxCmsConnector.ShowTemplate":
+        $result = file_get_contents($exface->filemanager()->getPathToBaseFolder() . DIRECTORY_SEPARATOR . $file);
+        break;
+    default:
+        $result = $template_instance->processRequest($docId, null, $action);
+        break;
 }
 
 // Restore session
