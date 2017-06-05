@@ -278,5 +278,17 @@ class Modx implements CmsConnectorInterface
         
         return true;
     }
+    
+    /**
+     *
+     * {@inheritdoc}
+     *
+     * @see \exface\Core\Interfaces\CmsConnectorInterface::clearCmsCache()
+     */
+    public function clearCmsCache()
+    {
+        $this->getApp()->getModx()->clearCache();
+        return $this;
+    }
 }
 ?>
