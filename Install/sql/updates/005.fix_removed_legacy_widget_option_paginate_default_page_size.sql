@@ -1,0 +1,1 @@
+UPDATE modx_site_content SET content = REPLACE(content, 'paginate_default_page_size', 'paginate_page_size');
