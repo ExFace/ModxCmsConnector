@@ -5,6 +5,7 @@ use exface\Core\Interfaces\CmsConnectorInterface;
 use exface\Core\CommonLogic\Workbench;
 use exface\ModxCmsConnector\ModxCmsConnectorApp;
 use exface\Core\Factories\UiPageFactory;
+use exface\Core\CommonLogic\Filemanager;
 
 class Modx implements CmsConnectorInterface
 {
@@ -92,12 +93,14 @@ class Modx implements CmsConnectorInterface
      * @see \exface\Core\Interfaces\CmsConnectorInterface::createLinkToFile()
      */
     public function createLinkToFile($path_absolute)
-    {
-        global $modx;
-        if (substr($path_absolute, 0, 1) == "/" || substr($path_absolute, 0, 1) == "\\") {
-            $path_absolute = substr($path_absolute, 1);
+    {        
+        $sitePath = Filemanager::pathNormalize($this->getPathToModx(), '/');
+        $filePath = Filemanager::pathNormalize($path_absolute, '/');
+        $path = str_replace($sitePath, '', $filePath);
+        if (substr($path, 0, 1) == "/" || substr($path, 0, 1) == "\\") {
+            $path = substr($path, 1);
         }
-        return $modx->getConfig('site_url') . $path_absolute;
+        return $this->getApp()->getModx()->getConfig('site_url') . $path;
     }
 
     /**
@@ -289,6 +292,10 @@ class Modx implements CmsConnectorInterface
     {
         $this->getApp()->getModx()->clearCache();
         return $this;
+    }
+    
+    public function getPathToModx(){
+        return $this->getApp()->getModx()->config['base_path'];
     }
 }
 ?>
