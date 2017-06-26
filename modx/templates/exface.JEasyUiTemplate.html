@@ -117,32 +117,6 @@
 				</div>
 	</div>
 	
-	<!-- INFO PANEL -->
-	<div data-options="region:'south',split:true,collapsed:true,border:false,title:'Infoleiste'" style="height:250px;padding:10px;">
-		<table id="dg_buffer" width="100%"></table>
-	
-	    <script type="text/javascript">
-			/*
-	        $(function(){
-	            $('#dg_buffer').datagrid({
-	            	url: 'data/buffer.json',
-	            	singleSelect: true,
-	            	fitColumns: true,
-	            	columns:[ [
-	            	        {field:'OID',title:'OID', hidden: true},
-	            	        {field:'OBJECT',title:'Dokument'},
-	            	        {field:'INSTANCE',title:'Objekt'}
-	            	      ] ],
-	                view:groupview,
-	                groupField:'OBJECT',
-	                groupFormatter:function(value,rows){
-	                    return value + ' - ' + rows.length + ' Objekt(e)';
-	                	}
-	                });
-	            });*/
-	    </script>
-	</div>
-	
 	<!-- MAIN -->
 	<div data-options="region:'center',title:'[[singleQuotes? &string=`[[Breadcrumbs? &showHomeCrumb=`1`]]`]]'">
 		[[ExFace? &fallback_field=`content`]] 
