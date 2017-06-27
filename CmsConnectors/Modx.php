@@ -93,7 +93,7 @@ class Modx implements CmsConnectorInterface
      * @see \exface\Core\Interfaces\CmsConnectorInterface::createLinkToFile()
      */
     public function createLinkToFile($path_absolute)
-    {        
+    {
         $sitePath = Filemanager::pathNormalize($this->getPathToModx(), '/');
         $filePath = Filemanager::pathNormalize($path_absolute, '/');
         $path = str_replace($sitePath, '', $filePath);
@@ -281,7 +281,7 @@ class Modx implements CmsConnectorInterface
         
         return true;
     }
-    
+
     /**
      *
      * {@inheritdoc}
@@ -294,8 +294,25 @@ class Modx implements CmsConnectorInterface
         return $this;
     }
     
-    public function getPathToModx(){
+    /**
+     * Returns the path to the MODx folder from www root (MODX_BASE_PATH)
+     * 
+     * @return string
+     */
+    protected function getPathToModx()
+    {
         return $this->getApp()->getModx()->config['base_path'];
+    }
+    
+    /**
+     *
+     * {@inheritdoc}
+     *
+     * @see \exface\Core\Interfaces\CmsConnectorInterface::getSiteUrl()
+     */
+    public function getSiteUrl()
+    {
+        return $this->getApp()->getModx()->config['site_url'];
     }
 }
 ?>
