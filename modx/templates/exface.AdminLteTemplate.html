@@ -113,42 +113,11 @@ folder instead of downloading all of them to reduce the load. -->
 						<span class="sr-only">Toggle navigation</span>
 					</a>
 					<div class="navbar-custom-menu">
-						<ul class="nav navbar-nav">
-							<!-- Object basket -->
-							<li class="dropdown favorites-menu">
-								<a href="#" class="dropdown-toggle" data-toggle="dropdown" onclick="pinnedObjectsRefresh('#exf-pinned-list', '#exf-pinned-counter');">
-									<i class="fa fa-shopping-basket"></i>
-									<span id="exf-pinned-counter" class="label label-warning">0</span>
-								</a>
-								<ul class="dropdown-menu">
-									<li class="header">Basket</li>
-									<li>
-										<!-- inner menu: contains the actual data -->
-										<ul class="menu" id="exf-pinned-list">
-											
-										</ul>
-									</li>
-									
-								</ul>
-							</li>
-							<!-- Favorite objects -->
-							<li class="dropdown favorites-menu">
-								<a href="#" class="dropdown-toggle" data-toggle="dropdown" onclick="pinnedObjectsRefresh('#exf-favorites-list', '#exf-favorites-counter');">
-									<i class="fa fa-star"></i>
-									<span id="exf-favorites-counter" class="label label-warning">0</span>
-								</a>
-								<ul class="dropdown-menu">
-									<li class="header">User favorites</li>
-									<li>
-										<!-- inner menu: contains the actual data -->
-										<ul class="menu" id="exf-favorites">
-											
-										</ul>
-									</li>
-									
-								</ul>
-							</li>
-							
+						<ul id="contextBar" class="nav navbar-nav">
+						    
+						    <li class="dropdown context-menu context-bar-spinner"><a href="#"><i class="fa fa-refresh fa-spin"></i></a></li>
+							<!-- Here come the context icons -->
+			
 							<!-- User Account: style can be found in dropdown.less -->
 							<li class="dropdown user user-menu">
 								
