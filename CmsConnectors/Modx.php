@@ -45,6 +45,10 @@ class Modx implements CmsConnectorInterface
             $this->user_name = $modx->getLoginUserName('web');
             $this->user_type = self::USER_TYPE_WEB;
         }
+        
+        if ($this->user_name === false){
+            $this->user_name = '';
+        }
     }
 
     /**
@@ -151,6 +155,17 @@ class Modx implements CmsConnectorInterface
     public function getUserName()
     {
         return $this->user_name;
+    }
+    
+    /**
+     *
+     * {@inheritdoc}
+     *
+     * @see \exface\Core\Interfaces\CmsConnectorInterface::isUserLoggedIn()
+     */
+    public function isUserLoggedIn()
+    {
+        return $this->getUserName() === '' ? false : true;
     }
 
     /**
