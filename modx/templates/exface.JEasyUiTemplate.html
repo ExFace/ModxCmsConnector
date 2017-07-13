@@ -102,21 +102,11 @@
 			<div class="easyui-accordion" data-options="fit:true,border:false">
 				<div title="Dialog [*pagetitle*]" data-options="collapsed:false,collapsible:false" style="">
 					<p style="padding: 5px; box-sizing:border-box;">[*introtext*]</p>
-					<p style="padding: 5px; box-sizing:border-box;"><a href="javascript: $('#exf_page_help').dialog('open');">Hilfe zu diesem Dialog</a></p>
-		        </div>
+				</div>
 				<div title="Sichten" data-options="selected:true, collapsed: false">
 					[!Wayfinder? &startId=`[[if? &is=`[*isfolder*]:=:1` &then=`[*id*]` &else=`[*parent*]`]]` &hideSubMenus=`TRUE` &outerClass=`nav_menu` &ignoreHidden=`1` &outerTpl=`@CODE: <ul[+wf.classes+]><li><a href="[~[*parent*]~]">Default</a></li>[+wf.wrapper+]<li><a href="[(SITE_URL)]manager/index.php?a=4&pid=[[if? &is=`[*isfolder*]:=:1` &then=`[*id*]` &else=`[*parent*]`]]&quickmanager=1" class="colorbox cboxElement">Neue Sicht hinzufügen...</a></li></ul>`!]
 		        </div>
-		        <div title="Tutorials" data-options="">
-					[!Wayfinder? &startId=`76` &hideSubMenus=`TRUE` &outerClass=`nav_menu`!]
-		        </div>
-				<div title="Test" data-options="">
-					[[ExFace? &docId=`151`]]
-				</div>
 	        </div>
-			<div id="exf_page_help" class="easyui-dialog" title="&nbsp;&nbsp;Hilfe" data-options="iconCls: 'icon-help', closed:true, href:'[~77~]?docId=[*id*]'" style="width:800px;height:600px;padding:10px">
-						
-			</div>
 		</div>
 		
 		<!-- MAIN -->
