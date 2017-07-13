@@ -17,7 +17,6 @@
 		
 		<title>[*pagetitle*] :: [(site_name)]</title>
 		<link rel="stylesheet" type="text/css" href="exface/vendor/exface/JEasyUiTemplate/Template/js/jeasyui/themes/metro-blue/easyui.css">
-		<link rel="stylesheet" type="text/css" href="exface/vendor/exface/JEasyUiTemplate/Template/js/icon.css">
 		<link rel="stylesheet" type="text/css" href="exface/vendor/exface/JEasyUiTemplate/Template/js/template.css">
 		<script type="text/javascript" src="exface/vendor/bower-asset/jquery/dist/jquery.min.js"></script>
 		<script type="text/javascript" src="exface/vendor/bower-asset/jeasyui/jquery.easyui.min.js"></script>
@@ -25,6 +24,10 @@
 		<script type="text/javascript" src="exface/vendor/exface/JEasyUiTemplate/Template/js/jquery.easyui.patch.1.43.js"></script>
 		<script type="text/javascript" src="exface/vendor/exface/JEasyUiTemplate/Template/js/template.js"></script>
 		<script type="text/javascript" src="exface/vendor/exface/JEasyUiTemplate/Template/js/jeasyui/extensions/datagridview/datagrid-groupview.js"></script>
+		
+		<!-- FontAwesome 4.7.0 -->
+        <link href="exface/vendor/bower-asset/font-awesome/css/font-awesome.min.css" rel="stylesheet" type="text/css" />
+        
 		
 		[[ExFace? &action=`exface.Core.ShowHeaders`]]	
 		
@@ -49,12 +52,7 @@
 			</div>
 			<div style="float:right;">
 				<div id="contextBar" class="top-toolbar">
-				    <!-- <div class="toolbar-element login-logout">
-	                    <div class="toolbar-button">
-	                        <a href="#" id="dd" class="easyui-linkbutton" data-options="plain:true, iconCls:'icon-basket'">0</a>
-	                    </div>
-	                </div> -->
-					<div class="toolbar-element">
+				    <div class="toolbar-element">
 						<div class="panel-loading"></div>
 					</div>
 					[!if &is=`[!UserManagerInfo!]:not_empty` &then=`
@@ -64,7 +62,7 @@
 					</div>
 					<div class="toolbar-element login-logout">
 						<div class="toolbar-button">
-							<a href="[(unauthorized_page)]?webloginmode=lo" class="easyui-linkbutton" data-options="plain:true,iconCls:'icon-logout'">Logout</a>
+							<a href="[(unauthorized_page)]?webloginmode=lo" class="easyui-linkbutton" data-options="plain:true,iconCls:'fa fa-sign-out'">Logout</a>
 						</div>
 					</div>
 					` &else=`
