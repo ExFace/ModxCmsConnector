@@ -193,14 +193,14 @@ folder instead of downloading all of them to reduce the load. -->
 						`!]
 					</div>
 					<!-- search form -->
-					<!-- <form action="#" method="get" class="sidebar-form">
+					<form action="javascript:;" method="get" class="sidebar-form">
 						<div class="input-group">
-							<input type="text" name="q" class="form-control" placeholder="Search..."/>
+							<input id="navsearch" type="text" class="form-control" placeholder=""/>
 							<span class="input-group-btn">
 								<button type='submit' name='search' id='search-btn' class="btn btn-flat"><i class="fa fa-search"></i></button>
 							</span>
 						</div>
-					</form> -->
+					</form>
 					<!-- /.search form -->
 					<!-- sidebar menu: : style can be found in sidebar.less -->
 					<ul class="sidebar-menu">
@@ -211,7 +211,8 @@ folder instead of downloading all of them to reduce the load. -->
 						&innerTpl=`@CODE: <ul[+wf.classes+]>[+wf.wrapper+]</ul>`
 						&OFFparentRowTpl=`<li[+wf.classes+]><a href="[+wf.link+]" title="[+wf.title+]">[+wf.linktext+]»</a>[+wf.wrapper+]</li>`
 						&parentClass=`treeview`
-						&innerClass=`treeview-menu`!]
+						&innerClass=`treeview-menu`
+						&hereClass=`active current`!]
 					</ul>
 				</section>
 				<!-- /.sidebar -->
