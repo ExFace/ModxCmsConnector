@@ -44,7 +44,12 @@
 		
 	</head>
 	<body class="easyui-layout">
-		
+	    <!-- Spinner to hide unrendered markup -->
+        <div style="height: 100vh; line-height: 100vh; text-align: center;">
+            <i class="panel-loading"></i>
+            <span class="sr-only">Loading...</span>
+        </div>
+        <!-- / Spinner to hide unrendered markup -->
 		<!-- HEADER -->
 		<div data-options="region:'north',border:false" style="height:50px;padding:10px">
 			<div style="float:left;">
