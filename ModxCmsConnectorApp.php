@@ -3,8 +3,9 @@ namespace exface\ModxCmsConnector;
 
 use exface\Core\Interfaces\InstallerInterface;
 use exface\SqlDataConnector\SqlSchemaInstaller;
+use exface\Core\CommonLogic\Model\App;
 
-class ModxCmsConnectorApp extends \exface\Core\CommonLogic\AbstractApp
+class ModxCmsConnectorApp extends App
 {
 
     /**
@@ -25,7 +26,7 @@ class ModxCmsConnectorApp extends \exface\Core\CommonLogic\AbstractApp
      *
      * {@inheritdoc}
      *
-     * @see \exface\Core\CommonLogic\AbstractApp::getInstaller($injected_installer)
+     * @see App::getInstaller($injected_installer)
      */
     public function getInstaller(InstallerInterface $injected_installer = null)
     {
