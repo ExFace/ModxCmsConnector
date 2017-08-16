@@ -95,7 +95,7 @@
             "UID": "0x11e7109eb7d53d24beb2e4b318306b9a",
             "APP": "0x11e680a7f9cdf732a177c0f8dae36b4f",
             "DEFAULT_CONNECTION": "0x32000000000000000000000000000000",
-            "DEFAULT_QUERY_BUILDER": "exface\/SqlDataConnector\/QueryBuilders\/MySQL.php",
+            "DEFAULT_QUERY_BUILDER": "exface\/Core\/QueryBuilders\/MySqlBuilder.php",
             "BASE_OBJECT": "",
             "READONLY": "0",
             "LABEL": "MODx DB",

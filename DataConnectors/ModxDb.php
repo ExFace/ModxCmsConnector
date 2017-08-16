@@ -2,7 +2,7 @@
 namespace exface\ModxCmsConnector\DataConnectors;
 
 use exface\Core\CommonLogic\AbstractDataConnector;
-use exface\SqlDataConnector\DataConnectors\MySQL;
+use exface\Core\DataConnectors\MySqlConnector;
 
 /**
  * The MODx DB connector uses the same MySQL connection as MODx.
@@ -11,7 +11,7 @@ use exface\SqlDataConnector\DataConnectors\MySQL;
  * @author Andrej Kabachnik
  *        
  */
-class ModxDb extends MySQL
+class ModxDb extends MySqlConnector
 {
 
     var $conn;

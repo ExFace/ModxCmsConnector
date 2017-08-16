@@ -2,7 +2,7 @@
 namespace exface\ModxCmsConnector;
 
 use exface\Core\Interfaces\InstallerInterface;
-use exface\SqlDataConnector\SqlSchemaInstaller;
+use exface\Core\CommonLogic\AppInstallers\SqlSchemaInstaller;
 use exface\Core\CommonLogic\Model\App;
 
 class ModxCmsConnectorApp extends App
