@@ -2,6 +2,7 @@
 namespace exface\ModxCmsConnector\CmsConnectors;
 
 use exface\Core\Interfaces\CmsConnectorInterface;
+use exface\Core\Interfaces\Model\UiPageInterface;
 use exface\Core\CommonLogic\Workbench;
 use exface\ModxCmsConnector\ModxCmsConnectorApp;
 use exface\Core\Factories\UiPageFactory;
@@ -329,5 +330,46 @@ class Modx implements CmsConnectorInterface
     {
         return $this->getApp()->getModx()->config['site_url'];
     }
+    
+    /**
+     * 
+     * {@inheritDoc}
+     * @see \exface\Core\Interfaces\CmsConnectorInterface::getCmsPageId()
+     */
+    public function getCmsPageId(UiPageInterface $page)
+    {}
+
+    /**
+     * 
+     * {@inheritDoc}
+     * @see \exface\Core\Interfaces\CmsConnectorInterface::loadPageByAlias()
+     */
+    public function loadPageByAlias($alias_with_namespace)
+    {}
+
+    /**
+     * 
+     * {@inheritDoc}
+     * @see \exface\Core\Interfaces\CmsConnectorInterface::loadPage()
+     */
+    public function loadPage($page_id_or_alias)
+    {}
+
+    /**
+     * 
+     * {@inheritDoc}
+     * @see \exface\Core\Interfaces\CmsConnectorInterface::loadPageById()
+     */
+    public function loadPageById($uid_or_cms_page_id)
+    {}
+
+    /**
+     * 
+     * {@inheritDoc}
+     * @see \exface\Core\Interfaces\CmsConnectorInterface::savePage()
+     */
+    public function savePage(UiPageInterface $page)
+    {}
+
 }
 ?>
