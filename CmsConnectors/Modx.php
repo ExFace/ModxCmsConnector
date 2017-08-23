@@ -332,6 +332,7 @@ class Modx implements CmsConnectorInterface
     }
     
     /**
+     * TODO #ui-page-installer
      * 
      * {@inheritDoc}
      * @see \exface\Core\Interfaces\CmsConnectorInterface::getCmsPageId()
@@ -340,6 +341,7 @@ class Modx implements CmsConnectorInterface
     {}
 
     /**
+     * TODO #ui-page-installer
      * 
      * {@inheritDoc}
      * @see \exface\Core\Interfaces\CmsConnectorInterface::loadPageByAlias()
@@ -348,6 +350,7 @@ class Modx implements CmsConnectorInterface
     {}
 
     /**
+     * TODO #ui-page-installer
      * 
      * {@inheritDoc}
      * @see \exface\Core\Interfaces\CmsConnectorInterface::loadPage()
@@ -356,6 +359,7 @@ class Modx implements CmsConnectorInterface
     {}
 
     /**
+     * TODO #ui-page-installer
      * 
      * {@inheritDoc}
      * @see \exface\Core\Interfaces\CmsConnectorInterface::loadPageById()
@@ -364,11 +368,48 @@ class Modx implements CmsConnectorInterface
     {}
 
     /**
+     * TODO #ui-page-installer
      * 
      * {@inheritDoc}
      * @see \exface\Core\Interfaces\CmsConnectorInterface::savePage()
      */
     public function savePage(UiPageInterface $page)
+    {}
+    
+    /**
+     * TODO #ui-page-installer
+     * 
+     * {@inheritDoc}
+     * @see \exface\Core\Interfaces\CmsConnectorInterface::loadPageByCmsId()
+     */
+    public function loadPageByCmsId($cms_page_id)
+    {}
+    
+    /**
+     * TODO #ui-page-installer
+     * 
+     * {@inheritDoc}
+     * @see \exface\Core\Interfaces\CmsConnectorInterface::createPage()
+     */
+    public function createPage(UiPageInterface $page)
+    {}
+    
+    /**
+     * TODO #ui-page-installer
+     * 
+     * {@inheritDoc}
+     * @see \exface\Core\Interfaces\CmsConnectorInterface::updatePage()
+     */
+    public function updatePage(UiPageInterface $page)
+    {}
+    
+    /**
+     * TODO #ui-page-installer
+     * 
+     * {@inheritDoc}
+     * @see \exface\Core\Interfaces\CmsConnectorInterface::deletePage()
+     */
+    public function deletePage(UiPageInterface $page)
     {}
 
 }
