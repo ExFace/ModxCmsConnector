@@ -7,6 +7,7 @@ use exface\Core\CommonLogic\Workbench;
 use exface\ModxCmsConnector\ModxCmsConnectorApp;
 use exface\Core\Factories\UiPageFactory;
 use exface\Core\CommonLogic\Filemanager;
+use exface\Core\Interfaces\AppInterface;
 
 class Modx implements CmsConnectorInterface
 {
@@ -337,7 +338,7 @@ class Modx implements CmsConnectorInterface
      * {@inheritDoc}
      * @see \exface\Core\Interfaces\CmsConnectorInterface::getCmsPageId()
      */
-    public function getCmsPageId(UiPageInterface $page)
+    public function getCmsPageId(UiPageInterface $page, $ignore_replacements = false)
     {}
 
     /**
@@ -346,7 +347,7 @@ class Modx implements CmsConnectorInterface
      * {@inheritDoc}
      * @see \exface\Core\Interfaces\CmsConnectorInterface::loadPageByAlias()
      */
-    public function loadPageByAlias($alias_with_namespace)
+    public function loadPageByAlias($alias_with_namespace, $ignore_replacements = false)
     {}
 
     /**
@@ -355,7 +356,7 @@ class Modx implements CmsConnectorInterface
      * {@inheritDoc}
      * @see \exface\Core\Interfaces\CmsConnectorInterface::loadPage()
      */
-    public function loadPage($page_id_or_alias)
+    public function loadPage($page_id_or_alias, $ignore_replacements = false)
     {}
 
     /**
@@ -364,7 +365,7 @@ class Modx implements CmsConnectorInterface
      * {@inheritDoc}
      * @see \exface\Core\Interfaces\CmsConnectorInterface::loadPageById()
      */
-    public function loadPageById($uid_or_cms_page_id)
+    public function loadPageById($uid_or_cms_page_id, $ignore_replacements = false)
     {}
 
     /**
@@ -382,7 +383,7 @@ class Modx implements CmsConnectorInterface
      * {@inheritDoc}
      * @see \exface\Core\Interfaces\CmsConnectorInterface::loadPageByCmsId()
      */
-    public function loadPageByCmsId($cms_page_id)
+    public function loadPageByCmsId($cms_page_id, $ignore_replacements = false)
     {}
     
     /**
@@ -411,6 +412,17 @@ class Modx implements CmsConnectorInterface
      */
     public function deletePage(UiPageInterface $page)
     {}
+    
+    /**
+     * TODO #ui-page-installer
+     * 
+     * {@inheritDoc}
+     * @see \exface\Core\Interfaces\CmsConnectorInterface::getPagesByApp()
+     */
+    public function getPagesForApp(AppInterface $app)
+    {
+        // TODO #ui-page-installer
+    }
 
 }
 ?>
