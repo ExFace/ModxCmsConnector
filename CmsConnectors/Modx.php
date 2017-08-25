@@ -320,6 +320,20 @@ class Modx implements CmsConnectorInterface
     }
     
     /**
+     * 
+     * {@inheritDoc}
+     * @see \exface\Core\Interfaces\CmsConnectorInterface::getPathDownload()
+     */
+    public function getPathDownload()
+    {
+        $path = $this->getApp()->getModx()->config['base_path'] . DIRECTORY_SEPARATOR . 'downloads' . DIRECTORY_SEPARATOR;
+        if (!is_dir($path)) {
+            mkdir($path);
+        }
+        return $path;
+    }
+    
+    /**
      *
      * {@inheritdoc}
      *
