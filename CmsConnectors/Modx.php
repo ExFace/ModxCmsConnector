@@ -289,7 +289,6 @@ class Modx implements CmsConnectorInterface
             return false;
         }
         
-        UiPageFactory::createFromString($this->getWorkbench()->ui(), (is_null($id) ? 0 : $id), $content);
         try {
             UiPageFactory::createFromString($this->getWorkbench()->ui(), (is_null($id) ? 0 : $id), $content);
         } catch (\Throwable $e) {
