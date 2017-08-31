@@ -1,4 +1,13 @@
 <?php
+
+const TV_APP_ALIAS_NAME = 'ExfacePageAppAlias';
+
+const TV_REPLACE_ALIAS_NAME = 'ExfacePageReplaceAlias';
+
+const TV_UID_NAME = 'ExfacePageUID';
+
+const TV_DO_UPDATE_NAME = 'ExfacePageDoUpdate';
+
 switch ($modx->event->name) {
     case "OnStripAlias":
         // Alias setzen. Zunaechst wird der uebergebene Alias entsprechend dem trans-
@@ -13,19 +22,16 @@ switch ($modx->event->name) {
         // Ende angepasst aus plugin.transalias.php
         
         // IDs der Template-Variablen bestimmen.
-        $tvIds = [];
         $result = $modx->db->select('id, name', $modx->getFullTableName('site_tmplvars'));
+        $tvIds = [];
         while ($row = $modx->db->getRow($result)) {
             $tvIds[$row['name']] = $row['id'];
         }
         
-        // ExfacePageApp TV auslesen
-        if ($appId = $_POST['tv' . $tvIds['ExfacePageApp']]) {
-            $appId = substr($appId, 0, 2) === '0x' ? substr($appId, 2) : $appId;
-            $result = $modx->db->select('app_alias', 'exf_app', 'oid = UNHEX("' . $appId . '")');
-            $appAlias = $modx->db->getRow($result)['app_alias'];
-        }
+        // ExfacePageAppAlias TV auslesen
+        $appAlias = $_POST['tv' . $tvIds[TV_APP_ALIAS_NAME]];
         
+        // Alias mit Namespace erzeugen und zurueckgeben
         if ($_POST['alias'] === '') {
             if ($appAlias) {
                 $modx->event->output($appAlias . '.' . $alias);
@@ -42,8 +48,8 @@ switch ($modx->event->name) {
         
         // UID setzen. TODO besser ueber eine custom TV loesen, jetzt ist die UID von
         // Hand bearbeitbar.
-        if (! $_POST['tv' . $tvIds['ExfacePageUID']]) {
-            $_POST['tv' . $tvIds['ExfacePageUID']] = '0x' . bin2hex(openssl_random_pseudo_bytes(16));
+        if (! $_POST['tv' . $tvIds[TV_UID_NAME]]) {
+            $_POST['tv' . $tvIds[TV_UID_NAME]] = '0x' . bin2hex(openssl_random_pseudo_bytes(16));
         }
         
         break;

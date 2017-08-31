@@ -8,6 +8,7 @@ use exface\ModxCmsConnector\ModxCmsConnectorApp;
 use exface\Core\Factories\UiPageFactory;
 use exface\Core\CommonLogic\Filemanager;
 use exface\Core\Interfaces\AppInterface;
+use exface\Core\Exceptions\UiPageNotFoundError;
 
 class Modx implements CmsConnectorInterface
 {
@@ -25,7 +26,23 @@ class Modx implements CmsConnectorInterface
     private $user_locale = null;
 
     private $workbench = null;
+    
+    const TV_APP_ALIAS_NAME = 'ExfacePageAppAlias';
+    
+    const TV_APP_ALIAS_DEFAULT = null;
+    
+    const TV_REPLACE_ALIAS_NAME = 'ExfacePageReplaceAlias';
+    
+    const TV_REPLACE_ALIAS_DEFAULT = '';
+    
+    const TV_UID_NAME = 'ExfacePageUID';
+    
+    const TV_UID_DEFAULT = '';
+    
+    const TV_DO_UPDATE_NAME = 'ExfacePageDoUpdate';
 
+    const TV_DO_UPDATE_DEFAULT = true;
+    
     /**
      *
      * @deprecated use CmsConnectorFactory instead
@@ -338,7 +355,8 @@ class Modx implements CmsConnectorInterface
      * @see \exface\Core\Interfaces\CmsConnectorInterface::getCmsPageId()
      */
     public function getCmsPageId(UiPageInterface $page, $ignore_replacements = false)
-    {}
+    {
+    }
 
     /**
      * TODO #ui-page-installer
@@ -350,22 +368,84 @@ class Modx implements CmsConnectorInterface
     {}
 
     /**
-     * TODO #ui-page-installer
      * 
      * {@inheritDoc}
      * @see \exface\Core\Interfaces\CmsConnectorInterface::loadPage()
      */
     public function loadPage($page_id_or_alias, $ignore_replacements = false)
-    {}
+    {
+        if (substr($page_id_or_alias, 0, 2) == '0x') {
+            return $this->loadPageById($page_id_or_alias, $ignore_replacements);
+        } elseif (! is_numeric($page_id_or_alias)) {
+            return $this->loadPageByAlias($page_id_or_alias, $ignore_replacements);
+        } else {
+            return $this->loadPageByCmsId($page_id_or_alias, $ignore_replacements);
+        }
+    }
 
     /**
-     * TODO #ui-page-installer
      * 
      * {@inheritDoc}
      * @see \exface\Core\Interfaces\CmsConnectorInterface::loadPageById()
      */
-    public function loadPageById($uid_or_cms_page_id, $ignore_replacements = false)
-    {}
+    public function loadPageById($uid, $ignore_replacements = false)
+    {
+        global $modx;
+        
+        // TODO check ob Seite ersetzt werden muss
+        
+        if ($modx->documentObject[$this::TV_UID_NAME] && $uid == $modx->documentObject[$this::TV_UID_NAME][1]) {
+            $uiPage = UiPageFactory::create($this->getWorkbench()->ui(), $uid);
+            $uiPage->setIdCms($modx->documentObject['id']);
+            $uiPage->setName($modx->documentObject['pagetitle']);
+            $uiPage->setShortDescription($modx->documentObject['description']);
+            $uiPage->setAlias($modx->documentObject['alias']);
+            //$uiPage->setTemplate($modx->documentObject['template']);
+            $uiPage->setMenuIndex($modx->documentObject['menuindex']);
+            $uiPage->setMenuParentIdCms($modx->documentObject['parent']);
+            //$uiPage->setMenuParentPage(???);
+            $uiPage->setContents($modx->documentObject['content']);
+            $uiPage->setAppAlias($modx->documentObject[$this::TV_APP_ALIAS_NAME] ? $modx->documentObject[$this::TV_APP_ALIAS_NAME][1]: $this::TV_APP_ALIAS_DEFAULT);
+            // TODO isset(Updateable)
+            $uiPage->setUpdateable($modx->documentObject[$this::TV_DO_UPDATE_NAME] ? $modx->documentObject[$this::TV_DO_UPDATE_NAME][1] : $this::TV_DO_UPDATE_DEFAULT);
+            $uiPage->setReplacesPageAlias($modx->documentObject[$this::TV_REPLACE_ALIAS_NAME] ? $modx->documentObject[$this::TV_REPLACE_ALIAS_NAME][1] : $this::TV_REPLACE_ALIAS_DEFAULT);
+            
+        } else {
+            $siteContent = $modx->getFullTableName('site_content');
+            $siteTmplvars = $modx->getFullTableName('site_tmplvars');
+            $siteTmplvarContentvalues = $modx->getFullTableName('site_tmplvar_contentvalues');
+            
+            $result = $modx->db->select('msc.id as id, msc.pagetitle as name, msc.description as shortDescription, msc.alias as alias, msc.template as template, msc.menuindex as menuIndex, msc.parent as menuParentIdCms, msc.content as contents', $siteContent . ' msc left join ' . $siteTmplvarContentvalues . ' mstc on msc.id = mstc.contentid left join ' . $siteTmplvars . ' mst on mstc.tmplvarid = mst.id', 'mst.name = "' . $this::TV_UID_NAME . '" and mstc.value = "' . $uid . '"');
+            if ($row = $modx->db->getRow($result)) {
+                $uiPage = UiPageFactory::create($this->getWorkbench()->ui(), $uid);
+                $uiPage->setIdCms($row['id']);
+                $uiPage->setName($row['name']);
+                $uiPage->setShortDescription($row['shortDescription']);
+                $uiPage->setAlias($row['alias']);
+                //$uiPage->setTemplate($row['template']);
+                $uiPage->setMenuIndex($row['menuIndex']);
+                $uiPage->setMenuParentIdCms($row['menuParentIdCms']);
+                //$uiPage->setMenuParentPage(???);
+                $uiPage->setContents($row['contents']);
+                
+                $result = $modx->db->select('mst.name as name, mstc.value as value', $siteTmplvarContentvalues . ' mstc left join ' . $siteTmplvars . ' mst on mstc.tmplvarid = mst.id', 'mstc.contentid = (select mstc.contentid from ' . $siteTmplvarContentvalues . ' mstc left join ' . $siteTmplvars . ' mst on mstc.tmplvarid = mst.id where mst.name = "' . $this::TV_UID_NAME . '" and mstc.value = "' . $uid . '")');
+                $tmplVars = [];
+                while ($row = $modx->db->getRow($result)) {
+                    $tmplVars[$row['name']] = $row['value'];
+                }
+                
+                $uiPage->setAppAlias($tmplVars[$this::TV_APP_ALIAS_NAME] ? $tmplVars[$this::TV_APP_ALIAS_NAME] : $this::TV_APP_ALIAS_DEFAULT);
+                // TODO isset(Updateable)
+                $uiPage->setUpdateable($tmplVars[$this::TV_DO_UPDATE_NAME] ? $tmplVars[$this::TV_DO_UPDATE_NAME] : $this::TV_DO_UPDATE_DEFAULT);
+                $uiPage->setReplacesPageAlias($tmplVars[$this::TV_REPLACE_ALIAS_NAME] ? $tmplVars[$this::TV_REPLACE_ALIAS_NAME] : $this::TV_REPLACE_ALIAS_DEFAULT);
+                
+            } else {
+                throw new UiPageNotFoundError('No page with UID "' . $uid . '" defined.');
+            }
+        }
+        
+        return $uiPage;
+    }
 
     /**
      * TODO #ui-page-installer
