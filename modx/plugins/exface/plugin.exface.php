@@ -31,9 +31,9 @@ switch ($modx->event->name) {
                 include_once ($modx->config['base_path'] . 'exface/exface.php');
                 $exface = Workbench::startNewInstance();
             }
-            if ($exface->getCMS()->isUiPage($_REQUEST['ta'], $_REQUEST['id'])) {
+            if ($exface->getCMS()->isUiPage($_REQUEST['ta'], '')) {
                 try {
-                    $app_alias = UiPageFactory::createFromString($exface->ui(), $_REQUEST['id'], $_REQUEST['ta'])->getWidgetRoot()->getMetaObject()->getNamespace();
+                    $app_alias = UiPageFactory::createFromString($exface->ui(), '', $_REQUEST['ta'])->getWidgetRoot()->getMetaObject()->getNamespace();
                 } catch (Throwable $e) {
                     break;
                 }
