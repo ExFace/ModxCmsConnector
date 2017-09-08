@@ -14,7 +14,8 @@
         "issues": "https://github.com/exface/ModxCmsConnector/issues"
     },
     "require": {
-        "exface/core": "~0.1"
+        "exface/core": "~0.1",
+        "ramsey/uuid": "^3.7"
     },
     "extra": {
         "app": {
