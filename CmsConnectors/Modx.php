@@ -48,7 +48,7 @@ class Modx implements CmsConnectorInterface
 
     const MODX_UPDATE_ACTION = '27';
 
-    const DEFAULT_MENU_PARENT_ID = '0x5a68eba9cb4611134305fb05c4f76bc8';
+    const DEFAULT_MENU_PARENT_ID = '0xc4c93592949f11e7ad66028037ec0200';
 
     /**
      *
