@@ -1,4 +1,8 @@
 <?php
+// sfl: angepasst aus ModX Evolution 1.2.1 remove_content.processor.php
+// sfl: wichtig: Die Formatierung dieser Datei darf auf keinen Fall veraendert werden, um einen
+// einfachen Vergleich mit der Orginaldatei zu gewährleisten.
+
 // sfl: Aenderungen um Variablen zu initialisieren.
 global $modx;
 
@@ -8,20 +12,18 @@ include MODX_MANAGER_PATH . 'includes' . DIRECTORY_SEPARATOR . 'lang' . DIRECTOR
 // sfl: Ende der Aenderungen um Variablen zu initialisieren.
 
 // sfl: IN_MANAGER_MODE-Check ausgeschaltet.
-//if(IN_MANAGER_MODE!="true") die("<b>INCLUDE_ORDERING_ERROR</b><br /><br />Please use the MODX Content Manager instead of accessing this file directly.");
 if(!$modx->hasPermission('delete_document')) {
-    //$modx->webAlertAndQuit($_lang["error_no_privileges"]);
-    throw new Exception($_lang["error_no_privileges"]);
+	throw new Exception($_lang["error_no_privileges"]);
 }
 
 $rs = $modx->db->select('id', $modx->getFullTableName('site_content'), "deleted=1");
-$ids = $modx->db->getColumn('id', $rs);
+$ids = $modx->db->getColumn('id', $rs); 
 
 // invoke OnBeforeEmptyTrash event
 $modx->invokeEvent("OnBeforeEmptyTrash",
-    array(
-        "ids"=>$ids
-    ));
+						array(
+							"ids"=>$ids
+						));
 
 // remove the document groups link.
 $sql = "DELETE document_groups
@@ -40,17 +42,15 @@ $modx->db->query($sql);
 //'undelete' the document.
 $modx->db->delete($modx->getFullTableName('site_content'), "deleted=1");
 
-// invoke OnEmptyTrash event
-$modx->invokeEvent("OnEmptyTrash",
-    array(
-        "ids"=>$ids
-    ));
+	// invoke OnEmptyTrash event
+	$modx->invokeEvent("OnEmptyTrash",
+						array(
+							"ids"=>$ids
+						));
 
-// empty cache
-$modx->clearCache('full');
+	// empty cache
+	$modx->clearCache('full');
 
 // sfl: Kein Redirect.
-// finished emptying cache - redirect
-//$header="Location: index.php?r=1&a=7";
-//header($header);
+
 ?>
