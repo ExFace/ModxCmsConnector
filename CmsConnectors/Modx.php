@@ -172,7 +172,7 @@ class Modx implements CmsConnectorInterface
             return $doc['pagetitle'];
         }
     }
-    
+
     /**
      * 
      * {@inheritDoc}
@@ -649,11 +649,11 @@ class Modx implements CmsConnectorInterface
         global $modx;
         
         // IDs der Template-Variablen bestimmen.
-        $result = $modx->db->select('mst.id as id, mst.name as name', $modx->getFullTableName('site_tmplvars') . ' mst');
-        $tvIds = [];
-        while ($row = $modx->db->getRow($result)) {
-            $tvIds[$row['name']] = $row['id'];
-        }
+        // $result = $modx->db->select('mst.id as id, mst.name as name', $modx->getFullTableName('site_tmplvars') . ' mst');
+        // $tvIds = [];
+        // while ($row = $modx->db->getRow($result)) {
+        // $tvIds[$row['name']] = $row['id'];
+        // }
         
         // Page IDs bestimmen.
         $parentId = $page->getMenuParentId() ? $page->getMenuParentId() : $this::DEFAULT_MENU_PARENT_ID;
@@ -675,41 +675,74 @@ class Modx implements CmsConnectorInterface
             $docGroups[] = $row['document_group'];
         }
         
-        $_POST['id'] = '';
-        $_POST['mode'] = $this::MODX_ADD_ACTION;
-        $_POST['pagetitle'] = $page->getName();
-        $_POST['longtitle'] = '';
-        $_POST['description'] = $page->getShortDescription();
-        $_POST['alias'] = $page->getAliasWithNamespace();
-        $_POST['link_attributes'] = '';
-        $_POST['introtext'] = '';
-        $_POST['template'] = $modx->config['default_template'];
-        $_POST['menutitle'] = '';
-        $_POST['menuindex'] = $page->getMenuIndex();
-        $_POST['hidemenu'] = '0';
-        $_POST['parent'] = $parentIdCms;
-        $_REQUEST['parent'] = $parentIdCms;
-        $_POST['ta'] = $page->getContents();
-        $_POST['tv' . $tvIds[$this::TV_UID_NAME]] = $page->getId();
-        $_POST['tv' . $tvIds[$this::TV_APP_ALIAS_NAME]] = $page->getAppAlias();
-        $_POST['tv' . $tvIds[$this::TV_DO_UPDATE_NAME]] = $page->isUpdateable() ? '1' : '0';
-        $_POST['tv' . $tvIds[$this::TV_REPLACE_ALIAS_NAME]] = $page->getReplacesPageAlias();
-        $_POST['published'] = '1';
-        $_POST['pub_date'] = '';
-        $_POST['unpub_date'] = '';
-        $_POST['type'] = 'document';
-        $_POST['contentType'] = 'text/html';
-        $_POST['content_dispo'] = '0';
-        $_POST['isfolder'] = '0';
-        $_POST['alias_visible'] = '1';
-        $_POST['richtext'] = '1';
-        $_POST['donthit'] = '0';
-        $_POST['searchable'] = '1';
-        $_POST['cacheable'] = '1';
-        $_POST['syncsite'] = '1';
-        $_POST['docgroups'] = $docGroups;
+        // $_POST['id'] = '';
+        // $_POST['mode'] = $this::MODX_ADD_ACTION;
+        // $_POST['pagetitle'] = $page->getName();
+        // $_POST['longtitle'] = '';
+        // $_POST['description'] = $page->getShortDescription();
+        // $_POST['alias'] = $page->getAliasWithNamespace();
+        // $_POST['link_attributes'] = '';
+        // $_POST['introtext'] = '';
+        // $_POST['template'] = $modx->config['default_template'];
+        // $_POST['menutitle'] = '';
+        // $_POST['menuindex'] = $page->getMenuIndex();
+        // $_POST['hidemenu'] = '0';
+        // $_POST['parent'] = $parentIdCms;
+        // $_REQUEST['parent'] = $parentIdCms;
+        // $_POST['ta'] = $page->getContents();
+        // $_POST['tv' . $tvIds[$this::TV_UID_NAME]] = $page->getId();
+        // $_POST['tv' . $tvIds[$this::TV_APP_ALIAS_NAME]] = $page->getAppAlias();
+        // $_POST['tv' . $tvIds[$this::TV_DO_UPDATE_NAME]] = $page->isUpdateable() ? '1' : '0';
+        // $_POST['tv' . $tvIds[$this::TV_REPLACE_ALIAS_NAME]] = $page->getReplacesPageAlias();
+        // $_POST['published'] = '1';
+        // $_POST['pub_date'] = '';
+        // $_POST['unpub_date'] = '';
+        // $_POST['type'] = 'document';
+        // $_POST['contentType'] = 'text/html';
+        // $_POST['content_dispo'] = '0';
+        // $_POST['isfolder'] = '0';
+        // $_POST['alias_visible'] = '1';
+        // $_POST['richtext'] = '1';
+        // $_POST['donthit'] = '0';
+        // $_POST['searchable'] = '1';
+        // $_POST['cacheable'] = '1';
+        // $_POST['syncsite'] = '1';
+        // $_POST['docgroups'] = $docGroups;
         
-        require __DIR__ . DIRECTORY_SEPARATOR . 'save_content.processor.php';
+        // require $this->getApp()->getDirectoryAbsolutePath() . DIRECTORY_SEPARATOR . 'modx' . DIRECTORY_SEPARATOR . 'processors' . DIRECTORY_SEPARATOR . 'save_content.processor.php';
+        
+        require_once ($modx->config['base_path'] . DIRECTORY_SEPARATOR . 'assets' . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR . 'resourse.php');
+        $resourse = \resourse::Instance($modx);
+        $resourse->document();
+        $resourse->set('pagetitle', $page->getName());
+        $resourse->set('description', $page->getShortDescription());
+        $resourse->set('alias', $page->getAliasWithNamespace());
+        $resourse->set('template', $modx->config['default_template']);
+        $resourse->set('menuindex', $page->getMenuIndex());
+        $resourse->set('parent', $parentIdCms);
+        $resourse->set('content', $page->getContents());
+        $resourse->set($this::TV_UID_NAME, $page->getId());
+        $resourse->set($this::TV_APP_ALIAS_NAME, $page->getAppAlias());
+        $resourse->set($this::TV_DO_UPDATE_NAME, $page->isUpdateable() ? '1' : '0');
+        $resourse->set($this::TV_REPLACE_ALIAS_NAME, $page->getReplacesPageAlias());
+        $resourse->set('hidemenu', '0');
+        $idCms = $resourse->save(true, true);
+        
+        // Document Groups setzen.
+        foreach ($docGroups as $docGroup) {
+            $modx->db->insert([
+                'document_group' => $docGroup,
+                'document' => $idCms
+            ], $modx->getFullTableName('document_groups'));
+        }
+        
+        // secure web documents - flag as private
+        require_once $this->getApp()->getDirectoryAbsolutePath() . DIRECTORY_SEPARATOR . 'modx' . DIRECTORY_SEPARATOR . 'processors' . DIRECTORY_SEPARATOR . 'secure_web_documents.inc.php';
+        secureWebDocument($idCms);
+        
+        // secure manager documents - flag as private
+        require_once $this->getApp()->getDirectoryAbsolutePath() . DIRECTORY_SEPARATOR . 'modx' . DIRECTORY_SEPARATOR . 'processors' . DIRECTORY_SEPARATOR . 'secure_mgr_documents.inc.php';
+        secureMgrDocument($idCms);
     }
 
     /**
@@ -722,11 +755,11 @@ class Modx implements CmsConnectorInterface
         global $modx;
         
         // IDs der Template-Variablen bestimmen.
-        $result = $modx->db->select('mst.id as id, mst.name as name', $modx->getFullTableName('site_tmplvars') . ' mst');
-        $tvIds = [];
-        while ($row = $modx->db->getRow($result)) {
-            $tvIds[$row['name']] = $row['id'];
-        }
+        // $result = $modx->db->select('mst.id as id, mst.name as name', $modx->getFullTableName('site_tmplvars') . ' mst');
+        // $tvIds = [];
+        // while ($row = $modx->db->getRow($result)) {
+        // $tvIds[$row['name']] = $row['id'];
+        // }
         
         // Page IDs bestimmen.
         $idCms = $this->getPageIds($page->getId())['idCms'];
@@ -743,58 +776,73 @@ class Modx implements CmsConnectorInterface
         }
         
         // Vorhandene Document Groups ermitteln.
-        $result = $modx->db->select('dg.document_group as document_group', $modx->getFullTableName('document_groups') . ' dg', 'dg.document = ' . $idCms);
-        $docGroups = [];
-        while ($row = $modx->db->getRow($result)) {
-            $docGroups[] = $row['document_group'];
-        }
+        // $result = $modx->db->select('dg.document_group as document_group', $modx->getFullTableName('document_groups') . ' dg', 'dg.document = ' . $idCms);
+        // $docGroups = [];
+        // while ($row = $modx->db->getRow($result)) {
+        // $docGroups[] = $row['document_group'];
+        // }
         
         // Vorhandenes Template ermitteln.
-        $result = $modx->db->select('msc.template as template', $modx->getFullTableName('site_content') . ' msc', 'msc.id = ' . $idCms);
-        if ($modx->db->getRecordCount($result) == 0) {
-            throw new UiPageNotFoundError('No page with CMS-ID "' . $idCms . '" defined.');
-        } elseif ($modx->db->getRecordCount($result) == 1) {
-            $row = $modx->db->getRow($result);
-            $template = $row['template'];
-        } else {
-            throw new UiPageIdNotUniqueError('More than one page with CMS-ID "' . $idCms . '" defined.');
-        }
+        // $result = $modx->db->select('msc.template as template', $modx->getFullTableName('site_content') . ' msc', 'msc.id = ' . $idCms);
+        // if ($modx->db->getRecordCount($result) == 0) {
+        // throw new UiPageNotFoundError('No page with CMS-ID "' . $idCms . '" defined.');
+        // } elseif ($modx->db->getRecordCount($result) == 1) {
+        // $row = $modx->db->getRow($result);
+        // $template = $row['template'];
+        // } else {
+        // throw new UiPageIdNotUniqueError('More than one page with CMS-ID "' . $idCms . '" defined.');
+        // }
         
-        $_POST['id'] = $idCms;
-        $_POST['mode'] = $this::MODX_UPDATE_ACTION;
-        $_POST['pagetitle'] = $page->getName();
-        $_POST['longtitle'] = '';
-        $_POST['description'] = $page->getShortDescription();
-        $_POST['alias'] = $page->getAliasWithNamespace();
-        $_POST['link_attributes'] = '';
-        $_POST['introtext'] = '';
-        $_POST['template'] = $template;
-        $_POST['menutitle'] = '';
-        $_POST['menuindex'] = $page->getMenuIndex();
-        $_POST['hidemenu'] = '0';
-        $_POST['parent'] = $parentIdCms;
-        $_REQUEST['parent'] = $parentIdCms;
-        $_POST['ta'] = $page->getContents();
-        $_POST['tv' . $tvIds[$this::TV_UID_NAME]] = $page->getId();
-        $_POST['tv' . $tvIds[$this::TV_APP_ALIAS_NAME]] = $page->getAppAlias();
-        $_POST['tv' . $tvIds[$this::TV_DO_UPDATE_NAME]] = $page->isUpdateable() ? '1' : '0';
-        $_POST['tv' . $tvIds[$this::TV_REPLACE_ALIAS_NAME]] = $page->getReplacesPageAlias();
-        $_POST['published'] = '1';
-        $_POST['pub_date'] = '';
-        $_POST['unpub_date'] = '';
-        $_POST['type'] = 'document';
-        $_POST['contentType'] = 'text/html';
-        $_POST['content_dispo'] = '0';
-        $_POST['isfolder'] = '0';
-        $_POST['alias_visible'] = '1';
-        $_POST['richtext'] = '1';
-        $_POST['donthit'] = '0';
-        $_POST['searchable'] = '1';
-        $_POST['cacheable'] = '1';
-        $_POST['syncsite'] = '1';
-        $_POST['docgroups'] = $docGroups;
+        // $_POST['id'] = $idCms;
+        // $_POST['mode'] = $this::MODX_UPDATE_ACTION;
+        // $_POST['pagetitle'] = $page->getName();
+        // $_POST['longtitle'] = '';
+        // $_POST['description'] = $page->getShortDescription();
+        // $_POST['alias'] = $page->getAliasWithNamespace();
+        // $_POST['link_attributes'] = '';
+        // $_POST['introtext'] = '';
+        // $_POST['template'] = $template;
+        // $_POST['menutitle'] = '';
+        // $_POST['menuindex'] = $page->getMenuIndex();
+        // $_POST['hidemenu'] = '0';
+        // $_POST['parent'] = $parentIdCms;
+        // $_REQUEST['parent'] = $parentIdCms;
+        // $_POST['ta'] = $page->getContents();
+        // $_POST['tv' . $tvIds[$this::TV_UID_NAME]] = $page->getId();
+        // $_POST['tv' . $tvIds[$this::TV_APP_ALIAS_NAME]] = $page->getAppAlias();
+        // $_POST['tv' . $tvIds[$this::TV_DO_UPDATE_NAME]] = $page->isUpdateable() ? '1' : '0';
+        // $_POST['tv' . $tvIds[$this::TV_REPLACE_ALIAS_NAME]] = $page->getReplacesPageAlias();
+        // $_POST['published'] = '1';
+        // $_POST['pub_date'] = '';
+        // $_POST['unpub_date'] = '';
+        // $_POST['type'] = 'document';
+        // $_POST['contentType'] = 'text/html';
+        // $_POST['content_dispo'] = '0';
+        // $_POST['isfolder'] = '0';
+        // $_POST['alias_visible'] = '1';
+        // $_POST['richtext'] = '1';
+        // $_POST['donthit'] = '0';
+        // $_POST['searchable'] = '1';
+        // $_POST['cacheable'] = '1';
+        // $_POST['syncsite'] = '1';
+        // $_POST['docgroups'] = $docGroups;
         
-        require __DIR__ . DIRECTORY_SEPARATOR . 'save_content.processor.php';
+        // require $this->getApp()->getDirectoryAbsolutePath() . DIRECTORY_SEPARATOR . 'modx' . DIRECTORY_SEPARATOR . 'processors' . DIRECTORY_SEPARATOR . 'save_content.processor.php';
+        
+        require_once ($modx->config['base_path'] . DIRECTORY_SEPARATOR . 'assets' . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR . 'resourse.php');
+        $resourse = \resourse::Instance($modx);
+        $resourse->edit($idCms);
+        $resourse->set('pagetitle', $page->getName());
+        $resourse->set('description', $page->getShortDescription());
+        $resourse->set('alias', $page->getAliasWithNamespace());
+        $resourse->set('menuindex', $page->getMenuIndex());
+        $resourse->set('parent', $parentIdCms);
+        $resourse->set('content', $page->getContents());
+        $resourse->set($this::TV_UID_NAME, $page->getId());
+        $resourse->set($this::TV_APP_ALIAS_NAME, $page->getAppAlias());
+        $resourse->set($this::TV_DO_UPDATE_NAME, $page->isUpdateable() ? '1' : '0');
+        $resourse->set($this::TV_REPLACE_ALIAS_NAME, $page->getReplacesPageAlias());
+        $resourse->save(true, true);
     }
 
     /**
@@ -812,7 +860,12 @@ class Modx implements CmsConnectorInterface
         
         $_GET['id'] = $this->getPageIds($id_or_alias)['idCms'];
         
-        require __DIR__ . DIRECTORY_SEPARATOR . 'delete_content.processor.php';
+        require $this->getApp()->getDirectoryAbsolutePath() . DIRECTORY_SEPARATOR . 'modx' . DIRECTORY_SEPARATOR . 'processors' . DIRECTORY_SEPARATOR . 'delete_content.processor.php';
+        
+        // resourse->delete loescht die Seiten sofort hart (ohne Verwendung des Papierkorbs).
+        // require_once ($modx->config['base_path'] . DIRECTORY_SEPARATOR . 'assets' . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR . 'resourse.php');
+        // $resourse = \resourse::Instance($modx);
+        // $resourse->delete($this->getPageIds($id_or_alias)['idCms']);
     }
 
     /**
@@ -822,7 +875,7 @@ class Modx implements CmsConnectorInterface
      */
     public function clearCMSRecycleBin()
     {
-        require __DIR__ . DIRECTORY_SEPARATOR . 'remove_content.processor.php';
+    	require $this->getApp()->getDirectoryAbsolutePath() . DIRECTORY_SEPARATOR . 'modx' . DIRECTORY_SEPARATOR . 'processors' . DIRECTORY_SEPARATOR . 'remove_content.processor.php';
     }
 
     /**
