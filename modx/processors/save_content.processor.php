@@ -11,7 +11,7 @@ $_lang = array();
 include MODX_MANAGER_PATH . 'includes' . DIRECTORY_SEPARATOR . 'lang' . DIRECTORY_SEPARATOR . 'english.inc.php';
 
 // get the settings from the database
-include MODX_MANAGER_PATH . 'includes' . DIRECTORY_SEPARATOR . 'settings.inc.php'; //dort IN_MANAGER_MODE-Check auskommentiert, aka's Aenderung?
+include __DIR__ . DIRECTORY_SEPARATOR . 'settings.inc.php';
 // sfl: Ende der Aenderungen um Variablen zu initialisieren.
 
 // sfl: IN_MANAGER_MODE-Check ausgeschaltet.
