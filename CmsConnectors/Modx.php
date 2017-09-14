@@ -412,7 +412,7 @@ class Modx implements CmsConnectorInterface
             $this->fillPageFromModx($uiPage);
         } else {
             // Die Seite muss aus der Datenbank geladen werden.
-            $result = $modx->db->select('msc.id as id, msc.pagetitle as name, msc.description as shortDescription, msc.alias as alias, msc.template as template, msc.menuindex as menuIndex, msc.parent as menuParentIdCms, msc.content as contents', $siteContent . ' msc', 'msc.alias = "' . $alias_with_namespace . '"');
+            $result = $modx->db->select('msc.id as id, msc.pagetitle as name, msc.description as shortDescription, msc.alias as alias, msc.template as template, msc.menuindex as menuIndex, msc.hidemenu as hideMenu, msc.parent as menuParentIdCms, msc.content as contents', $siteContent . ' msc', 'msc.alias = "' . $alias_with_namespace . '"');
             if ($modx->db->getRecordCount($result) == 0) {
                 throw new UiPageNotFoundError('No page with alias "' . $alias_with_namespace . '" defined.');
             } elseif ($modx->db->getRecordCount($result) == 1) {
@@ -455,7 +455,7 @@ class Modx implements CmsConnectorInterface
             $this->fillPageFromModx($uiPage);
         } else {
             // Die Seite muss aus der Datenbank geladen werden.
-            $result = $modx->db->select('msc.id as id, msc.pagetitle as name, msc.description as shortDescription, msc.alias as alias, msc.template as template, msc.menuindex as menuIndex, msc.parent as menuParentIdCms, msc.content as contents', $siteContent . ' msc left join ' . $siteTmplvarContentvalues . ' mstc on msc.id = mstc.contentid left join ' . $siteTmplvars . ' mst on mstc.tmplvarid = mst.id', 'mst.name = "' . $this::TV_UID_NAME . '" and mstc.value = "' . $uid . '"');
+            $result = $modx->db->select('msc.id as id, msc.pagetitle as name, msc.description as shortDescription, msc.alias as alias, msc.template as template, msc.menuindex as menuIndex, msc.hidemenu as hideMenu, msc.parent as menuParentIdCms, msc.content as contents', $siteContent . ' msc left join ' . $siteTmplvarContentvalues . ' mstc on msc.id = mstc.contentid left join ' . $siteTmplvars . ' mst on mstc.tmplvarid = mst.id', 'mst.name = "' . $this::TV_UID_NAME . '" and mstc.value = "' . $uid . '"');
             if ($modx->db->getRecordCount($result) == 0) {
                 throw new UiPageNotFoundError('No page with UID "' . $uid . '" defined.');
             } elseif ($modx->db->getRecordCount($result) == 1) {
@@ -498,7 +498,7 @@ class Modx implements CmsConnectorInterface
             $this->fillPageFromModx($uiPage);
         } else {
             // Die Seite muss aus der Datenbank geladen werden.
-            $result = $modx->db->select('msc.id as id, msc.pagetitle as name, msc.description as shortDescription, msc.alias as alias, msc.template as template, msc.menuindex as menuIndex, msc.parent as menuParentIdCms, msc.content as contents', $siteContent . ' msc', 'msc.id = ' . $page_id_cms);
+            $result = $modx->db->select('msc.id as id, msc.pagetitle as name, msc.description as shortDescription, msc.alias as alias, msc.template as template, msc.menuindex as menuIndex, msc.hidemenu as hideMenu, msc.parent as menuParentIdCms, msc.content as contents', $siteContent . ' msc', 'msc.id = ' . $page_id_cms);
             if ($modx->db->getRecordCount($result) == 0) {
                 throw new UiPageNotFoundError('No page with CMS-ID "' . $page_id_cms . '" defined.');
             } elseif ($modx->db->getRecordCount($result) == 1) {
@@ -569,6 +569,7 @@ class Modx implements CmsConnectorInterface
         $uiPage->setShortDescription($modx->documentObject['description']);
         $uiPage->setAliasWithNamespace($modx->documentObject['alias']);
         $uiPage->setMenuIndex($modx->documentObject['menuindex']);
+        $uiPage->setMenuVisible(! $modx->documentObject['hidemenu']);
         $uiPage->setMenuParentIdCms($modx->documentObject['parent']);
         $uiPage->setId($modx->documentObject[$this::TV_UID_NAME] ? $modx->documentObject[$this::TV_UID_NAME][1] : $this::TV_UID_DEFAULT);
         $uiPage->setAppAlias($modx->documentObject[$this::TV_APP_ALIAS_NAME] ? $modx->documentObject[$this::TV_APP_ALIAS_NAME][1] : $this::TV_APP_ALIAS_DEFAULT);
@@ -594,6 +595,7 @@ class Modx implements CmsConnectorInterface
         $uiPage->setShortDescription($row['shortDescription']);
         $uiPage->setAliasWithNamespace($row['alias']);
         $uiPage->setMenuIndex($row['menuIndex']);
+        $uiPage->setMenuVisible(! $row['hideMenu']);
         $uiPage->setMenuParentIdCms($row['menuParentIdCms']);
         
         $tmplVars = [];
@@ -656,16 +658,23 @@ class Modx implements CmsConnectorInterface
         // }
         
         // Page IDs bestimmen.
-        $parentId = $page->getMenuParentId() ? $page->getMenuParentId() : $this::DEFAULT_MENU_PARENT_ID;
-        $parentIdCms = $this->getPageIds($parentId)['idCms'];
-        if (! $parentIdCms && $parentId != $this::DEFAULT_MENU_PARENT_ID) {
-            // Die Parent-Seite hat eine ID, welche im CMS nicht existiert.
-            $parentId = $this::DEFAULT_MENU_PARENT_ID;
+        try {
+            $parentId = $page->getMenuParentId() ? $page->getMenuParentId() : $this::DEFAULT_MENU_PARENT_ID;
             $parentIdCms = $this->getPageIds($parentId)['idCms'];
-        }
-        if (! $parentIdCms) {
-            // Die Default-Parent Seite existiert nicht im CMS.
-            throw new UiPageNotFoundError('The default parent page doesn\'t exist in the CMS.');
+        } catch (UiPageNotFoundError $upnfe) {
+            // Die Parent-Seite hat eine ID, welche im CMS nicht existiert.
+            if ($parentId != $this::DEFAULT_MENU_PARENT_ID) {
+                try {
+                    $parentId = $this::DEFAULT_MENU_PARENT_ID;
+                    $parentIdCms = $this->getPageIds($parentId)['idCms'];
+                } catch (UiPageNotFoundError $upnfe) {
+                    // Die Default-Parent Seite existiert nicht im CMS.
+                    throw new UiPageNotFoundError('The default parent page doesn\'t exist in the CMS.');
+                }
+            } else {
+                // Die Default-Parent Seite existiert nicht im CMS.
+                throw new UiPageNotFoundError('The default parent page doesn\'t exist in the CMS.');
+            }
         }
         
         // Parent Document Groups bestimmen.
@@ -686,7 +695,7 @@ class Modx implements CmsConnectorInterface
         // $_POST['template'] = $modx->config['default_template'];
         // $_POST['menutitle'] = '';
         // $_POST['menuindex'] = $page->getMenuIndex();
-        // $_POST['hidemenu'] = '0';
+        // $_POST['hidemenu'] = $page->getMenuVisible() ? '0' : '1';
         // $_POST['parent'] = $parentIdCms;
         // $_REQUEST['parent'] = $parentIdCms;
         // $_POST['ta'] = $page->getContents();
@@ -719,21 +728,26 @@ class Modx implements CmsConnectorInterface
         $resourse->set('alias', $page->getAliasWithNamespace());
         $resourse->set('template', $modx->config['default_template']);
         $resourse->set('menuindex', $page->getMenuIndex());
+        $resourse->set('hidemenu', $page->getMenuVisible() ? '0' : '1');
         $resourse->set('parent', $parentIdCms);
         $resourse->set('content', $page->getContents());
         $resourse->set($this::TV_UID_NAME, $page->getId());
         $resourse->set($this::TV_APP_ALIAS_NAME, $page->getAppAlias());
         $resourse->set($this::TV_DO_UPDATE_NAME, $page->isUpdateable() ? '1' : '0');
         $resourse->set($this::TV_REPLACE_ALIAS_NAME, $page->getReplacesPageAlias());
-        $resourse->set('hidemenu', '0');
         $idCms = $resourse->save(true, true);
         
-        // Document Groups setzen.
+        // document access permissions
         foreach ($docGroups as $docGroup) {
             $modx->db->insert([
                 'document_group' => $docGroup,
                 'document' => $idCms
             ], $modx->getFullTableName('document_groups'));
+        }
+        
+        // update parent folder status
+        if ($parentIdCms != 0) {
+            $modx->db->update(['isfolder' => 1], $modx->getFullTableName('site_content'), "id='{$parentIdCms}'");
         }
         
         // secure web documents - flag as private
@@ -763,16 +777,23 @@ class Modx implements CmsConnectorInterface
         
         // Page IDs bestimmen.
         $idCms = $this->getPageIds($page->getId())['idCms'];
-        $parentId = $page->getMenuParentId() ? $page->getMenuParentId() : $this::DEFAULT_MENU_PARENT_ID;
-        $parentIdCms = $this->getPageIds($parentId)['idCms'];
-        if (! $parentIdCms && $parentId != $this::DEFAULT_MENU_PARENT_ID) {
-            // Die Parent-Seite hat eine ID, welche im CMS nicht existiert.
-            $parentId = $this::DEFAULT_MENU_PARENT_ID;
+        try {
+            $parentId = $page->getMenuParentId() ? $page->getMenuParentId() : $this::DEFAULT_MENU_PARENT_ID;
             $parentIdCms = $this->getPageIds($parentId)['idCms'];
-        }
-        if (! $parentIdCms) {
-            // Die Default-Parent Seite existiert nicht im CMS.
-            throw new UiPageNotFoundError('The default parent page doesn\'t exist in the CMS.');
+        } catch (UiPageNotFoundError $upnfe) {
+            // Die Parent-Seite hat eine ID, welche im CMS nicht existiert.
+            if ($parentId != $this::DEFAULT_MENU_PARENT_ID) {
+                try {
+                    $parentId = $this::DEFAULT_MENU_PARENT_ID;
+                    $parentIdCms = $this->getPageIds($parentId)['idCms'];
+                } catch (UiPageNotFoundError $upnfe) {
+                    // Die Default-Parent Seite existiert nicht im CMS.
+                    throw new UiPageNotFoundError('The default parent page doesn\'t exist in the CMS.');
+                }
+            } else {
+                // Die Default-Parent Seite existiert nicht im CMS.
+                throw new UiPageNotFoundError('The default parent page doesn\'t exist in the CMS.');
+            }
         }
         
         // Vorhandene Document Groups ermitteln.
@@ -804,7 +825,7 @@ class Modx implements CmsConnectorInterface
         // $_POST['template'] = $template;
         // $_POST['menutitle'] = '';
         // $_POST['menuindex'] = $page->getMenuIndex();
-        // $_POST['hidemenu'] = '0';
+        // $_POST['hidemenu'] = $page->getMenuVisible() ? '0' : '1';
         // $_POST['parent'] = $parentIdCms;
         // $_REQUEST['parent'] = $parentIdCms;
         // $_POST['ta'] = $page->getContents();
@@ -836,6 +857,7 @@ class Modx implements CmsConnectorInterface
         $resourse->set('description', $page->getShortDescription());
         $resourse->set('alias', $page->getAliasWithNamespace());
         $resourse->set('menuindex', $page->getMenuIndex());
+        $resourse->set('hidemenu', $page->getMenuVisible() ? '0' : '1');
         $resourse->set('parent', $parentIdCms);
         $resourse->set('content', $page->getContents());
         $resourse->set($this::TV_UID_NAME, $page->getId());
@@ -843,6 +865,11 @@ class Modx implements CmsConnectorInterface
         $resourse->set($this::TV_DO_UPDATE_NAME, $page->isUpdateable() ? '1' : '0');
         $resourse->set($this::TV_REPLACE_ALIAS_NAME, $page->getReplacesPageAlias());
         $resourse->save(true, true);
+        
+        // update parent folder status
+        if ($parentIdCms != 0) {
+            $modx->db->update(['isfolder' => 1], $modx->getFullTableName('site_content'), "id='{$parentIdCms}'");
+        }
     }
 
     /**
@@ -875,7 +902,7 @@ class Modx implements CmsConnectorInterface
      */
     public function clearCMSRecycleBin()
     {
-    	require $this->getApp()->getDirectoryAbsolutePath() . DIRECTORY_SEPARATOR . 'modx' . DIRECTORY_SEPARATOR . 'processors' . DIRECTORY_SEPARATOR . 'remove_content.processor.php';
+        require $this->getApp()->getDirectoryAbsolutePath() . DIRECTORY_SEPARATOR . 'modx' . DIRECTORY_SEPARATOR . 'processors' . DIRECTORY_SEPARATOR . 'remove_content.processor.php';
     }
 
     /**
