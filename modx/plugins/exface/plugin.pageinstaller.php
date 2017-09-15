@@ -1,5 +1,4 @@
 <?php
-
 use Ramsey\Uuid\Uuid;
 
 const TV_APP_ALIAS_NAME = 'ExfacePageAppAlias';
@@ -10,8 +9,6 @@ const TV_UID_NAME = 'ExfacePageUID';
 
 const TV_DO_UPDATE_NAME = 'ExfacePageDoUpdate';
 
-// TODO dieses Plugin wird unabhaengig von exface aufgerufen, benoetigt aber die autoload.php
-// fuer ramsey/uuid
 require_once MODX_BASE_PATH . 'exface' . DIRECTORY_SEPARATOR . 'vendor' . DIRECTORY_SEPARATOR . 'autoload.php';
 
 switch ($modx->event->name) {
@@ -53,8 +50,6 @@ switch ($modx->event->name) {
         }
         
         // UID setzen.
-        // TODO besser ueber eine custom TV loesen, die nicht bearbeitbar ist. Jetzt ist die UID
-        // von Hand bearbeitbar.
         if (! $_POST['tv' . $tvIds[TV_UID_NAME]]) {
             $_POST['tv' . $tvIds[TV_UID_NAME]] = '0x' . Uuid::uuid1()->getHex();
         }

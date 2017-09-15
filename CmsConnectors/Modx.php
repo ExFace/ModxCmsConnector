@@ -513,12 +513,14 @@ class Modx implements CmsConnectorInterface
     }
 
     /**
-     *
-     * @param resource $sql_result
-     * @param string $id
+     * Checks if a UiPage is replaced by another UiPage and returns the replacement if so.
+     * 
+     * @param resource $sql_result contains the page_id_or_alias as id of the replacement page
+     * @param string $id the page_id_or_alias of the original page
      * @param boolean $ignore_replacements
-     * @param string[] $replaced_ids
-     * @throws RuntimeException
+     * @param string[] $replaced_ids contains the page_id_or_alias of the already replaced pages
+     * @throws RuntimeException if serveral pages replace the same page, or pages are replaced
+     * in a circular fashion
      * @return null|UiPageInterface
      */
     protected function getReplacePage($sql_result, $id, $ignore_replacements, $replaced_ids)
@@ -552,12 +554,13 @@ class Modx implements CmsConnectorInterface
             while ($row = $modx->db->getRow($sql_result)) {
                 $ids[] = $row['id'];
             }
-            throw new RuntimeException('Multiple pages "' . implode(', ', $ids) . '" replace the same page "' . $id . '".');
+            throw new RuntimeException('Several pages "' . implode(', ', $ids) . '" replace the same page "' . $id . '".');
         }
     }
 
     /**
-     *
+     * Fills a UiPage from the currently loaded page in $modx.
+     * 
      * @param UiPageInterface $uiPage
      */
     protected function fillPageFromModx(UiPageInterface $uiPage)
@@ -579,10 +582,11 @@ class Modx implements CmsConnectorInterface
     }
 
     /**
+     * Fills a UiPage from the database.
      * 
      * @param UiPageInterface $uiPage
-     * @param resource $result
-     * @param resource $resultTmplVars
+     * @param resource $result contains the modx_site_contents of the page
+     * @param resource $resultTmplVars contains the modx_site_tmplvar_contentvalues of the page
      */
     protected function fillPageFromDb(UiPageInterface $uiPage, $result, $resultTmplVars)
     {
@@ -747,7 +751,9 @@ class Modx implements CmsConnectorInterface
         
         // update parent folder status
         if ($parentIdCms != 0) {
-            $modx->db->update(['isfolder' => 1], $modx->getFullTableName('site_content'), "id='{$parentIdCms}'");
+            $modx->db->update([
+                'isfolder' => 1
+            ], $modx->getFullTableName('site_content'), "id='{$parentIdCms}'");
         }
         
         // secure web documents - flag as private
@@ -868,7 +874,9 @@ class Modx implements CmsConnectorInterface
         
         // update parent folder status
         if ($parentIdCms != 0) {
-            $modx->db->update(['isfolder' => 1], $modx->getFullTableName('site_content'), "id='{$parentIdCms}'");
+            $modx->db->update([
+                'isfolder' => 1
+            ], $modx->getFullTableName('site_content'), "id='{$parentIdCms}'");
         }
     }
 
@@ -936,8 +944,9 @@ class Modx implements CmsConnectorInterface
      * Determines the IDs of the page (UID, CMS-ID, alias) for any one of them passed.
      * 
      * @param string $page_id_or_alias
-     * @throws UiPageNotFoundError
-     * @throws UiPageIdNotUniqueError
+     * @throws UiPageNotFoundError if no page with the passed UID or CMS-ID or alias exists
+     * @throws UiPageIdNotUniqueError if several pages with the same UID or CMS-ID or alias
+     * exist
      * @return string
      */
     protected function getPageIds($page_id_or_alias)

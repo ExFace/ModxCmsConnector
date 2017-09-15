@@ -101,3 +101,6 @@ END |
 DELIMITER ;
 #Aliase fuer vorhandene Seiten setzen
 UPDATE modx_site_content SET alias = LOWER(alphanum(pagetitle)) WHERE alias IS NULL OR alias = '';
+
+#Alias fuer Anmeldeseite setzen
+UPDATE modx_site_content SET alias = 'login' WHERE id = (SELECT setting_value FROM modx_system_settings WHERE setting_name = 'unauthorized_page');
