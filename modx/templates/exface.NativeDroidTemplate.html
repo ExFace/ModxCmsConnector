@@ -1,0 +1,143 @@
+<!DOCTYPE html PUBLIC "-//WAPFORUM//DTD XHTML Mobile 1.2//EN" "http://www.openmobilealliance.org/tech/DTD/xhtml-mobile12.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+	<head>
+		<base href="[(site_url)]"></base>
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta name="HandheldFriendly" content="True">
+	<meta name="MobileOptimized" content="240"/>
+	<meta name="PalmComputingPlatform" content="true"/>
+	<meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    
+    <!-- Prevents browsers from sending rerferrer-headers for href, img and ajax-requests.
+    This for external media content, where requests may get filtered -->
+    <meta name="referrer" content="no-referrer" />
+    
+	<meta http-equiv="Content-Type" content="text/html; charset=[(modx_charset)]" />
+	<title>[*pagetitle*] :: [(site_name)]</title>
+	
+	<!--<link rel="icon" type="image/vnd.microsoft.icon" href="favicon.ico" />
+	<link rel="shortcut icon" type="image/x-icon" href="favicon.ico" />-->
+	
+	<link rel="shortcut icon" sizes="196x196" href="assets/images/alexa_icon_196.png">
+    <link rel="apple-touch-icon" sizes="128x128" href="assets/images/alexa_icon_128.png">
+    <link rel="apple-touch-icon-precomposed" sizes="128x128" href="assets/images/alexa_icon_128.png">
+	
+	<link rel="stylesheet" href="[(site_url)]exface/vendor/bower-asset/nativedroid2/depricated/vendor/jquerymobile/jquery.mobile.min.css" />
+	
+	<link rel="stylesheet" href="[(site_url)]exface/vendor/bower-asset/nativedroid2/depricated/css/nativedroid2.css" />
+	<link rel="stylesheet" href="[(site_url)]exface/vendor/bower-asset/font-awesome/css/font-awesome.min.css" />
+	
+	<script src="[(site_url)]/exface/vendor/exface/JQueryMobileTemplate/Template/js/jquery-1.8.3.min.js"></script>
+	<script src="[(site_url)]/exface/vendor/exface/JQueryMobileTemplate/Template/js/jquerymobile/jquery.mobile-1.4.5.min.js"></script>
+	<script src="[(site_url)]/exface/vendor/bower-asset/nativedroid2/depricated/js/nativedroid2.js"></script>
+	
+	<script type="text/javascript" src="exface/vendor/npm-asset/screenfull/dist/screenfull.js"></script>
+	<script type="text/javascript" src="exface/vendor/bower-asset/masonry/dist/masonry.pkgd.min.js"></script>
+	
+	<!-- jQuery.NumPad -->
+	<link href="exface/vendor/bower-asset/jquery-numpad/jquery.numpad.css" rel="stylesheet" type="text/css" />
+	<script src='exface/vendor/bower-asset/jquery-numpad/jquery.numpad.js'></script>
+	<script type="text/javascript">
+			// Set NumPad defaults for jQuery mobile. 
+			// These defaults will be applied to all NumPads within this document!
+			$.fn.numpad.defaults.gridTpl = '<table class="ui-bar-a"></table>';
+			$.fn.numpad.defaults.backgroundTpl = '<div class="ui-popup-screen ui-overlay-a"></div>';
+			$.fn.numpad.defaults.displayTpl = '<input data-theme="b" type="text" />';
+			$.fn.numpad.defaults.buttonNumberTpl =  '<a data-role="button" data-theme="b"></a>';
+			$.fn.numpad.defaults.buttonFunctionTpl = '<a data-role="button" data-theme="a"></a>';
+			$.fn.numpad.defaults.onKeypadCreate = function(){$(this).enhanceWithin();};
+	</script>
+	
+	<script src="[(site_url)]/exface/vendor/exface/JQueryMobileTemplate/Template/js/jquery.scannerdetection.js"></script>
+	
+	<!-- 
+	<link rel="stylesheet" type="text/css" href="exface/vendor/exface/JQueryMobileTemplate/Template/js/DataTables/material.min.css">
+	<link rel="stylesheet" type="text/css" href="exface/vendor/exface/JQueryMobileTemplate/Template/js/DataTables/dataTables.material.min.css">
+	-->
+	<link rel="stylesheet" type="text/css" href="exface/vendor/bower-asset/datatables.net-dt/css/jquery.dataTables.min.css">
+	<script type="text/javascript" src="exface/vendor/bower-asset/datatables.net/js/jquery.dataTables.min.js"></script>
+	<script type="text/javascript" src="exface/vendor/exface/JQueryMobileTemplate/Template/js/DataTables/dataTables.material.min.js"></script>
+	<script type="text/javascript" src="exface/vendor/bower-asset/datatables.net-select/js/dataTables.select.min.js"></script>
+        
+	<link rel="stylesheet" type="text/css" href="exface/vendor/exface/JQueryMobileTemplate/Template/js/template.css">
+	
+	
+	<script type="text/javascript">
+	<!--
+		$.mobile.defaultPageTransition = 'none';
+		$(document).on('pagebeforeshow', 'div[data-dialog="true"]', function(event, ui) {						
+			ui.prevPage.addClass("ui-dialog-transparent-bg");
+			ui.prevPage.data("mobile-page").options.domCache = true;
+  			ui.prevPage.unbind("pagehide.remove");
+		});
+		
+		$(document).on('pagehide', 'div[data-dialog="true"]', function(event, ui) {						
+			$('.ui-dialog-transparent-bg').removeClass("ui-dialog-transparent-bg");
+			ui.toPage.page( "option", "domCache", false );
+			ui.toPage.data("mobile-page").options.domCache = false;
+			ui.toPage.bind("pagehide.remove");
+		});
+		
+		exfTapCoordinates = {X: 0, Y: 0};
+		$(document).on('vmousedown', function(event){
+			exfTapCoordinates.X = event.pageX;
+			exfTapCoordinates.Y = event.pageY;
+		});
+		
+		
+		$(function(){
+			$('.masonry').masonry({ "columnWidth": 330, "itemSelector": ".item" });
+		});
+		
+		$(document).on('pageshow', function(){
+			$('.masonry').masonry();
+		});
+
+	-->
+	</script>
+	
+	[!ExFace? &template=`exface.JQueryMobileTemplate` &action=`exface.Core.ShowHeaders`!]
+	
+</head>
+<body>
+	<div data-role="page" id="jqm[*id*]" data-theme="a">
+		
+		<div data-role="header" data-position="fixed" data-tap-toggle="false" class="wow fadeIn">
+			<a href="#leftPanel" data-role="button" class="ui-btn ui-btn-left wow fadeIn" data-wow-delay='0.8s'><i class="fa fa-bars"></i></a>
+			<h1 class="wow fadeIn" data-wow-delay='0.4s'>[*pagetitle*]</h1>
+			<a id="screenfullToggle" data-role="button" class="ui-btn ui-btn-right ui-btn-inline wow fadeIn" href="javascript: if (screenfull.enabled) {screenfull.toggle();}"><i class="fa fa-window-maximize"></i></a>
+			<!--<a href="#rightPanel" data-role="button" class="ui-btn ui-btn-right ui-btn-inline wow fadeIn" ><i class="fa fa-ellipsis-v"></i></a>-->
+		</div>
+		
+		<div data-role="content">
+			[[exface? &template=`exface.JQueryMobileTemplate` &fallback_field=`content`]] 
+		</div><!-- /content -->
+		<div data-role="footer" class="text-center" data-tap-toggle="false">
+			alexa UI
+		</div>
+		
+		<div data-role="panel" data-display="overlay" id="leftPanel">
+			<div class="ui-bar-inherit ui-header ui-panel-header" style="height: 65px">
+				<div style="text-align:center;" class="ui-title"><a href="#"><img src="assets/images/Logo_alexa_RMS.png" /></a></div>
+				<a href="#" data-role="button" data-rel="close" data-iconpos="notext" class="ui-btn ui-btn-right"><i class="fa fa-chevron-left"></i></a>
+			</div>			
+			[!Wayfinder? &startId=`1` &level=`10` &hideSubMenus=`0` 
+			&outerTpl=`@CODE:<ul data-role="listview"  data-filter="true" class="ui-listview-outer [+wf.classnames+]" data-corners="false">[+wf.wrapper+]</ul>` 
+			&innerTpl=`@CODE:<ul data-role="listview" [+wf.classes+] data-corners="false">[+wf.wrapper+]</ul>`
+			&rowTpl=`@CODE:<li[+wf.id+] class="iconLeft [+wf.classnames+]"><a href="[+wf.link+]" title="[+wf.title+]" rel="external" [+wf.attributes+]>[+wf.linktext+]</a>[+wf.wrapper+]</li>`
+			&hereTpl=`@CODE:<li[+wf.id+] class="iconLeft [+wf.classnames+]"><a href="[+wf.link+]" class="ui-btn-active ui-btn ui-btn-icon-right ui-icon-carat-r" title="[+wf.title+]" [+wf.attributes+]>[+wf.linktext+]</a>[+wf.wrapper+]</li>`
+			&parentRowTpl=`@CODE:<li[+wf.classes+] data-role="collapsible" data-shadow="false" data-corners="false"><h2>[+wf.linktext+]</h2>[+wf.wrapper+]</li>`
+			&activeParentRowTpl=`@CODE:<li[+wf.classes+] data-role="collapsible" data-collapsed="false" data-shadow="false" data-corners="false"><h2>[+wf.linktext+]</h2>[+wf.wrapper+]</li>`!]
+		</div>
+		<div data-role="panel" data-display="overlay" data-position="right" id="rightPanel" data-swipe-close="false" data-position-fixed="true">
+			<div class="ui-bar-inherit ui-header ui-panel-header ui-nodisc-icon">
+				<a href="#" data-role="button" data-rel="close" data-icon="navigation-chevron-right" data-iconpos="notext" data-shadow="false" class="ui-corner-all ui-btn-left">???????</a>
+				<h2 class="ui-title">Info</h2>
+			</div>
+		</div>
+		
+	</div><!-- /page -->
+</body>
+</html>
