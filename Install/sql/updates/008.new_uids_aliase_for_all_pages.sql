@@ -6,12 +6,11 @@ UPDATE modx_system_settings SET setting_value = '1' WHERE setting_name = 'automa
 #Transalias Plugin deaktivieren
 UPDATE modx_site_plugins SET disabled = 1 WHERE name = 'TransAlias';
 
-#PageInstaller Plugin hinzufuegen
-INSERT INTO modx_site_plugins (name, description, editor_type, category, cache_type, plugincode, locked, properties, disabled, moduleguid) VALUES
-('ExfacePageInstaller', '', 0, (SELECT mc.id FROM modx_categories mc WHERE mc.category = 'ExFace'), 0, 'require MODX_BASE_PATH.\'assets/plugins/../../exface/vendor/exface/ModxCmsConnector/modx/plugins/exface/plugin.pageinstaller.php\';', 0, '{}', 0, ' ');
-#PageInstaller Plugin mit OnStripAlias Event verbinden
+#Exface Plugin aktivieren
+UPDATE modx_site_plugins SET disabled = 0, name = 'ExFace' WHERE name = 'ExFace User Connector' OR name = 'ExFace';
+#Exface Plugin mit OnDocFormSave Event verbinden
 INSERT INTO modx_site_plugin_events (pluginid, evtid, priority) VALUES
-((SELECT msp.id FROM modx_site_plugins msp WHERE msp.name = 'ExfacePageInstaller'), (SELECT msen.id FROM modx_system_eventnames msen WHERE name = 'OnStripAlias'), 1);
+((SELECT msp.id FROM modx_site_plugins msp WHERE msp.name = 'ExFace'), (SELECT msen.id FROM modx_system_eventnames msen WHERE name = 'OnDocFormSave'), 1);
 
 #Template-Variablen hinzufuegen
 INSERT INTO modx_site_tmplvars (type, name, caption, description, editor_type, category, locked, elements, rank, display, display_params, default_text) VALUES

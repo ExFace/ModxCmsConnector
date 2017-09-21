@@ -1005,5 +1005,24 @@ class Modx implements CmsConnectorInterface
         
         return $pages;
     }
+    
+    /**
+     * Returns an associative array in which the names of the template-variables are the keys
+     * and the their ids are the values.
+     * 
+     * @return string[] ['template_variable_name' => 'template_variable_id', ...]
+     */
+    public function getTemplateVariableIds()
+    {
+        global $modx;
+        
+        $result = $modx->db->select('id, name', $modx->getFullTableName('site_tmplvars'));
+        $tvIds = [];
+        while ($row = $modx->db->getRow($result)) {
+            $tvIds[$row['name']] = $row['id'];
+        }
+        
+        return $tvIds;
+    }
 }
 ?>
