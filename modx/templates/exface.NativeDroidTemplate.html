@@ -61,8 +61,149 @@
 	<script type="text/javascript" src="[(site_url)]exface/vendor/bower-asset/datatables.net/js/jquery.dataTables.min.js"></script>
 	<script type="text/javascript" src="[(site_url)]exface/vendor/bower-asset/datatables.net-select/js/dataTables.select.min.js"></script>
         
-	<link rel="stylesheet" type="text/css" href="[(site_url)]exface/vendor/exface/JQueryMobileTemplate/Template/js/template.css">
+	<!-- <link rel="stylesheet" type="text/css" href="[(site_url)]exface/vendor/exface/JQueryMobileTemplate/Template/js/template.css"> -->
 	
+	<style type="text/css">
+	/* General */
+.text-right {text-align: right;}
+.text-left {text-align: left;}
+.text-center {text-align: center;}
+.exfHidden{display:none !important}
+
+/* Inputs */
+.exface_inputgroup {border-width: 1px 0 0 0 !important; padding: 10px 0 20px 0 !important;}
+
+/* control groups */
+.ui-controlgroup, fieldset.ui-controlgroup {margin-top: 0 !important; margin-bottom: 0 !important;}
+
+/* Dialogs */
+.ui-dialog-contain > .ui-header > .ui-title {margin: 0 25px;}
+.ui-dialog-contain > .ui-header > .ui-title > i {margin-right: 10px;}
+
+/* DataTables */
+table.dataTable.no-footer {border-bottom: none !important;}
+.dataTables_wrapper.no-footer .dataTables_scrollBody, table.dataTable thead th, table.dataTable thead td {border-bottom: 1px solid rgba(0,0,0,.12)}
+.tableFooter {padding: 5px 0}
+.dataTable .detailRow table {width:initial; margin: initial;}
+.dataTable td .ui-checkbox{margin: 0;}
+.dataTable td.ok{background-color: green;}
+.dataTable td.warning{background-color: yellow;}
+.dataTable td.error{background-color: red; color: white;}
+
+/* Tabs */
+ul.nd2Tabs {margin-left: 20px !important;} 
+
+/* nativeDroid2 cards */
+.nd2-card {max-width: none !important;}
+
+/* nativeDroid2 fixes */
+.ui-input-clear.ui-icon-delete:after {background-color: #ccc; width: 18px; height: 18px; margin-left: -9px; margin-top: -9px;}
+
+/* jQuery Mobile customization */
+.ui-content{min-height: calc(100vh - 110px);}
+.ui-dialog-contain .ui-content{min-height: initial;}
+.ui-corner-all {border-radius: 0.4em;}
+.ui-controlgroup.ui-btn-right {top: .4em;}
+.ui-bar.ui-toolbar {padding: 0.1em 1em; min-height: 50px; box-sizing: border-box;}
+.ui-bar.ui-toolbar .ui-btn-inline {margin: 0.4em 0; height: 1.3em; padding-top: 0.35em; padding-bottom: 0.35em;}
+.ui-bar .ui-controlgroup a.ui-btn {padding: 0 .5em; margin: 0; height: 2em; line-height: 2em;}
+.ui-controlgroup-controls .ui-btn-icon-notext {padding: .5em;}
+.ui-bar .ui-btn.ui-btn-icon-notext, .ui-bar .ui-controlgroup {margin: 0.4em 0;}
+.ui-bar .ui-btn-icon-notext {width: 2em;}
+a.ui-slider-handle-snapping { -webkit-transition: none; -moz-transition: none; }
+.ui-dialog .ui-dialog-contain { margin-bottom: 0; margin-right: 10px; }
+.ui-dialog-transparent-bg {display: block !important; opacity: 0.4;}
+.ui-panel-header {margin: -16px -16px 15px -16px; height: 41px;}
+.ui-dialog-header {margin: -17px -17px 20px -17px; max-width: inherit;}
+.ui-header.ui-panel-header h2 {margin: 0 10%;}
+.ui-field-contain>label, .ui-field-contain .ui-controlgroup-label, .ui-field-contain>.ui-rangeslider>label {text-align: right;}
+.ui-field-contain .ui-input-search {margin: 0;}
+.ui-field-contain>ul.ui-listview {float: right;}
+.ui-listview>li>a.ui-btn{height: initial;}
+.ui-btn-icon-notext.ui-btn-corner-all, .ui-btn-icon-notext.ui-corner-all {-webkit-border-radius: 0.4em;	border-radius: 0.4em;}
+
+/* Buttons */
+.dialogButtons{text-align: right;}
+
+/* Cards */		
+.masonry {}
+
+.masonry .item {
+	background: #FFF;
+	border: 1px solid #AAA;
+	margin: 5px;
+	overflow: hidden;
+	border-radius: 0.4em;
+	
+	width:  320px;
+	
+	-webkit-box-sizing: border-box;
+	-moz-box-sizing: border-box;
+	box-sizing: border-box;
+}
+.masonry .item a {text-decoration: none; color: black;}
+.masonry .item h2 {margin: 10px 15px 20px 15px; padding: 0; font-size: 250%;}
+.masonry .item h2 small {padding: 10px 0 0 0; display: block; font-size: initial;}
+.masonry .item h3 {margin: 0; padding: 15px 10px;}
+.masonry .item p {margin: 0px;padding: 10px;}
+.masonry .item i:after {font-size: 40px; color: #ccc;}
+@media ( min-width: 690px ) {
+	.masonry .item.w2 {width: 650px;}
+}
+
+div.holoPressEffectDiv {
+	background-color: #CCCCCC;
+}
+
+/* navigation */
+/* Basic settings */
+.ui-li-static.ui-collapsible {
+	padding: 0;
+}
+.ui-li-static.ui-collapsible > .ui-collapsible-content > .ui-listview,
+.ui-li-static.ui-collapsible > .ui-collapsible-heading {
+	margin: 0;
+}
+.ui-li-static.ui-collapsible > .ui-collapsible-content {
+	padding-top: 0;
+	padding-bottom: 0;
+	padding-right: 0;
+	border-bottom-width: 0;
+}
+/* collapse vertical borders */
+.ui-li-static.ui-collapsible > .ui-collapsible-content > .ui-listview > li.ui-last-child,
+.ui-li-static.ui-collapsible.ui-collapsible-collapsed > .ui-collapsible-heading > a.ui-btn {
+	border-bottom-width: 0;
+}
+.ui-li-static.ui-collapsible > .ui-collapsible-content > .ui-listview > li.ui-first-child,
+.ui-li-static.ui-collapsible > .ui-collapsible-content > .ui-listview > li.ui-first-child > a.ui-btn,
+.ui-li-static.ui-collapsible > .ui-collapsible-heading > a.ui-btn {
+	border-top-width: 0;
+}
+/* Remove right borders */
+.ui-li-static.ui-collapsible > .ui-collapsible-heading > a.ui-btn,
+.ui-li-static.ui-collapsible > .ui-collapsible-content > .ui-listview > .ui-li-static,
+.ui-li-static.ui-collapsible > .ui-collapsible-content > .ui-listview > li > a.ui-btn,
+.ui-li-static.ui-collapsible > .ui-collapsible-content {
+	border-right-width: 0;
+}
+/* Remove left borders */
+/* Here, we need class ui-listview-outer to identify the outermost listview */
+.ui-listview-outer > .ui-li-static.ui-collapsible .ui-li-static.ui-collapsible.ui-collapsible,
+.ui-listview-outer > .ui-li-static.ui-collapsible > .ui-collapsible-heading > a.ui-btn,
+.ui-li-static.ui-collapsible > .ui-collapsible-content {
+	border-left-width: 0;
+}
+/* Make listview icons appear on the left (better for nested listviews)*/
+.iconLeft a{
+	padding-left: 2.5em !important;
+	padding-right: 1em !important;
+}
+.iconLeft a:after{
+	right: auto;
+	left: 9px;
+}
+	</style>
 	
 	<script type="text/javascript">
 	<!--
