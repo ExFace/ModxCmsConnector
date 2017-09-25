@@ -13,13 +13,13 @@ if (! isset($exface)) {
     $exface->start();
 }
 
+// Entsperren des Plugins bevor ein Fehler entsteht oder umgeleitet wird.
+$exface->getCMS()->unlockPlugin($modx->event->activePlugin);
+
 switch ($eventName) {
     // Verhindert, dass Modx Web- und Manager-Nutzer mit dem gleichen Nutzernamen existieren.
     case 'OnBeforeUserFormSave':
     case 'OnBeforeWUsrFormSave':
-        // Entsperren des Plugins bevor u.U. umgeleitet wird.
-        $exface->getCMS()->unlockPlugin($modx->event->activePlugin);
-        
         // Kontrolle auf existierenden Web/Mgr-Nutzernamen entsprechend den Kontrollen in
         // save_user.processor.php und save_web_user.processor.php auf existierenden
         // Mgr/Web-Nutzernamen.
