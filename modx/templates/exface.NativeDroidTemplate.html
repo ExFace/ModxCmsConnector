@@ -104,15 +104,15 @@
 		<div data-role="panel" data-display="overlay" id="leftPanel">
 			<div class="ui-bar-inherit ui-header ui-panel-header" style="height: 65px">
 				<div style="text-align:center;" class="ui-title"><a href="#"><img src="assets/images/Logo_alexa_RMS.png" /></a></div>
-				<a href="#" data-role="button" data-rel="close" data-iconpos="notext" class="ui-btn ui-btn-right"><i class="fa fa-chevron-left"></i></a>
-			</div>			
+				<a href="#" data-role="button" data-rel="close" data-iconpos="notext" class="ui-btn ui-btn-right"><i class="fa fa-chevron-left"></i>asdf</a>
+			</div>		
 			[!Wayfinder? &startId=`1` &level=`10` &hideSubMenus=`0` 
-			&outerTpl=`@CODE:<ul data-role="listview"  data-filter="true" class="ui-listview-outer [+wf.classnames+]" data-corners="false">[+wf.wrapper+]</ul>` 
-			&innerTpl=`@CODE:<ul data-role="listview" [+wf.classes+] data-corners="false">[+wf.wrapper+]</ul>`
-			&rowTpl=`@CODE:<li[+wf.id+] class="iconLeft [+wf.classnames+]"><a href="[+wf.link+]" title="[+wf.title+]" rel="external" [+wf.attributes+]>[+wf.linktext+]</a>[+wf.wrapper+]</li>`
-			&hereTpl=`@CODE:<li[+wf.id+] class="iconLeft [+wf.classnames+]"><a href="[+wf.link+]" class="ui-btn-active ui-btn ui-btn-icon-right ui-icon-carat-r" title="[+wf.title+]" [+wf.attributes+]>[+wf.linktext+]</a>[+wf.wrapper+]</li>`
-			&parentRowTpl=`@CODE:<li[+wf.classes+] data-role="collapsible" data-shadow="false" data-corners="false"><h2>[+wf.linktext+]</h2>[+wf.wrapper+]</li>`
-			&activeParentRowTpl=`@CODE:<li[+wf.classes+] data-role="collapsible" data-collapsed="false" data-shadow="false" data-corners="false"><h2>[+wf.linktext+]</h2>[+wf.wrapper+]</li>`!]
+			&outerTpl=`@CODE:<ul data-role="listview" data-icon="false" data-filter="true" class="ui-listview-outer [+wf.classnames+]">[+wf.wrapper+]</ul>` 
+			&innerTpl=`@CODE:<ul data-role="listview" data-icon="false" [+wf.classes+]>[+wf.wrapper+]</ul>`
+			&rowTpl=`@CODE:<li[+wf.id+] class="[+wf.classnames+]"><a href="[+wf.link+]" title="[+wf.title+]" rel="external" [+wf.attributes+]>[+wf.linktext+]</a>[+wf.wrapper+]</li>`
+			&hereTpl=`@CODE:<li[+wf.id+] class="[+wf.classnames+]"><a href="[+wf.link+]" title="[+wf.title+]" style="font-weight: bold;" [+wf.attributes+]>[+wf.linktext+]</a>[+wf.wrapper+]</li>`
+			&parentRowTpl=`@CODE:<li[+wf.classes+] data-role="collapsible" data-inset="false" data-collapsed-icon="carat-d" data-expanded-icon="carat-d" data-iconpos="right"><h2>[+wf.linktext+]</h2>[+wf.wrapper+]</li>`
+			&activeParentRowTpl=`@CODE:<li[+wf.classes+] data-role="collapsible" data-collapsed="false" data-inset="false"  data-collapsed-icon="carat-d" data-expanded-icon="carat-d" data-iconpos="right"><h2>[+wf.linktext+]</h2>[+wf.wrapper+]</li>`!]
 		</div>
 		<div data-role="panel" data-display="overlay" data-position="right" id="rightPanel" data-swipe-close="false" data-position-fixed="true">
 			<div class="ui-bar-inherit ui-header ui-panel-header ui-nodisc-icon">
