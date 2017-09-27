@@ -63,7 +63,7 @@ class ModxCmsConnectorInstaller extends AbstractAppInstaller
      */
     public function backup($destination_absolute_path)
     {
-        return 'Backup not implemented for' . $this->getNameResolver()->getAliasWithNamespace() . '!';
+        return 'Backup not implemented for installer "' . $this->getNameResolver()->getAliasWithNamespace() . '"!';
     }
 }
 ?>
