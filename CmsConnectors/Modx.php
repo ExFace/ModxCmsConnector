@@ -353,6 +353,26 @@ class Modx implements CmsConnectorInterface
     }
     
     /**
+     *
+     * @param string $username
+     * @throws RuntimeException
+     * @return unknown
+     */
+    public function getModxWebUserId($username) {
+        global $modx;
+        
+        $web_users = $modx->getFullTableName('web_users');
+        $result = $modx->db->select('wu.id as id', $web_users . ' wu', 'wu.username = "' . $modx->db->escape($username) . '"');
+        if ($modx->db->getRecordCount($result) == 0) {
+            throw new RuntimeException('No Modx web user with username "' . $username . '" defined.');
+        } elseif ($modx->db->getRecordCount($result) == 1) {
+            return $modx->db->getRow($result)['id'];
+        } else {
+            throw new RuntimeException('More than one Modx web user with username "' . $username . '" defined.');
+        }
+    }
+    
+    /**
      * Tests if the passed $username is a modx manager user.
      * 
      * @param string $username
