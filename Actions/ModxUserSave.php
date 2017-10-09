@@ -165,7 +165,7 @@ class ModxUserSave extends AbstractAction
         $modUser->set('email', $this->getEmailUnique());
         
         // Speichern des geaenderten Nutzers.
-        $id = $modUser->save(false, true);
+        $id = $modUser->save(false);
         if ($id === false) {
             throw new ActionRuntimeError($this, 'Error saving modx user "' . $modUser->get('username') . '".');
         }
