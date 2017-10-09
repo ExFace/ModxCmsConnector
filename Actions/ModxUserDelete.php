@@ -30,8 +30,8 @@ class ModxUserDelete extends AbstractAction
             throw new ActionInputInvalidObjectError($this, 'InputDataSheet with "exface.Core.USER" required, "' . $this->getInputDataSheet()->getMetaObject()->getAliasWithNamespace() . '" given instead.');
         }
         
-        require_once MODX_BASE_PATH . 'assets' . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR . 'MODxAPI' . DIRECTORY_SEPARATOR . 'modUsers.php';
         $modx = $this->getWorkbench()->getApp('exface.ModxCmsConnector')->getModx();
+        require_once $modx->getConfig('base_path') . 'assets' . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR . 'MODxAPI' . DIRECTORY_SEPARATOR . 'modUsers.php';
         /** @var Modx $modxCmsConnector */
         $modxCmsConnector = $this->getWorkbench()->getCMS();
         $modUser = new \modUsers($modx);
@@ -51,8 +51,30 @@ class ModxUserDelete extends AbstractAction
                 $modUser->delete($modxCmsConnector->getModxWebUserId($row['USERNAME']));
             } elseif ($modxCmsConnector->isModxMgrUser($row['USERNAME'])) {
                 // Delete Manageruser.
-                // TODO
+                $this->deleteMgrUser($modxCmsConnector->getModxMgrUserId($row['USERNAME']));
             }
         }
+    }
+    
+    /**
+     * Deletes the Modx manager user with the given id.
+     *
+     * @param integer $id
+     */
+    private function deleteMgrUser($id)
+    {
+        $modx = $this->getWorkbench()->getApp('exface.ModxCmsConnector')->getModx();
+        
+        // delete the user.
+        $modx->db->delete($modx->getFullTableName('manager_users'), "id='{$id}'");
+        
+        // delete user groups
+        $modx->db->delete($modx->getFullTableName('member_groups'), "member='{$id}'");
+        
+        // delete user settings
+        $modx->db->delete($modx->getFullTableName('user_settings'), "user='{$id}'");
+        
+        // delete the attributes
+        $modx->db->delete($modx->getFullTableName('user_attributes'), "internalKey='{$id}'");
     }
 }
