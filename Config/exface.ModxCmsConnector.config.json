@@ -1,5 +1,19 @@
 {
 	"PATH_TO_MODX": "../index-exface.php",
 	"LAST_PERFORMED_MODEL_SOURCE_UPDATE_ID": 1,
-	"EMAIL_SCHEMA_DEFAULT": "[#username#]@mydomain.com"
+	"EMAIL_SCHEMA_DEFAULT": "[#username#]@mydomain.com",
+	
+	"USERS.LOCALE_COUNTRY_MAPPING": {
+		"fr_FR" : "73",
+        "de_DE" : "81",
+        "en_GB" : "222",
+        "en_US" : "223"
+	},
+	"USERS.LANGUAGE_LOCALE_MAPPING": {
+		"english-british" : "en_GB",
+        "english" : "en_US",
+        "francais-utf8" : "fr_FR",
+        "francais": "fr_FR",
+        "german" : "de_DE"
+	}
 }
