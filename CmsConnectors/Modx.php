@@ -353,10 +353,11 @@ class Modx implements CmsConnectorInterface
     }
     
     /**
-     *
+     * Returns the id of the web user with the given username.
+     * 
      * @param string $username
      * @throws RuntimeException
-     * @return unknown
+     * @return integer
      */
     public function getModxWebUserId($username) {
         global $modx;
@@ -388,6 +389,27 @@ class Modx implements CmsConnectorInterface
             return false;
         } elseif ($modx->db->getRecordCount($result) == 1) {
             return true;
+        } else {
+            throw new RuntimeException('More than one Modx manager user with username "' . $username . '" defined.');
+        }
+    }
+    
+    /**
+     * Returns the id of the manager user with the given username.
+     * 
+     * @param string $username
+     * @throws RuntimeException
+     * @return integer
+     */
+    public function getModxMgrUserId($username) {
+        global $modx;
+        
+        $mgr_users = $modx->getFullTableName('manager_users');
+        $result = $modx->db->select('mu.id as id', $mgr_users . ' mu', 'mu.username = "' . $modx->db->escape($username) . '"');
+        if ($modx->db->getRecordCount($result) == 0) {
+            throw new RuntimeException('No Modx manager user with username "' . $username . '" defined.');
+        } elseif ($modx->db->getRecordCount($result) == 1) {
+            return $modx->db->getRow($result)['id'];
         } else {
             throw new RuntimeException('More than one Modx manager user with username "' . $username . '" defined.');
         }
