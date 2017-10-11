@@ -1,12 +1,12 @@
 <?php
 use exface\Core\CommonLogic\Workbench;
-use exface\Core\CommonLogic\Traits\ExfaceUserFunctions;
+use exface\Core\Factories\UserFactory;
+use exface\Core\Exceptions\UserNotFoundError;
 
 $eventName = $modx->event->name;
 
 $vendorPath = MODX_BASE_PATH . 'exface' . DIRECTORY_SEPARATOR . 'vendor' . DIRECTORY_SEPARATOR;
 require_once $vendorPath . 'exface' . DIRECTORY_SEPARATOR . 'Core' . DIRECTORY_SEPARATOR . 'CommonLogic' . DIRECTORY_SEPARATOR . 'Workbench.php';
-require_once $vendorPath . 'exface' . DIRECTORY_SEPARATOR . 'Core' . DIRECTORY_SEPARATOR . 'CommonLogic' . DIRECTORY_SEPARATOR . 'Traits' . DIRECTORY_SEPARATOR . 'ExfaceUserFunctions.php';
 
 global $exface;
 if (! isset($exface)) {
@@ -14,30 +14,11 @@ if (! isset($exface)) {
     $exface->start();
 }
 
-// Mappt Sprachen auf Locales
-// TODO: unvollstaendig siehe Sprachdateien in manager/includes/lang
-$lang_local_map = [
-    'english-british' => 'en_GB',
-    'english' => 'en_US',
-    'francais-utf8' => 'fr_FR',
-    'francais' => 'fr_FR',
-    'german' => 'de_DE',
-    'default' => ''
-];
-
-// Mappt Laendercodes auf Locales
-// TODO: unvollstaendig siehe Laendercodes in manager/includes/lang/country/german_country.inc.php
-$country_local_map = [
-    '73' => 'fr_FR',
-    '74' => 'fr_FR',
-    '81' => 'de_DE',
-    '222' => 'en_GB',
-    '223' => 'en_US',
-    'default' => ''
-];
+$langLocalMap = $exface->getApp('exface.ModxCmsConnector')->getConfig()->getOption('USERS.LANGUAGE_LOCALE_MAPPING')->toArray();
 
 switch ($eventName) {
-    // Verhindert, dass Modx Web- und Manager-Nutzer mit dem gleichen Nutzernamen existieren.
+    // Verhindert, dass Modx Web- und Manager-Nutzer mit dem gleichen Nutzernamen existieren,
+    // wenn ein Modx Nutzer im Backend gespeichert wird.
     case 'OnBeforeUserFormSave':
     case 'OnBeforeWUsrFormSave':
         // Kontrolle auf existierenden Web/Mgr-Nutzernamen entsprechend den Kontrollen in
@@ -60,6 +41,8 @@ switch ($eventName) {
     // Synchronisiert einen Modx-Nutzer mit einem Exface-Nutzer
     case 'OnManagerSaveUser':
     case 'OnWebSaveUser':
+        $userContextScope = $exface->context()->getScopeUser();
+        
         // Vor- und Nachname aus dem vollen Namen ermitteln.
         if (($seppos = strrpos($userfullname, ' ')) !== false) {
             $firstname = substr($userfullname, 0, $seppos);
@@ -70,45 +53,71 @@ switch ($eventName) {
         }
         
         // Locale ermitteln
-        if ($_POST['manager_language']) {
-            $lang = $_POST['manager_language'];
-            if (! array_key_exists($lang, $lang_local_map)) {
-                $lang = 'default';
-            }
-            $locale = $lang_local_map[$lang];
-        } else {
-            $country = $_POST['country'];
-            if (! array_key_exists($country, $country_local_map)) {
-                $country = 'default';
-            }
-            $locale = $country_local_map[$country];
+        if (($lang = $_POST['manager_language']) && array_key_exists($lang, $langLocalMap)) {
+            $locale = $langLocalMap[$lang];
         }
         
-        // Wenn der Nutzername geaendert wurde enthaelt $oldusername den alten, $username den
+        // Wird der Nutzer gerade umbenannt, enthaelt $oldusername den alten, $username den
         // neuen, sonst ist $oldusername leer.
-        $exf_user_old = $oldusername ? ExfaceUserFunctions::exfaceUserRead($oldusername) : null;
-        $exf_user = ExfaceUserFunctions::exfaceUserRead($username);
-        if ($exf_user_old) {
-            if ($exf_user) {
-                ExfaceUserFunctions::exfaceUserDelete($oldusername, $exf_user_old);
-                ExfaceUserFunctions::exfaceUserUpdate($username, $username, $firstname, $lastname, $locale, $exf_user);
+        try {
+            $exfUserOld = $userContextScope->getUserByName($oldusername);
+        } catch (UserNotFoundError $unfe) {}
+        try {
+            $exfUser = $userContextScope->getUserByName($username);
+        } catch (UserNotFoundError $unfe) {}
+        if ($exfUserOld) {
+            if ($exfUser) {
+                // Der Nutzer wird gerade umbenannt. Es existiert ein Exface-Nutzer mit dem
+                // alten Namen. Es existiert ebenso ein Exface-Nutzer mit dem neuen Namen.
+                // Der Nutzer mit dem alten Namen wird geloescht. Der Nutzer mit dem neuen
+                // Namen wird aktualisiert.
+                $userContextScope->deleteUser($exfUserOld);
+                
+                $exfUser->setFirstName($firstname);
+                $exfUser->setLastName($lastname);
+                $exfUser->setLocale($locale);
+                $exfUser->setEmail($useremail);
+                $userContextScope->updateUser($exfUser);
             } else {
-                ExfaceUserFunctions::exfaceUserUpdate($oldusername, $username, $firstname, $lastname, $locale, $exf_user_old);
+                // Der Nutzer wird gerade umbenannt. Es existiert ein Exface-Nutzer mit dem
+                // alten Namen. Es existiert kein Exface-Nutzer mit dem neuen Namen. Der
+                // Nutzer mit dem alten Namen wird aktualisiert.
+                $exfUserOld->setUsername($username);
+                $exfUserOld->setFirstName($firstname);
+                $exfUserOld->setLastName($lastname);
+                $exfUserOld->setLocale($locale);
+                $exfUserOld->setEmail($useremail);
+                $userContextScope->updateUser($exfUserOld);
             }
         } else {
-            if ($exf_user) {
-                ExfaceUserFunctions::exfaceUserUpdate($username, $username, $firstname, $lastname, $locale, $exf_user);
+            if ($exfUser) {
+                // Der Nutzer wird nicht umbenannt. Es existiert ein Exface-Nutzer mit dem
+                // Namen, welcher aktualisert wird.
+                $exfUser->setFirstName($firstname);
+                $exfUser->setLastName($lastname);
+                $exfUser->setLocale($locale);
+                $exfUser->setEmail($useremail);
+                $userContextScope->updateUser($exfUser);
             } else {
-                ExfaceUserFunctions::exfaceUserCreate($username, $firstname, $lastname, $locale);
+                // Der Nutzer wird nicht umbenannt. Es existiert kein Exface-Nutzer mit dem
+                // Namen, daher wird ein neuer Exface-Nutzer angelegt.
+                $userContextScope->createUser(UserFactory::create($exface, $username, $firstname, $lastname, $locale, $useremail));
             }
         }
         
         break;
     
+    // Wird ein Modx-Nutzer geloescht wird auch der entsprechende Exface-Nutzer geloescht.
     case 'OnManagerDeleteUser':
     case 'OnWebDeleteUser':
-        if ($exf_user = ExfaceUserFunctions::exfaceUserRead($username)) {
-            ExfaceUserFunctions::exfaceUserDelete($username, $exf_user);
+        $userContextScope = $exface->context()->getScopeUser();
+        
+        try {
+            $exfUser = $userContextScope->getUserByName($username);
+        } catch (UserNotFoundError $unfe) {}
+        if ($exfUser) {
+            // Es existiert ein Exface-Nutzer mit dem Namen, welcher geloescht wird.
+            $userContextScope->deleteUser($exfUser);
         }
         
         break;

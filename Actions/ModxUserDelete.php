@@ -4,8 +4,8 @@ namespace exface\ModxCmsConnector\Actions;
 use exface\Core\CommonLogic\AbstractAction;
 use exface\Core\Exceptions\Actions\ActionInputMissingError;
 use exface\Core\Exceptions\Actions\ActionInputInvalidObjectError;
-use exface\Core\Factories\DataSheetFactory;
 use exface\ModxCmsConnector\CmsConnectors\Modx;
+use exface\Core\Factories\DataSheetFactory;
 
 /**
  * Deletes an modx web- or manager user with the given username.
@@ -35,11 +35,20 @@ class ModxUserDelete extends AbstractAction
         /** @var Modx $modxCmsConnector */
         $modxCmsConnector = $this->getWorkbench()->getCMS();
         $modUser = new \modUsers($modx);
-        $exfUserObj = $this->getWorkbench()->model()->getObject('exface.Core.USER');
-        $exfUserSheet = DataSheetFactory::createFromObject($exfUserObj);
-        $exfUserSheet->getColumns()->addFromAttribute($exfUserObj->getAttribute('USERNAME'));
-        $exfUserSheet->setFilters($this->getInputDataSheet()->getFilters());
-        $exfUserSheet->dataRead();
+        
+        // Wird ein Exface-Nutzer manuell im Frontend geloescht, wird ein DataSheet mit Filter
+        // aber ohne rows uebergeben. Dann werden die geloeschten Nutzer eingelesen. Wird ein
+        // Exface-Nutzer aus dem Exface-Plugin heraus geloescht, wird ein DataSheet ohne Filter
+        // aber mit rows uebergeben. Dieses wird einfach verwendet.
+        if ($this->getInputDataSheet()->countRows() == 0 && $this->getInputDataSheet()->getFilters()->countConditions() > 0) {
+            $exfUserObj = $this->getWorkbench()->model()->getObject('exface.Core.USER');
+            $exfUserSheet = DataSheetFactory::createFromObject($exfUserObj);
+            $exfUserSheet->getColumns()->addFromAttribute($exfUserObj->getAttribute('USERNAME'));
+            $exfUserSheet->setFilters($this->getInputDataSheet()->getFilters());
+            $exfUserSheet->dataRead();
+        } else {
+            $exfUserSheet = $this->getInputDataSheet();
+        }
         
         foreach ($exfUserSheet->getRows() as $row) {
             if (! $row['USERNAME']) {
@@ -55,7 +64,7 @@ class ModxUserDelete extends AbstractAction
             }
         }
     }
-    
+
     /**
      * Deletes the Modx manager user with the given id.
      *
