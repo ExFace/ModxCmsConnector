@@ -198,7 +198,7 @@ class ModxUserSave extends AbstractAction
      * 
      * @param \modUsers $modUser
      * @throws ActionRuntimeError
-     * @return boolean
+     * @return ModxUserSave
      */
     private function saveWebUser(\modUsers $modUser)
     {
@@ -220,7 +220,7 @@ class ModxUserSave extends AbstractAction
         // in anderen Programmen nicht zwangsweise (z.B. zwei Accounts des gleichen Nutzers).
         $modx->db->update(['email' => $modUserEmail], $modx->getFullTableName('web_user_attributes'), 'internalKey = ' . $id);
         
-        return true;
+        return $this;
     }
 
     /**
@@ -238,7 +238,7 @@ class ModxUserSave extends AbstractAction
      * 
      * @param integer $id
      * @param string[] $userRow
-     * @return boolean
+     * @return ModxUserSave
      */
     private function updateMgrUser($id, $userRow)
     {
@@ -317,14 +317,14 @@ class ModxUserSave extends AbstractAction
             }
         }
         
-        return true;
+        return $this;
     }
 
     /**
      * Deletes the Modx manager user with the given id.
      * 
      * @param integer $id
-     * @return boolean
+     * @return ModxUserSave
      */
     private function deleteMgrUser($id)
     {
@@ -342,7 +342,7 @@ class ModxUserSave extends AbstractAction
         // delete the attributes
         $modx->db->delete($modx->getFullTableName('user_attributes'), "internalKey='{$id}'");
         
-        return true;
+        return $this;
     }
 
     /**

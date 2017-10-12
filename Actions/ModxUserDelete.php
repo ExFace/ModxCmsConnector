@@ -72,7 +72,7 @@ class ModxUserDelete extends AbstractAction
      * Deletes the Modx manager user with the given id.
      *
      * @param integer $id
-     * @return boolean
+     * @return ModxUserDelete
      */
     private function deleteMgrUser($id)
     {
@@ -90,6 +90,6 @@ class ModxUserDelete extends AbstractAction
         // delete the attributes
         $modx->db->delete($modx->getFullTableName('user_attributes'), "internalKey='{$id}'");
         
-        return true;
+        return $this;
     }
 }
