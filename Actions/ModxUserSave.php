@@ -187,6 +187,9 @@ class ModxUserSave extends AbstractAction
                 }
             }
         }
+        
+        $this->setResult('');
+        $this->setResultMessage('Exface user saved.');
     }
 
     /**
@@ -195,6 +198,7 @@ class ModxUserSave extends AbstractAction
      * 
      * @param \modUsers $modUser
      * @throws ActionRuntimeError
+     * @return boolean
      */
     private function saveWebUser(\modUsers $modUser)
     {
@@ -215,6 +219,8 @@ class ModxUserSave extends AbstractAction
         // erfolgt eine Ueberpruefung ob sie einzigartig ist, diese Einschraenkung gilt aber
         // in anderen Programmen nicht zwangsweise (z.B. zwei Accounts des gleichen Nutzers).
         $modx->db->update(['email' => $modUserEmail], $modx->getFullTableName('web_user_attributes'), 'internalKey = ' . $id);
+        
+        return true;
     }
 
     /**
@@ -232,8 +238,7 @@ class ModxUserSave extends AbstractAction
      * 
      * @param integer $id
      * @param string[] $userRow
-     * @param boolean $fire_events
-     * @return boolean|string
+     * @return boolean
      */
     private function updateMgrUser($id, $userRow)
     {
@@ -311,12 +316,15 @@ class ModxUserSave extends AbstractAction
                 $result = $modx->db->insert(['user' => $id, 'setting_name' => $key, 'setting_value' => $value], $userSettings);
             }
         }
+        
+        return true;
     }
 
     /**
      * Deletes the Modx manager user with the given id.
      * 
      * @param integer $id
+     * @return boolean
      */
     private function deleteMgrUser($id)
     {
@@ -333,6 +341,8 @@ class ModxUserSave extends AbstractAction
         
         // delete the attributes
         $modx->db->delete($modx->getFullTableName('user_attributes'), "internalKey='{$id}'");
+        
+        return true;
     }
 
     /**
