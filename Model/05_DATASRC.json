@@ -58,18 +58,25 @@
             "attribute_alias": "DEFAULT_QUERY_BUILDER"
         },
         {
+            "expression": "READABLE_FLAG",
+            "name": "READABLE_FLAG",
+            "hidden": false,
+            "data_type": "exface.Core.Boolean",
+            "attribute_alias": "READABLE_FLAG"
+        },
+        {
+            "expression": "WRITABLE_FLAG",
+            "name": "WRITABLE_FLAG",
+            "hidden": false,
+            "data_type": "exface.Core.Boolean",
+            "attribute_alias": "WRITABLE_FLAG"
+        },
+        {
             "expression": "BASE_OBJECT",
             "name": "BASE_OBJECT",
             "hidden": false,
             "data_type": "exface.Core.Relation",
             "attribute_alias": "BASE_OBJECT"
-        },
-        {
-            "expression": "READONLY",
-            "name": "READONLY",
-            "hidden": false,
-            "data_type": "exface.Core.Boolean",
-            "attribute_alias": "READONLY"
         },
         {
             "expression": "LABEL",
@@ -96,8 +103,9 @@
             "APP": "0x11e680a7f9cdf732a177c0f8dae36b4f",
             "DEFAULT_CONNECTION": "0x32000000000000000000000000000000",
             "DEFAULT_QUERY_BUILDER": "exface\/Core\/QueryBuilders\/MySqlBuilder.php",
+            "READABLE_FLAG": "1",
+            "WRITABLE_FLAG": "1",
             "BASE_OBJECT": "",
-            "READONLY": "0",
             "LABEL": "MODx DB",
             "ALIAS": "MODX_DB"
         }
