@@ -63,12 +63,16 @@ class ModxUserDelete extends AbstractAction
                 $this->deleteMgrUser($modxCmsConnector->getModxMgrUserId($row['USERNAME']));
             }
         }
+        
+        $this->setResult('');
+        $this->setResultMessage('Exface user deleted.');
     }
 
     /**
      * Deletes the Modx manager user with the given id.
      *
      * @param integer $id
+     * @return ModxUserDelete
      */
     private function deleteMgrUser($id)
     {
@@ -85,5 +89,7 @@ class ModxUserDelete extends AbstractAction
         
         // delete the attributes
         $modx->db->delete($modx->getFullTableName('user_attributes'), "internalKey='{$id}'");
+        
+        return $this;
     }
 }
