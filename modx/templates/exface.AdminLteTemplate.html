@@ -102,16 +102,31 @@ folder instead of downloading all of them to reduce the load. -->
 <![endif]-->
 	</head>
 	<body class="skin-blue">
+	
+	<script type="text/javascript">
+		// Hide Sidebar on Tablets. This script MUST be called after body has been loaded, but before the page
+		// has been loaded entirely - otherwise the sidebar will show up for a moment and get animated away.
+		if ($(window).width() <= 1280){
+			$('body').addClass('sidebar-collapse');
+		}
+	</script>
+		
 		<div class="wrapper">
 			<header class="main-header">
 				<!-- Logo -->
-				<a href="[(site_url)]" class="logo"><b>alexa</b> UI</a>
+				<a href="[(site_url)]" class="logo">
+			      <!-- mini logo for sidebar mini 50x50 pixels -->
+			      <span class="logo-mini">UI</span>
+			      <!-- logo for regular state and mobile devices -->
+			      <span class="logo-lg"><b>alexa</b> UI</span>
+      			</a>
 				<!-- Header Navbar: style can be found in header.less -->
-				<nav class="navbar navbar-static-top" role="navigation">
-					<!-- Sidebar toggle button-->
-					<a href="#" class="sidebar-toggle" data-toggle="offcanvas" role="button">
-						<span class="sr-only">Toggle navigation</span>
-					</a>
+				<nav class="navbar navbar-static-top" role="navigation">					
+				      <!-- Sidebar toggle button-->
+				      <a href="#" class="sidebar-toggle" data-toggle="push-menu" role="button">
+				        <span class="sr-only">Toggle navigation</span>
+				        <span class="icon-bar"></span>
+				      </a>
 					<div class="navbar-custom-menu">
 						<ul id="contextBar" class="nav navbar-nav">
 						    
