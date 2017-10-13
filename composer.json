@@ -22,8 +22,8 @@
         "app": {
             "app_uid": "0x11e680a7f9cdf732a177c0f8dae36b4f",
             "app_alias": "exface.ModxCmsConnector",
-            "model_md5": "5dcdd79a75f03f8d1937818b94370103",
-            "model_timestamp": "2017-08-02 09:19:36"
+            "model_md5": "ea2f8edcfa1d706d79f2ed66dfd83248",
+            "model_timestamp": "2017-09-28 15:22:24"
         }
     },
     "autoload": {

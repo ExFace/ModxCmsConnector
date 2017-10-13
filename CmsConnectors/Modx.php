@@ -1024,5 +1024,106 @@ class Modx implements CmsConnectorInterface
         
         return $tvIds;
     }
+
+    /**
+     * Tests if the passed $username is a modx web user.
+     * 
+     * @param string $username
+     * @throws RuntimeException if more than one modx web users with the passed username exist
+     * @return boolean
+     */
+    public function isModxWebUser($username) {
+        global $modx;
+        
+        $web_users = $modx->getFullTableName('web_users');
+        $result = $modx->db->select('wu.id as id', $web_users . ' wu', 'wu.username = "' . $modx->db->escape($username) . '"');
+        if ($modx->db->getRecordCount($result) == 0) {
+            return false;
+        } elseif ($modx->db->getRecordCount($result) == 1) {
+            return true;
+        } else {
+            throw new RuntimeException('More than one Modx web user with username "' . $username . '" defined.');
+        }
+    }
+
+    /**
+     * Returns the id of the web user with the given username.
+     * 
+     * @param string $username
+     * @throws RuntimeException
+     * @return integer
+     */
+    public function getModxWebUserId($username) {
+        global $modx;
+        
+        $web_users = $modx->getFullTableName('web_users');
+        $result = $modx->db->select('wu.id as id', $web_users . ' wu', 'wu.username = "' . $modx->db->escape($username) . '"');
+        if ($modx->db->getRecordCount($result) == 0) {
+            throw new RuntimeException('No Modx web user with username "' . $username . '" defined.');
+        } elseif ($modx->db->getRecordCount($result) == 1) {
+            return $modx->db->getRow($result)['id'];
+        } else {
+            throw new RuntimeException('More than one Modx web user with username "' . $username . '" defined.');
+        }
+    }
+
+    /**
+     * Tests if the passed $username is a modx manager user.
+     * 
+     * @param string $username
+     * @throws RuntimeException if more than one modx manager users with the passed username exist
+     * @return boolean
+     */
+    public function isModxMgrUser($username) {
+        global $modx;
+        
+        $manager_users = $modx->getFullTableName('manager_users');
+        $result = $modx->db->select('mu.id as id', $manager_users . ' mu', 'mu.username = "' . $modx->db->escape($username) . '"');
+        if ($modx->db->getRecordCount($result) == 0) {
+            return false;
+        } elseif ($modx->db->getRecordCount($result) == 1) {
+            return true;
+        } else {
+            throw new RuntimeException('More than one Modx manager user with username "' . $username . '" defined.');
+        }
+    }
+
+    /**
+     * Returns the id of the manager user with the given username.
+     * 
+     * @param string $username
+     * @throws RuntimeException
+     * @return integer
+     */
+    public function getModxMgrUserId($username) {
+        global $modx;
+        
+        $mgr_users = $modx->getFullTableName('manager_users');
+        $result = $modx->db->select('mu.id as id', $mgr_users . ' mu', 'mu.username = "' . $modx->db->escape($username) . '"');
+        if ($modx->db->getRecordCount($result) == 0) {
+            throw new RuntimeException('No Modx manager user with username "' . $username . '" defined.');
+        } elseif ($modx->db->getRecordCount($result) == 1) {
+            return $modx->db->getRow($result)['id'];
+        } else {
+            throw new RuntimeException('More than one Modx manager user with username "' . $username . '" defined.');
+        }
+    }
+
+    /**
+     * Wird ein Plugin im Backend ausgefuehrt, dann wird es vorruebergehend gesperrt (seit
+     * ModX 1.2.1). Kehrt die Ausfuehrung direkt zurueck, wird es danach entsperrt (siehe
+     * DocumentParser->evalPlugin()). Kehrt man nicht zurueck ($modx->redirect()/
+     * $modx->webAlertAndQuit()/im Plugincode wird ein anderes Event im gleichen Plugin
+     * getriggert), so bleibt das Plugin gesperrt und wird beim folgenden Aufruf nicht
+     * ausgefuehrt. Diese Funktion entsperrt das Plugin manuell.
+     * 
+     * @param strin $plugin_name
+     */
+    public function unlockPlugin($plugin_name) {
+        $lock_file_path = MODX_BASE_PATH . 'assets' . DIRECTORY_SEPARATOR . 'cache' . DIRECTORY_SEPARATOR . 'lock_' . str_replace(' ', '-', strtolower($plugin_name)) . '.pageCache.php';
+        if (is_file($lock_file_path)) {
+            unlink($lock_file_path);
+        }
+    }
 }
 ?>
