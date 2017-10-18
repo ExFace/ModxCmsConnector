@@ -103,3 +103,6 @@ UPDATE modx_site_content SET alias = LOWER(alphanum(pagetitle)) WHERE alias IS N
 
 #Alias fuer Anmeldeseite setzen
 UPDATE modx_site_content SET alias = 'login' WHERE id = (SELECT setting_value FROM modx_system_settings WHERE setting_name = 'unauthorized_page');
+
+#Im Seiten-Content page_id durch page_alias ersetzen
+UPDATE modx_site_content SET content = REPLACE(content, 'page_id', 'page_alias');
