@@ -12,6 +12,8 @@ const TV_UID_NAME = 'ExfacePageUID';
 
 const TV_DO_UPDATE_NAME = 'ExfacePageDoUpdate';
 
+const TV_DEFAULT_PARENT_ALIAS = 'ExfacePageDefaultParentAlias';
+
 $eventName = $modx->event->name;
 
 $vendorPath = MODX_BASE_PATH . 'exface' . DIRECTORY_SEPARATOR . 'vendor' . DIRECTORY_SEPARATOR;
@@ -23,8 +25,6 @@ if (! isset($exface)) {
     $exface = new \exface\Core\CommonLogic\Workbench();
     $exface->start();
 }
-
-$langLocalMap = $exface->getApp('exface.ModxCmsConnector')->getConfig()->getOption('USERS.LANGUAGE_LOCALE_MAPPING')->toArray();
 
 switch ($eventName) {
     case "OnStripAlias":
@@ -58,9 +58,18 @@ switch ($eventName) {
             }
         }
         
+        // Die folgenden Aufrufe wuerden eigentlich besser in 'OnBeforeDocFormSave' passen.
+        // Dort koennen die TVs $_POST aber nicht mehr effektiv geaendert werden (sie werden
+        // schon vorher ausgelesen), deshalb ist dieser Code hier.
+        
         // UID setzen.
         if (! $_POST['tv' . $tvIds[TV_UID_NAME]]) {
             $_POST['tv' . $tvIds[TV_UID_NAME]] = '0x' . Uuid::uuid1()->getHex();
+        }
+        
+        // Default Parent Alias setzen
+        if (! $_POST['tv' . $tvIds[TV_DEFAULT_PARENT_ALIAS]] && $_POST['parent']) {
+            $_POST['tv' . $tvIds[TV_DEFAULT_PARENT_ALIAS]] = $exface->getCMS()->getPageAlias($_POST['parent']);
         }
         
         break;
@@ -70,7 +79,8 @@ switch ($eventName) {
         $tvIds = $exface->getCMS()->getTemplateVariableIds();
         $appAlias = $_POST['tv' . $tvIds[TV_APP_ALIAS_NAME]];
         
-        if ($appAlias) {
+        $warnOnSavePageInApp = $exface->getApp('exface.ModxCmsConnector')->getConfig()->getOption('MODX.WARNING.ON_SAVE_PAGE_IN_APP');
+        if ($appAlias && $warnOnSavePageInApp) {
             // Wird eine Seite mit gesetztem App-Alias gespeichert, so wird eine Warnung
             // angezeigt, dass die Aenderungen beim naechsten Update ueberschrieben werden
             // koennten.
@@ -124,6 +134,7 @@ switch ($eventName) {
         }
         
         // Locale ermitteln
+        $langLocalMap = $exface->getApp('exface.ModxCmsConnector')->getConfig()->getOption('USERS.LANGUAGE_LOCALE_MAPPING')->toArray();
         if (($lang = $_POST['manager_language']) && array_key_exists($lang, $langLocalMap)) {
             $locale = $langLocalMap[$lang];
         }

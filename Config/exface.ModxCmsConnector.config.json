@@ -15,5 +15,7 @@
 		"en_US": "english",
 		"fr_FR": "francais-utf8",
 		"de_DE": "german"
-	}
+	},
+	
+	"MODX.WARNING.ON_SAVE_PAGE_IN_APP": false
 }
