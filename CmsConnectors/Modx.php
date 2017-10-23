@@ -88,9 +88,9 @@ class Modx extends AbstractCmsConnector
      *
      * {@inheritdoc}
      *
-     * @see \exface\Core\Interfaces\CmsConnectorInterface::getCurrentPageId()
+     * @see \exface\Core\Interfaces\CmsConnectorInterface::getPageCurrentId()
      */
-    public function getCurrentPageId()
+    public function getPageCurrentId()
     {
         global $modx;
         return $modx->documentIdentifier;
@@ -163,10 +163,9 @@ class Modx extends AbstractCmsConnector
     }
 
     /**
-     *
-     * {@inheritdoc}
-     *
-     * @see \exface\Core\Interfaces\CmsConnectorInterface::get_page_title()
+     * 
+     * {@inheritDoc}
+     * @see \exface\Core\Interfaces\CmsConnectorInterface::getPageTitle()
      */
     public function getPageTitle($resource_id = null)
     {
@@ -177,17 +176,6 @@ class Modx extends AbstractCmsConnector
             $doc = $modx->getDocument($resource_id, 'pagetitle');
             return $doc['pagetitle'];
         }
-    }
-
-    /**
-     * 
-     * {@inheritDoc}
-     * @see \exface\Core\Interfaces\CmsConnectorInterface::getCurrentPageAlias()
-     */
-    public function getCurrentPageAlias()
-    {
-        global $modx;
-        return $modx->documentObject['alias'];
     }
 
     /**
@@ -497,6 +485,18 @@ class Modx extends AbstractCmsConnector
     }
 
     /**
+     *
+     * {@inheritDoc}
+     * @see \exface\Core\Interfaces\CmsConnectorInterface::loadPageCurrent()
+     */
+    public function loadPageCurrent()
+    {
+        global $modx;
+        
+        return $this->loadPageByAlias($modx->documentObject['alias']);
+    }
+
+    /**
      * Checks if a UiPage is replaced by another UiPage and returns the replacement if so.
      * 
      * @param resource $sql_result contains the page_id_or_alias as id of the replacement page
@@ -551,16 +551,16 @@ class Modx extends AbstractCmsConnector
     {
         global $modx;
         
-        $pageUid = $modx->documentObject[$this::TV_UID_NAME] ? $modx->documentObject[$this::TV_UID_NAME][1] : $this::TV_UID_DEFAULT;
         $pageAlias = $modx->documentObject['alias'];
-        $uiPage = UiPageFactory::create($this->getWorkbench()->ui(), $pageAlias, $pageUid);
+        $pageUid = $modx->documentObject[$this::TV_UID_NAME] ? $modx->documentObject[$this::TV_UID_NAME][1] : $this::TV_UID_DEFAULT;
+        $appAlias = $modx->documentObject[$this::TV_APP_ALIAS_NAME] ? $modx->documentObject[$this::TV_APP_ALIAS_NAME][1] : $this::TV_APP_ALIAS_DEFAULT;
+        $uiPage = UiPageFactory::create($this->getWorkbench()->ui(), $pageAlias, $pageUid, $appAlias);
         
         $uiPage->setName($modx->documentObject['pagetitle']);
         $uiPage->setShortDescription($modx->documentObject['description']);
         $uiPage->setMenuIndex($modx->documentObject['menuindex']);
         $uiPage->setMenuVisible(! $modx->documentObject['hidemenu']);
         $uiPage->setMenuParentPageAlias($this->getPageAlias($modx->documentObject['parent']));
-        $uiPage->setAppAlias($modx->documentObject[$this::TV_APP_ALIAS_NAME] ? $modx->documentObject[$this::TV_APP_ALIAS_NAME][1] : $this::TV_APP_ALIAS_DEFAULT);
         $uiPage->setUpdateable(array_key_exists($this::TV_DO_UPDATE_NAME, $modx->documentObject) ? $modx->documentObject[$this::TV_DO_UPDATE_NAME][1] : $this::TV_DO_UPDATE_DEFAULT);
         $uiPage->setReplacesPageAlias($modx->documentObject[$this::TV_REPLACE_ALIAS_NAME] ? $modx->documentObject[$this::TV_REPLACE_ALIAS_NAME][1] : $this::TV_REPLACE_ALIAS_DEFAULT);
         $uiPage->setMenuParentPageDefaultAlias($modx->documentObject[$this::TV_DEFAULT_PARENT_ALIAS_NAME] ? $modx->documentObject[$this::TV_DEFAULT_PARENT_ALIAS_NAME] : $this::TV_DEFAULT_PARENT_ALIAS_DEFAULT);
@@ -586,16 +586,16 @@ class Modx extends AbstractCmsConnector
             $tmplVars[$tvRow['name']] = $tvRow['value'];
         }
         
-        $pageUid = $tmplVars[$this::TV_UID_NAME] ? $tmplVars[$this::TV_UID_NAME] : $this::TV_UID_DEFAULT;
         $pageAlias = $row['alias'];
-        $uiPage = UiPageFactory::create($this->getWorkbench()->ui(), $pageAlias, $pageUid);
+        $pageUid = $tmplVars[$this::TV_UID_NAME] ? $tmplVars[$this::TV_UID_NAME] : $this::TV_UID_DEFAULT;
+        $appAlias = $tmplVars[$this::TV_APP_ALIAS_NAME] ? $tmplVars[$this::TV_APP_ALIAS_NAME] : $this::TV_APP_ALIAS_DEFAULT;
+        $uiPage = UiPageFactory::create($this->getWorkbench()->ui(), $pageAlias, $pageUid, $appAlias);
         
         $uiPage->setName($row['name']);
         $uiPage->setShortDescription($row['shortDescription']);
         $uiPage->setMenuIndex($row['menuIndex']);
         $uiPage->setMenuVisible(! $row['hideMenu']);
         $uiPage->setMenuParentPageAlias($this->getPageAlias($row['menuParentIdCms']));
-        $uiPage->setAppAlias($tmplVars[$this::TV_APP_ALIAS_NAME] ? $tmplVars[$this::TV_APP_ALIAS_NAME] : $this::TV_APP_ALIAS_DEFAULT);
         $uiPage->setUpdateable(array_key_exists($this::TV_DO_UPDATE_NAME, $tmplVars) ? $tmplVars[$this::TV_DO_UPDATE_NAME] : $this::TV_DO_UPDATE_DEFAULT);
         $uiPage->setReplacesPageAlias($tmplVars[$this::TV_REPLACE_ALIAS_NAME] ? $tmplVars[$this::TV_REPLACE_ALIAS_NAME] : $this::TV_REPLACE_ALIAS_DEFAULT);
         $uiPage->setMenuParentPageDefaultAlias($tmplVars[$this::TV_DEFAULT_PARENT_ALIAS_NAME] ? $tmplVars[$this::TV_DEFAULT_PARENT_ALIAS_NAME] : $this::TV_DEFAULT_PARENT_ALIAS_DEFAULT);
@@ -685,7 +685,7 @@ class Modx extends AbstractCmsConnector
         $resource->set('parent', $parentIdCms);
         $resource->set('content', $page->getContents());
         $resource->set($this::TV_UID_NAME, $page->getId());
-        $resource->set($this::TV_APP_ALIAS_NAME, $page->getAppAlias());
+        $resource->set($this::TV_APP_ALIAS_NAME, $page->getApp()->getAliasWithNamespace());
         $resource->set($this::TV_DO_UPDATE_NAME, $page->isUpdateable() ? '1' : '0');
         $resource->set($this::TV_REPLACE_ALIAS_NAME, $page->getReplacesPageAlias());
         $resource->set($this::TV_DEFAULT_PARENT_ALIAS_NAME, $page->getMenuParentPageDefaultAlias());
@@ -754,7 +754,7 @@ class Modx extends AbstractCmsConnector
         $resource->set('parent', $parentIdCms);
         $resource->set('content', $page->getContents());
         $resource->set($this::TV_UID_NAME, $page->getId());
-        $resource->set($this::TV_APP_ALIAS_NAME, $page->getAppAlias());
+        $resource->set($this::TV_APP_ALIAS_NAME, $page->getApp()->getAliasWithNamespace());
         $resource->set($this::TV_DO_UPDATE_NAME, $page->isUpdateable() ? '1' : '0');
         $resource->set($this::TV_REPLACE_ALIAS_NAME, $page->getReplacesPageAlias());
         $resource->set($this::TV_DEFAULT_PARENT_ALIAS_NAME, $page->getMenuParentPageDefaultAlias());
