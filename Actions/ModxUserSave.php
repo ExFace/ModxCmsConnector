@@ -50,6 +50,7 @@ class ModxUserSave extends AbstractAction
         /** @var Modx $modxCmsConnector */
         $modxCmsConnector = $this->getWorkbench()->getCMS();
         $modUser = new \modUsers($modx);
+        $modManager = new \modManagers($modx);
         
         // DataSheet zum Bestimmen des alten Nutzernamens erzeugen.
         $exfUserObj = $this->getWorkbench()->model()->getObject('exface.Core.USER');
@@ -113,7 +114,7 @@ class ModxUserSave extends AbstractAction
                         $modUser->delete($modxCmsConnector->getModxWebUserId($userRow['oldusername']));
                     }
                     if ($oldModxMgrUserExists) {
-                        $this->deleteMgrUser($modxCmsConnector->getModxMgrUserId($userRow['oldusername']), $userRow['oldusername']);
+                        $modManager->delete($modxCmsConnector->getModxMgrUserId($userRow['oldusername']));
                     }
                     // Update/Loeschen der/des Nutzer(s) mit dem neuen Namen.
                     if ($modxMgrUserExists) {
@@ -123,13 +124,15 @@ class ModxUserSave extends AbstractAction
                         if ($modxWebUserExists) {
                             $modUser->delete($modxCmsConnector->getModxWebUserId($userRow['username']));
                         }
-                        $this->updateMgrUser($modxCmsConnector->getModxMgrUserId($userRow['username']), $userRow);
+                        $modManager->edit($modxCmsConnector->getModxMgrUserId($userRow['username']));
+                        $modManager->fromArray($userRow);
+                        $this->saveUser($modManager);
                     } elseif ($modxWebUserExists) {
                         // Es existiert ein Webnutzer mit dem neuen Namen, welcher
                         // aktualisiert wird.
                         $modUser->edit($modxCmsConnector->getModxWebUserId($userRow['username']));
                         $modUser->fromArray($userRow);
-                        $this->saveWebUser($modUser);
+                        $this->saveUser($modUser);
                     }
                 } else {
                     // Der Nutzer wird gerade umbenannt. Es existiert ein Web- oder Manager-
@@ -144,13 +147,15 @@ class ModxUserSave extends AbstractAction
                         if ($oldModxWebUserExists) {
                             $modUser->delete($modxCmsConnector->getModxWebUserId($userRow['oldusername']));
                         }
-                        $this->updateMgrUser($modxCmsConnector->getModxMgrUserId($userRow['oldusername']), $userRow);
+                        $modManager->edit($modxCmsConnector->getModxMgrUserId($userRow['oldusername']));
+                        $modManager->fromArray($userRow);
+                        $this->saveUser($modManager);
                     } elseif ($oldModxWebUserExists) {
                         // Es existiert ein Webnutzer mit dem alten Namen, welcher
                         // aktualisiert wird.
                         $modUser->edit($modxCmsConnector->getModxWebUserId($userRow['oldusername']));
                         $modUser->fromArray($userRow);
-                        $this->saveWebUser($modUser);
+                        $this->saveUser($modUser);
                     }
                 }
             } else {
@@ -166,13 +171,15 @@ class ModxUserSave extends AbstractAction
                         if ($modxWebUserExists) {
                             $modUser->delete($modxCmsConnector->getModxWebUserId($userRow['username']));
                         }
-                        $this->updateMgrUser($modxCmsConnector->getModxMgrUserId($userRow['username']), $userRow);
+                        $modManager->edit($modxCmsConnector->getModxMgrUserId($userRow['username']));
+                        $modManager->fromArray($userRow);
+                        $this->saveUser($modManager);
                     } elseif ($modxWebUserExists) {
                         // Es existiert ein Webnutzer mit dem Namen, welcher aktualisiert
                         // wird.
                         $modUser->edit($modxCmsConnector->getModxWebUserId($userRow['username']));
                         $modUser->fromArray($userRow);
-                        $this->saveWebUser($modUser);
+                        $this->saveUser($modUser);
                     }
                 } else {
                     // Der Nutzer wird nicht umbenannt. Es existiert kein Web- oder Manager-
@@ -183,7 +190,7 @@ class ModxUserSave extends AbstractAction
                     $modUser->set('password', $modUser->genPass(8, 'Aa0'));
                     $modUser->set('email', $this->getEmailDefault($row['USERNAME'], $row['FIRST_NAME'], $row['LAST_NAME']));
                     $modUser->fromArray($userRow);
-                    $this->saveWebUser($modUser);
+                    $this->saveUser($modUser);
                 }
             }
         }
@@ -196,12 +203,16 @@ class ModxUserSave extends AbstractAction
      * Saves the passed user. The email is first replaced by a unique email and after saving
      * the user written directly to the database to avoid the unique email policy of Modx.
      * 
-     * @param \modUsers $modUser
+     * @param \modUsers|\modManagers $modUser
      * @throws ActionRuntimeError
      * @return ModxUserSave
      */
-    private function saveWebUser(\modUsers $modUser)
+    private function saveUser($modUser)
     {
+        if (! ($modUser instanceof \modUsers || $modUser instanceof \modManagers)) {
+            throw new ActionRuntimeError($this, 'Passed modUser is not an instance of modUsers or modManagers.');
+        }
+        
         $modx = $this->getWorkbench()->getApp('exface.ModxCmsConnector')->getModx();
         
         // Die am User gesetzte E-Mail-Adresse wird zunachst gesichert, anschliessend durch
@@ -210,7 +221,7 @@ class ModxUserSave extends AbstractAction
         $modUser->set('email', $this->getEmailUnique());
         
         // Speichern des geaenderten Nutzers.
-        $id = $modUser->save(false);
+        $id = $modUser->save();
         if ($id === false) {
             throw new ActionRuntimeError($this, 'Error saving modx user "' . $modUser->get('username') . '".');
         }
@@ -218,129 +229,7 @@ class ModxUserSave extends AbstractAction
         // Die E-Mail Adresse wird direkt in der Datenbank gesetzt. Beim normalen Speichern
         // erfolgt eine Ueberpruefung ob sie einzigartig ist, diese Einschraenkung gilt aber
         // in anderen Programmen nicht zwangsweise (z.B. zwei Accounts des gleichen Nutzers).
-        $modx->db->update(['email' => $modUserEmail], $modx->getFullTableName('web_user_attributes'), 'internalKey = ' . $id);
-        
-        return $this;
-    }
-
-    /**
-     * Updates the Modx manager user with the given id using the given userRow array.
-     * 
-     * $userRow e.g.
-     * [
-     *      "username" => "test",
-     *      "fullname" => "Test Testmann",
-     *      "manager_language" => "english"
-     * ]
-     * 
-     * No checks are done. Especially there is no check if the new username already exists if
-     * the user is renamed (this should be done before).
-     * 
-     * @param integer $id
-     * @param string[] $userRow
-     * @return ModxUserSave
-     */
-    private function updateMgrUser($id, $userRow)
-    {
-        // The settable fields in the modx_manager_users table.
-        $userFields = [
-            'username',
-            'password'
-        ];
-        // The settable fields in the modx_user_attributes table.
-        $userAttributeFields = [
-            'fullname',
-            'role',
-            'email',
-            'phone',
-            'mobilephone',
-            'blocked',
-            'blockeduntil',
-            'blockedafter',
-            'logincount',
-            'lastlogin',
-            'thislogin',
-            'failedlogincount',
-            'sessionid',
-            'dob',
-            'gender',
-            'country',
-            'street',
-            'city',
-            'state',
-            'zip',
-            'fax',
-            'photo',
-            'comment'
-        ];
-        // The settable fields in the modx_user_settings table.
-        $userSettingsFields = [
-            'manager_language'
-        ];
-        
-        $modx = $this->getWorkbench()->getApp('exface.ModxCmsConnector')->getModx();
-        
-        // Bestimmen welche Felder in welche Tabelle geschrieben werden muessen.
-        $updateUserFields = [];
-        $updateUserAttributeFields = [];
-        $updateUserSettings = [];
-        foreach ($userRow as $key => $value) {
-            if (in_array($key, $userFields)) {
-                $updateUserFields[$key] = $value;
-            }
-            if (in_array($key, $userAttributeFields)) {
-                $updateUserAttributeFields[$key] = $value;
-            }
-            if (in_array($key, $userSettingsFields)) {
-                $updateUserSettings[$key] = $value;
-            }
-        }
-        
-        // modx_manager_users schreiben.
-        if (count($updateUserFields) > 0) {
-            $modx->db->update($updateUserFields, $modx->getFullTableName('manager_users'), 'id = "' . $id . '"');
-        }
-        
-        // modx_user_attributes schreiben.
-        if (count($updateUserAttributeFields) > 0) {
-            $modx->db->update($updateUserAttributeFields, $modx->getFullTableName('user_attributes'), 'internalKey = "' . $id . '"');
-        }
-        
-        // modx_user_settings schreiben.
-        $userSettings = $modx->getFullTableName('user_settings');
-        foreach ($updateUserSettings as $key => $value) {
-            $result = $modx->db->select('setting_value', $userSettings, 'user = ' . $id . ' AND setting_name = "' . $key . '"');
-            if ($modx->db->getRecordCount($result) > 0) {
-                $result = $modx->db->update(['setting_value' => $value], $userSettings, 'user = ' . $id . ' AND setting_name = "' . $key . '"');
-            } else {
-                $result = $modx->db->insert(['user' => $id, 'setting_name' => $key, 'setting_value' => $value], $userSettings);
-            }
-        }
-        
-        return $this;
-    }
-
-    /**
-     * Deletes the Modx manager user with the given id.
-     * 
-     * @param integer $id
-     * @return ModxUserSave
-     */
-    private function deleteMgrUser($id)
-    {
-        $modx = $this->getWorkbench()->getApp('exface.ModxCmsConnector')->getModx();
-        
-        // delete the user.
-        $modx->db->delete($modx->getFullTableName('manager_users'), "id='{$id}'");
-        
-        // delete user groups
-        $modx->db->delete($modx->getFullTableName('member_groups'), "member='{$id}'");
-        
-        // delete user settings
-        $modx->db->delete($modx->getFullTableName('user_settings'), "user='{$id}'");
-        
-        // delete the attributes
-        $modx->db->delete($modx->getFullTableName('user_attributes'), "internalKey='{$id}'");
+        $modx->db->update(['email' => $modUserEmail], ($modUser instanceof \modManagers ? $modx->getFullTableName('user_attributes') : $modx->getFullTableName('web_user_attributes')), 'internalKey = ' . $id);
         
         return $this;
     }

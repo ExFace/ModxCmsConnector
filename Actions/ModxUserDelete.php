@@ -35,6 +35,7 @@ class ModxUserDelete extends AbstractAction
         /** @var Modx $modxCmsConnector */
         $modxCmsConnector = $this->getWorkbench()->getCMS();
         $modUser = new \modUsers($modx);
+        $modManager = new \modManagers($modx);
         
         // Wird ein Exface-Nutzer manuell im Frontend geloescht, wird ein DataSheet mit Filter
         // aber ohne rows uebergeben. Dann werden die geloeschten Nutzer eingelesen. Wird ein
@@ -60,36 +61,11 @@ class ModxUserDelete extends AbstractAction
                 $modUser->delete($modxCmsConnector->getModxWebUserId($row['USERNAME']));
             } elseif ($modxCmsConnector->isModxMgrUser($row['USERNAME'])) {
                 // Delete Manageruser.
-                $this->deleteMgrUser($modxCmsConnector->getModxMgrUserId($row['USERNAME']));
+                $modManager->delete($modxCmsConnector->getModxMgrUserId($row['USERNAME']));
             }
         }
         
         $this->setResult('');
         $this->setResultMessage('Exface user deleted.');
-    }
-
-    /**
-     * Deletes the Modx manager user with the given id.
-     *
-     * @param integer $id
-     * @return ModxUserDelete
-     */
-    private function deleteMgrUser($id)
-    {
-        $modx = $this->getWorkbench()->getApp('exface.ModxCmsConnector')->getModx();
-        
-        // delete the user.
-        $modx->db->delete($modx->getFullTableName('manager_users'), "id='{$id}'");
-        
-        // delete user groups
-        $modx->db->delete($modx->getFullTableName('member_groups'), "member='{$id}'");
-        
-        // delete user settings
-        $modx->db->delete($modx->getFullTableName('user_settings'), "user='{$id}'");
-        
-        // delete the attributes
-        $modx->db->delete($modx->getFullTableName('user_attributes'), "internalKey='{$id}'");
-        
-        return $this;
     }
 }
