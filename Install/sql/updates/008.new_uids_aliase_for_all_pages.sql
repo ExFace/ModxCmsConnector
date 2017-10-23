@@ -48,7 +48,8 @@ INSERT INTO modx_site_tmplvar_templates (tmplvarid, templateid, rank) VALUES
 #mm_rules setzen um ExfacePageUID readonly, ExfacePageDefaultParentAlias nicht sichtbar zu machen
 UPDATE modx_site_htmlsnippets SET snippet = CONCAT(snippet, '
 
-mm_hideFields(\'ExfacePageDefaultParentAlias\');') WHERE name = 'mm_rules';
+mm_ddReadonly(\'ExfacePageUID\');
+mm_ddReadonly(\'ExfacePageDefaultParentAlias\');') WHERE name = 'mm_rules';
 
 #UIDs fuer vorhandene Seiten setzen
 INSERT INTO modx_site_tmplvar_contentvalues (tmplvarid, contentid, value)
