@@ -330,6 +330,17 @@ class Modx implements CmsConnectorInterface
     {
         return $this->getApp()->getModx()->config['site_url'];
     }
+     
+    /**
+     *
+     * {@inheritdoc}
+     *
+     * @see \exface\Core\Interfaces\CmsConnectorInterface::getWorkbenchUrl()
+     */
+    public function getWorkbenchUrl()
+    {
+        return $this->getSiteUrl() . '/exface';
+    }
     
     /**
      * Tests if the passed $username is a modx web user.
