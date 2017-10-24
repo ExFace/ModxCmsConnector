@@ -9,6 +9,7 @@ use exface\Core\Factories\DataSheetFactory;
 use exface\Core\Exceptions\Actions\ActionRuntimeError;
 use exface\Core\Exceptions\UserNotFoundError;
 use exface\Core\Exceptions\UserAlreadyExistsError;
+use exface\ModxCmsConnector\CommonLogic\ModxSessionManager;
 
 /**
  * Creates or Updates a modx web-user or Updates a modx mgr-user.
@@ -33,7 +34,7 @@ class ModxUserSave extends AbstractAction
     {
         $this->localLangMap = $this->getApp('exface.ModxCmsConnector')->getConfig()->getOption('USERS.LOCALE_LANGUAGE_MAPPING')->toArray();
     }
-    
+
     /**
      * 
      * {@inheritDoc}
@@ -47,8 +48,12 @@ class ModxUserSave extends AbstractAction
         
         $modx = $this->getWorkbench()->getApp('exface.ModxCmsConnector')->getModx();
         require_once $modx->getConfig('base_path') . 'assets' . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR . 'MODxAPI' . DIRECTORY_SEPARATOR . 'modUsers.php';
+        require_once $modx->getConfig('base_path') . 'assets' . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR . 'MODxAPI' . DIRECTORY_SEPARATOR . 'modManagers.php';
         /** @var Modx $modxCmsConnector */
         $modxCmsConnector = $this->getWorkbench()->getCMS();
+        // modUsers und modManagers benoetigen eine geoeffnete Modx-Session.
+        $modxSessionManager = new ModxSessionManager($modx);
+        $modxSessionManager->sessionOpen();
         $modUser = new \modUsers($modx);
         $modManager = new \modManagers($modx);
         
@@ -195,6 +200,10 @@ class ModxUserSave extends AbstractAction
             }
         }
         
+        // Die Modx-Session wird geschlossen und die zuvor geoeffnete Session
+        // wiederhergestellt.
+        $modxSessionManager->sessionClose();
+        
         $this->setResult('');
         $this->setResultMessage('Exface user saved.');
     }
@@ -229,7 +238,9 @@ class ModxUserSave extends AbstractAction
         // Die E-Mail Adresse wird direkt in der Datenbank gesetzt. Beim normalen Speichern
         // erfolgt eine Ueberpruefung ob sie einzigartig ist, diese Einschraenkung gilt aber
         // in anderen Programmen nicht zwangsweise (z.B. zwei Accounts des gleichen Nutzers).
-        $modx->db->update(['email' => $modUserEmail], ($modUser instanceof \modManagers ? $modx->getFullTableName('user_attributes') : $modx->getFullTableName('web_user_attributes')), 'internalKey = ' . $id);
+        $modx->db->update([
+            'email' => $modUserEmail
+        ], ($modUser instanceof \modManagers ? $modx->getFullTableName('user_attributes') : $modx->getFullTableName('web_user_attributes')), 'internalKey = ' . $id);
         
         return $this;
     }
@@ -246,7 +257,7 @@ class ModxUserSave extends AbstractAction
         $localLength = 20;
         $domain = 'mydomain.com';
         $local = '';
-        for ($i = 0; $i < $localLength; $i++) {
+        for ($i = 0; $i < $localLength; $i ++) {
             $local .= $characters[mt_rand(0, $charactersLength - 1)];
         }
         return $local . '@' . $domain;

@@ -6,6 +6,7 @@ use exface\Core\Exceptions\Actions\ActionInputMissingError;
 use exface\Core\Exceptions\Actions\ActionInputInvalidObjectError;
 use exface\ModxCmsConnector\CmsConnectors\Modx;
 use exface\Core\Factories\DataSheetFactory;
+use exface\ModxCmsConnector\CommonLogic\ModxSessionManager;
 
 /**
  * Deletes an modx web- or manager user with the given username.
@@ -32,8 +33,12 @@ class ModxUserDelete extends AbstractAction
         
         $modx = $this->getWorkbench()->getApp('exface.ModxCmsConnector')->getModx();
         require_once $modx->getConfig('base_path') . 'assets' . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR . 'MODxAPI' . DIRECTORY_SEPARATOR . 'modUsers.php';
+        require_once $modx->getConfig('base_path') . 'assets' . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR . 'MODxAPI' . DIRECTORY_SEPARATOR . 'modManagers.php';
         /** @var Modx $modxCmsConnector */
         $modxCmsConnector = $this->getWorkbench()->getCMS();
+        // modUsers und modManagers benoetigen eine geoeffnete Modx-Session.
+        $modxSessionManager = new ModxSessionManager($modx);
+        $modxSessionManager->sessionOpen();
         $modUser = new \modUsers($modx);
         $modManager = new \modManagers($modx);
         
@@ -64,6 +69,10 @@ class ModxUserDelete extends AbstractAction
                 $modManager->delete($modxCmsConnector->getModxMgrUserId($row['USERNAME']));
             }
         }
+        
+        // Die Modx-Session wird geschlossen und die zuvor geoeffnete Session
+        // wiederhergestellt.
+        $modxSessionManager->sessionClose();
         
         $this->setResult('');
         $this->setResultMessage('Exface user deleted.');
