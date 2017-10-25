@@ -6,6 +6,7 @@ use exface\Core\Exceptions\Actions\ActionInputMissingError;
 use exface\Core\Exceptions\Actions\ActionInputInvalidObjectError;
 use exface\ModxCmsConnector\CmsConnectors\Modx;
 use exface\Core\Factories\DataSheetFactory;
+use exface\ModxCmsConnector\CommonLogic\ModxSessionManager;
 
 /**
  * Deletes an modx web- or manager user with the given username.
@@ -32,9 +33,14 @@ class ModxUserDelete extends AbstractAction
         
         $modx = $this->getWorkbench()->getApp('exface.ModxCmsConnector')->getModx();
         require_once $modx->getConfig('base_path') . 'assets' . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR . 'MODxAPI' . DIRECTORY_SEPARATOR . 'modUsers.php';
+        require_once $modx->getConfig('base_path') . 'assets' . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR . 'MODxAPI' . DIRECTORY_SEPARATOR . 'modManagers.php';
         /** @var Modx $modxCmsConnector */
         $modxCmsConnector = $this->getWorkbench()->getCMS();
+        // modUsers und modManagers benoetigen eine geoeffnete Modx-Session.
+        $modxSessionManager = new ModxSessionManager($modx);
+        $modxSessionManager->sessionOpen();
         $modUser = new \modUsers($modx);
+        $modManager = new \modManagers($modx);
         
         // Wird ein Exface-Nutzer manuell im Frontend geloescht, wird ein DataSheet mit Filter
         // aber ohne rows uebergeben. Dann werden die geloeschten Nutzer eingelesen. Wird ein
@@ -60,36 +66,15 @@ class ModxUserDelete extends AbstractAction
                 $modUser->delete($modxCmsConnector->getModxWebUserId($row['USERNAME']));
             } elseif ($modxCmsConnector->isModxMgrUser($row['USERNAME'])) {
                 // Delete Manageruser.
-                $this->deleteMgrUser($modxCmsConnector->getModxMgrUserId($row['USERNAME']));
+                $modManager->delete($modxCmsConnector->getModxMgrUserId($row['USERNAME']));
             }
         }
         
+        // Die Modx-Session wird geschlossen und die zuvor geoeffnete Session
+        // wiederhergestellt.
+        $modxSessionManager->sessionClose();
+        
         $this->setResult('');
         $this->setResultMessage('Exface user deleted.');
-    }
-
-    /**
-     * Deletes the Modx manager user with the given id.
-     *
-     * @param integer $id
-     * @return ModxUserDelete
-     */
-    private function deleteMgrUser($id)
-    {
-        $modx = $this->getWorkbench()->getApp('exface.ModxCmsConnector')->getModx();
-        
-        // delete the user.
-        $modx->db->delete($modx->getFullTableName('manager_users'), "id='{$id}'");
-        
-        // delete user groups
-        $modx->db->delete($modx->getFullTableName('member_groups'), "member='{$id}'");
-        
-        // delete user settings
-        $modx->db->delete($modx->getFullTableName('user_settings'), "user='{$id}'");
-        
-        // delete the attributes
-        $modx->db->delete($modx->getFullTableName('user_attributes'), "internalKey='{$id}'");
-        
-        return $this;
     }
 }
