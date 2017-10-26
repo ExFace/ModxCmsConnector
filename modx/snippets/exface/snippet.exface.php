@@ -16,7 +16,7 @@
  * Parameters:
  * &tempalte - Qualified alias of the ExFace template to be used: e.g. exface.AdminLteTemplate.
  * &action - Qualified alias of the ExFace action, that is to be performed. Default: exface.Core.ShowWidget
- * &docId - MODx document id to call the action for. Default: the id of the current document, i.e. [*id*]
+ * &docAlias - MODx document alias to call the action for. Default: the alias of the current document, i.e. [*alias*]
  * &fallback_field - The key of the attribute of $modx->documentObject to be displayed if the content is not valid UXON
  * &file - path to file to use for contents (relative to the exface installation folder)
  */
@@ -33,7 +33,7 @@ global $exface, $modx;
 
 $template = $template ? $template : exf_get_default_template();
 $action = $action ? $action : 'exface.Core.ShowWidget';
-$docId = $docId ? $docId : $modx->documentIdentifier;
+$docAlias = $docAlias ? $docAlias : $modx->documentObject['alias'];
 $fallback_field = $fallback_field ? $fallback_field : '';
 $file = $file ? $file : null;
 
@@ -71,11 +71,11 @@ $template_instance = $exface->ui()->getTemplate();
 switch ($action) {
     case "exface.Core.ShowHeaders":
         try {
-            $result = $template_instance->processRequest($docId, null, 'exface.Core.ShowHeaders', true);
+            $result = $template_instance->processRequest($docAlias, null, 'exface.Core.ShowHeaders', true);
         } catch (\exface\Core\Interfaces\Exceptions\ErrorExceptionInterface $e) {
             $exface->getLogger()->log($e->getLogLevel(), $e->getMessage(), array(), $e);
             $ui = $exface->ui();
-            $page = \exface\Core\Factories\UiPageFactory::create($ui, 0);
+            $page = \exface\Core\Factories\UiPageFactory::create($ui, '');
             try {
                 $result = $template_instance->drawHeaders($e->createWidget($page));
             } catch (\Exception $ee) {
@@ -88,7 +88,7 @@ switch ($action) {
         $result = file_get_contents($exface->filemanager()->getPathToBaseFolder() . DIRECTORY_SEPARATOR . $file);
         break;
     default:
-        $result = $template_instance->processRequest($docId, null, $action);
+        $result = $template_instance->processRequest($docAlias, null, $action);
         break;
 }
 
