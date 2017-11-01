@@ -26,6 +26,10 @@
             "attribute_alias": "PACKAGE"
         },
         {
+            "name": "default_language_code",
+            "attribute_alias": "default_language_code"
+        },
+        {
             "name": "ALIAS",
             "attribute_alias": "ALIAS"
         },
@@ -42,6 +46,7 @@
             "MODIFIED_BY_USER": "0x31000000000000000000000000000000",
             "UID": "0x11e680a7f9cdf732a177c0f8dae36b4f",
             "PACKAGE": "exface\/ModxCmsConnector",
+            "default_language_code": "en",
             "ALIAS": "exface.ModxCmsConnector",
             "NAME": "ExFace CMS Connector for MODx"
         }
