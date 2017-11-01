@@ -1,0 +1,1 @@
+update modx_site_content set content = REPLACE(content,'"icon_name"','"icon"');
