@@ -55,7 +55,7 @@ class Modx extends AbstractCmsConnector
 
     const MODX_UPDATE_ACTION = '27';
 
-    const DEFAULT_MENU_PARENT_ALIAS = 'exface.core.new-pages';
+    const DEFAULT_MENU_PARENT_ALIAS = 'exface.core.orphaned-pages';
 
     /**
      *
