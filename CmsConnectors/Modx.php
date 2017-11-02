@@ -91,8 +91,20 @@ class Modx extends AbstractCmsConnector
     public function createLinkInternal($page_or_id_or_alias, $url_params = '')
     {
         global $modx;
-        $id_or_alias = $page_or_id_or_alias instanceof UiPageInterface ? $page_or_id_or_alias->getId() : $page_or_id_or_alias;
-        return $modx->makeUrl($this->getPageCmsId($id_or_alias), null, $url_params, 'full');
+        if ($page_or_id_or_alias instanceof UiPageInterface) {
+            $cmsId = $this->getPageIdInCms($page_or_id_or_alias);
+        } elseif ($this->isCmsId($page_or_id_or_alias)) {
+            $cmsId = $page_or_id_or_alias;
+        } else {
+            try {
+                $page = $this->loadPage($page_or_id_or_alias);
+                $cmsId = $this->getPageIdInCms($page);
+            } catch (\Throwable $e) {
+                $this->getWorkbench()->getLogger()->logException($e, LoggerInterface::WARNING);
+                return '';
+            }
+        }
+        return $modx->makeUrl($cmsId, null, $url_params, 'full');
     }
 
     /**
@@ -784,9 +796,9 @@ class Modx extends AbstractCmsConnector
         
         $uidSubselect = 'SELECT mstc.value FROM ' . $siteTmplvarContentvalues . ' mstc left join ' . $siteTmplvars . ' mst on mstc.tmplvarid = mst.id WHERE msc.id = mstc.contentid AND mst.name = "' . $this::TV_UID_NAME . '"';
         
-        if (substr($page_id_or_alias, 0, 2) == '0x') {
+        if ($this->isUid($page_id_or_alias)) {
             $where = 'EXISTS (' . $uidSubselect . ' and mstc.value = "' . $page_id_or_alias . '")';
-        } elseif (! is_numeric($page_id_or_alias)) {
+        } elseif ($this->isAlias($page_id_or_alias)) {
             $where = 'msc.alias = "' . $page_id_or_alias . '"';
         } else {
             $where = 'msc.id = ' . $page_id_or_alias;
@@ -939,7 +951,7 @@ class Modx extends AbstractCmsConnector
      * getriggert), so bleibt das Plugin gesperrt und wird beim folgenden Aufruf nicht
      * ausgefuehrt. Diese Funktion entsperrt das Plugin manuell.
      * 
-     * @param strin $plugin_name
+     * @param string $plugin_name
      */
     public function unlockPlugin($plugin_name)
     {
@@ -947,6 +959,15 @@ class Modx extends AbstractCmsConnector
         if (is_file($lock_file_path)) {
             unlink($lock_file_path);
         }
+    }
+    
+    protected function isCmsId($page_id_or_alias)
+    {
+        if (! $this->isUid($page_id_or_alias) && is_numeric($page_id_or_alias)) {
+            return true;
+        }
+        
+        return false;
     }
 }
 ?>
