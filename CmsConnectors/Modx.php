@@ -614,7 +614,7 @@ class Modx extends AbstractCmsConnector
      * {@inheritDoc}
      * @see \exface\Core\Interfaces\CmsConnectorInterface::getPageId()
      */
-    public function getPageId($page_or_id_or_alias)
+    protected function getPageId($page_or_id_or_alias)
     {
         $id_or_alias = $page_or_id_or_alias instanceof UiPageInterface ? $page_or_id_or_alias->getId() : $page_or_id_or_alias;
         return $this->getPageIds($id_or_alias)['id'];
@@ -630,13 +630,17 @@ class Modx extends AbstractCmsConnector
         $id_or_alias = $page_or_id_or_alias instanceof UiPageInterface ? $page_or_id_or_alias->getId() : $page_or_id_or_alias;
         return $this->getPageIds($id_or_alias)['alias'];
     }
-
+    
+    public function getPageIdInCms(UiPageInterface $page) {
+        return $this->getPageCmsId($page);
+    }
+    
     /**
      * Returns the CMS page id for the given page, UID or alias.
      *
      * @return integer
      */
-    protected function getPageCmsId($page_or_uid_or_alias)
+    public function getPageCmsId($page_or_uid_or_alias)
     {
         $id_or_alias = $page_or_uid_or_alias instanceof UiPageInterface ? $page_or_uid_or_alias->getId() : $page_or_uid_or_alias;
         return $this->getPageIds($id_or_alias)['idCms'];
@@ -821,15 +825,17 @@ class Modx extends AbstractCmsConnector
         $siteTmplvars = $modx->getFullTableName('site_tmplvars');
         $siteTmplvarContentvalues = $modx->getFullTableName('site_tmplvar_contentvalues');
         
+        $uidSubselect = 'SELECT mstc.value FROM ' . $siteTmplvarContentvalues . ' mstc left join ' . $siteTmplvars . ' mst on mstc.tmplvarid = mst.id WHERE msc.id = mstc.contentid AND mst.name = "' . $this::TV_UID_NAME . '"';
+        
         if (substr($page_id_or_alias, 0, 2) == '0x') {
-            $where = 'mst.name = "' . $this::TV_UID_NAME . '" and mstc.value = "' . $page_id_or_alias . '"';
+            $where = 'EXISTS (' . $uidSubselect . ' and mstc.value = "' . $page_id_or_alias . '")';
         } elseif (! is_numeric($page_id_or_alias)) {
-            $where = 'mst.name = "' . $this::TV_UID_NAME . '" and msc.alias = "' . $page_id_or_alias . '"';
+            $where = 'msc.alias = "' . $page_id_or_alias . '"';
         } else {
-            $where = 'mst.name = "' . $this::TV_UID_NAME . '" and msc.id = ' . $page_id_or_alias;
+            $where = 'msc.id = ' . $page_id_or_alias;
         }
         
-        $result = $modx->db->select('msc.id as idCms, msc.alias as alias, mstc.value as id', $siteContent . ' msc left join ' . $siteTmplvarContentvalues . ' mstc on msc.id = mstc.contentid left join ' . $siteTmplvars . ' mst on mstc.tmplvarid = mst.id', $where);
+        $result = $modx->db->select('msc.id as idCms, msc.alias as alias, (' . $uidSubselect . ') as id', $siteContent . ' msc', $where);
         if ($modx->db->getRecordCount($result) == 0) {
             throw new UiPageNotFoundError('No page with UID/CMS-ID/alias "' . $page_id_or_alias . '" defined or page has no UID or alias.');
         } elseif ($modx->db->getRecordCount($result) == 1) {
