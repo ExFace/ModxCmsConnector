@@ -84,33 +84,6 @@ class Modx extends AbstractCmsConnector
     }
 
     /**
-     *
-     * {@inheritdoc}
-     *
-     * @see \exface\Core\Interfaces\CmsConnectorInterface::getPageCurrentId()
-     */
-    public function getPageCurrentId()
-    {
-        global $modx;
-        return $modx->documentIdentifier;
-    }
-
-    /**
-     *
-     * {@inheritdoc}
-     *
-     * @see \exface\Core\Interfaces\CmsConnectorInterface::getPageContents()
-     */
-    public function getPageContents($doc_id)
-    {
-        global $modx;
-        
-        $q = $modx->db->select('content', $modx->getFullTableName('site_content'), 'id = ' . intval($doc_id));
-        $source = $modx->db->getValue($q);
-        return $source;
-    }
-
-    /**
      * 
      * {@inheritDoc}
      * @see \exface\Core\Interfaces\CmsConnectorInterface::createLinkInternal()
@@ -159,22 +132,6 @@ class Modx extends AbstractCmsConnector
     public function removeSystemRequestParams(array $param_array)
     {
         return $param_array;
-    }
-
-    /**
-     * 
-     * {@inheritDoc}
-     * @see \exface\Core\Interfaces\CmsConnectorInterface::getPageTitle()
-     */
-    public function getPageTitle($resource_id = null)
-    {
-        global $modx;
-        if (is_null($resource_id) || $resource_id == $modx->documentIdentifier) {
-            return $modx->documentObject['pagetitle'];
-        } else {
-            $doc = $modx->getDocument($resource_id, 'pagetitle');
-            return $doc['pagetitle'];
-        }
     }
 
     /**
@@ -640,7 +597,7 @@ class Modx extends AbstractCmsConnector
      *
      * @return integer
      */
-    public function getPageCmsId($page_or_uid_or_alias)
+    protected function getPageCmsId($page_or_uid_or_alias)
     {
         $id_or_alias = $page_or_uid_or_alias instanceof UiPageInterface ? $page_or_uid_or_alias->getId() : $page_or_uid_or_alias;
         return $this->getPageIds($id_or_alias)['idCms'];
