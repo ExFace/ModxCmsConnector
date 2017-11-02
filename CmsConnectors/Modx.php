@@ -611,7 +611,7 @@ class Modx extends AbstractCmsConnector
      */
     protected function getPageCmsId($page_or_uid_or_alias)
     {
-        $id_or_alias = $page_or_uid_or_alias instanceof UiPageInterface ? $page_or_uid_or_alias->getId() : $page_or_uid_or_alias;
+        $id_or_alias = $page_or_uid_or_alias instanceof UiPageInterface ? $page_or_uid_or_alias->getAliasWithNamespace() : $page_or_uid_or_alias;
         return $this->getPageIds($id_or_alias)['idCms'];
     }
     
