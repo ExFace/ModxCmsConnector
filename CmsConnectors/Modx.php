@@ -13,6 +13,7 @@ use exface\Core\Exceptions\RuntimeException;
 use exface\Core\Exceptions\UiPageIdNotUniqueError;
 use exface\Core\CommonLogic\Model\UiPage;
 use exface\Core\CommonLogic\AbstractCmsConnector;
+use exface\Core\Interfaces\Log\LoggerInterface;
 
 class Modx extends AbstractCmsConnector
 {
@@ -54,8 +55,6 @@ class Modx extends AbstractCmsConnector
     const MODX_ADD_ACTION = '4';
 
     const MODX_UPDATE_ACTION = '27';
-
-    const DEFAULT_MENU_PARENT_ALIAS = 'exface.core.orphaned-pages';
 
     /**
      *
@@ -636,6 +635,23 @@ class Modx extends AbstractCmsConnector
         $id_or_alias = $page_or_id_or_alias instanceof UiPageInterface ? $page_or_id_or_alias->getId() : $page_or_id_or_alias;
         return $this->getPageIds($id_or_alias)['idCms'];
     }
+    
+    /**
+     * Returns TRUE if the given page exists in MODx and is published.
+     * @param integer $cmsId
+     * @throws UiPageNotFoundError if the page does not exist
+     * @return boolean
+     */
+    protected function isPublished($cmsId) 
+    {
+        global $modx;
+        
+        $doc = $modx->getDocument($cmsId, 'id, published');
+        if ($doc['id'] == $cmsId && $doc['published'] == 1) {
+            return true;
+        }
+        return false;
+    }
 
     /**
      * 
@@ -648,22 +664,14 @@ class Modx extends AbstractCmsConnector
         
         // Page IDs bestimmen.
         try {
-            $parentAlias = $page->getMenuParentPageAlias() ? $page->getMenuParentPageAlias() : $this::DEFAULT_MENU_PARENT_ALIAS;
+            $parentAlias = $page->getMenuParentPageAlias();
             $parentIdCms = $this->getPageIdCms($parentAlias);
+            $publish = $this->isPublished($parentIdCms);
         } catch (UiPageNotFoundError $upnfe) {
-            // Die Parent-Seite hat eine ID, welche im CMS nicht existiert.
-            if ($parentAlias != $this::DEFAULT_MENU_PARENT_ALIAS) {
-                try {
-                    $parentAlias = $this::DEFAULT_MENU_PARENT_ALIAS;
-                    $parentIdCms = $this->getPageIdCms($parentAlias);
-                } catch (UiPageNotFoundError $upnfe) {
-                    // Die Default-Parent Seite existiert nicht im CMS.
-                    throw new UiPageNotFoundError('The default parent page doesn\'t exist in the CMS.');
-                }
-            } else {
-                // Die Default-Parent Seite existiert nicht im CMS.
-                throw new UiPageNotFoundError('The default parent page doesn\'t exist in the CMS.');
-            }
+            $parentIdCms = $this->getApp()->getConfig()->getOption('MODX.PAGES.ROOT_CONTAINER_ID');
+            $publish = false;
+            $this->getWorkbench()->getLogger()->logException($upnfe, LoggerInterface::INFO);
+            // TODO check if the root exists!
         }
         
         // Parent Document Groups bestimmen.
@@ -679,6 +687,7 @@ class Modx extends AbstractCmsConnector
         $resource->set('pagetitle', $page->getName());
         $resource->set('description', $page->getShortDescription());
         $resource->set('alias', $page->getAliasWithNamespace());
+        $resource->set('published', $publish ? 1 : 0);
         $resource->set('template', $modx->config['default_template']);
         $resource->set('menuindex', $page->getMenuIndex());
         $resource->set('hidemenu', $page->getMenuVisible() ? '0' : '1');
@@ -725,22 +734,11 @@ class Modx extends AbstractCmsConnector
         // Page IDs bestimmen.
         $idCms = $this->getPageIdCms($page->getId());
         try {
-            $parentAlias = $page->getMenuParentPageAlias() ? $page->getMenuParentPageAlias() : $this::DEFAULT_MENU_PARENT_ALIAS;
+            $parentAlias = $page->getMenuParentPageAlias();
             $parentIdCms = $this->getPageIdCms($parentAlias);
         } catch (UiPageNotFoundError $upnfe) {
-            // Die Parent-Seite hat eine ID, welche im CMS nicht existiert.
-            if ($parentAlias != $this::DEFAULT_MENU_PARENT_ALIAS) {
-                try {
-                    $parentAlias = $this::DEFAULT_MENU_PARENT_ALIAS;
-                    $parentIdCms = $this->getPageIdCms($parentAlias);
-                } catch (UiPageNotFoundError $upnfe) {
-                    // Die Default-Parent Seite existiert nicht im CMS.
-                    throw new UiPageNotFoundError('The default parent page doesn\'t exist in the CMS.');
-                }
-            } else {
-                // Die Default-Parent Seite existiert nicht im CMS.
-                throw new UiPageNotFoundError('The default parent page doesn\'t exist in the CMS.');
-            }
+            $this->getWorkbench()->getLogger()->logException($upnfe);
+            $parentIdCms = false;
         }
         
         require_once ($modx->config['base_path'] . DIRECTORY_SEPARATOR . 'assets' . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR . 'MODxAPI' . DIRECTORY_SEPARATOR . 'modResource.php');
@@ -751,7 +749,9 @@ class Modx extends AbstractCmsConnector
         $resource->set('alias', $page->getAliasWithNamespace());
         $resource->set('menuindex', $page->getMenuIndex());
         $resource->set('hidemenu', $page->getMenuVisible() ? '0' : '1');
-        $resource->set('parent', $parentIdCms);
+        if ($parentIdCms !== false) {
+            $resource->set('parent', $parentIdCms);
+        }
         $resource->set('content', $page->getContents());
         $resource->set($this::TV_UID_NAME, $page->getId());
         $resource->set($this::TV_APP_ALIAS_NAME, $page->getApp()->getAliasWithNamespace());

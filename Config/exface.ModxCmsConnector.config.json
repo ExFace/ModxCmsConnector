@@ -3,6 +3,8 @@
 	"LAST_PERFORMED_MODEL_SOURCE_UPDATE_ID": 1,
 	"EMAIL_SCHEMA_DEFAULT": "[#username#]@mydomain.com",
 	
+	"MODX.PAGES.ROOT_CONTAINER_ID": "0",
+	
 	"USERS.LANGUAGE_LOCALE_MAPPING": {
 		"english-british": "en_GB",
         "english": "en_US",
