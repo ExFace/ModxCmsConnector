@@ -119,7 +119,7 @@ class Modx extends AbstractCmsConnector
     {
         global $modx;
         $id_or_alias = $page_or_id_or_alias instanceof UiPageInterface ? $page_or_id_or_alias->getId() : $page_or_id_or_alias;
-        return $modx->makeUrl($this->getPageIdCms($id_or_alias), null, $url_params, 'full');
+        return $modx->makeUrl($this->getPageCmsId($id_or_alias), null, $url_params, 'full');
     }
 
     /**
@@ -444,10 +444,16 @@ class Modx extends AbstractCmsConnector
 
     /**
      * 
-     * {@inheritDoc}
-     * @see \exface\Core\Interfaces\CmsConnectorInterface::loadPageByIdCms()
+     * @param integer $page_id_cms
+     * @param boolean $ignore_replacements
+     * @param array $replaced_ids
+     * 
+     * @throws UiPageNotFoundError
+     * @throws UiPageIdNotUniqueError
+     * 
+     * @return UiPageInterface
      */
-    public function loadPageByIdCms($page_id_cms, $ignore_replacements = false, $replaced_ids = [])
+    protected function loadPageByCmsId($page_id_cms, $ignore_replacements = false, $replaced_ids = [])
     {
         global $modx;
         
@@ -626,13 +632,13 @@ class Modx extends AbstractCmsConnector
     }
 
     /**
+     * Returns the CMS page id for the given page, UID or alias.
      *
-     * {@inheritDoc}
-     * @see \exface\Core\Interfaces\CmsConnectorInterface::getPageIdCms()
+     * @return integer
      */
-    public function getPageIdCms($page_or_id_or_alias)
+    protected function getPageCmsId($page_or_uid_or_alias)
     {
-        $id_or_alias = $page_or_id_or_alias instanceof UiPageInterface ? $page_or_id_or_alias->getId() : $page_or_id_or_alias;
+        $id_or_alias = $page_or_uid_or_alias instanceof UiPageInterface ? $page_or_uid_or_alias->getId() : $page_or_uid_or_alias;
         return $this->getPageIds($id_or_alias)['idCms'];
     }
     
@@ -665,7 +671,7 @@ class Modx extends AbstractCmsConnector
         // Page IDs bestimmen.
         try {
             $parentAlias = $page->getMenuParentPageAlias();
-            $parentIdCms = $this->getPageIdCms($parentAlias);
+            $parentIdCms = $this->getPageCmsId($parentAlias);
             $publish = $this->isPublished($parentIdCms);
         } catch (UiPageNotFoundError $upnfe) {
             $parentIdCms = $this->getApp()->getConfig()->getOption('MODX.PAGES.ROOT_CONTAINER_ID');
@@ -732,10 +738,10 @@ class Modx extends AbstractCmsConnector
         global $modx;
         
         // Page IDs bestimmen.
-        $idCms = $this->getPageIdCms($page->getId());
+        $idCms = $this->getPageCmsId($page->getId());
         try {
             $parentAlias = $page->getMenuParentPageAlias();
-            $parentIdCms = $this->getPageIdCms($parentAlias);
+            $parentIdCms = $this->getPageCmsId($parentAlias);
         } catch (UiPageNotFoundError $upnfe) {
             $this->getWorkbench()->getLogger()->logException($upnfe);
             $parentIdCms = false;
@@ -774,7 +780,7 @@ class Modx extends AbstractCmsConnector
         
         require_once ($modx->config['base_path'] . DIRECTORY_SEPARATOR . 'assets' . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR . 'MODxAPI' . DIRECTORY_SEPARATOR . 'modResource.php');
         $resource = new \modResource($modx);
-        $resource->delete($this->getPageIdCms($id_or_alias), true);
+        $resource->delete($this->getPageCmsId($id_or_alias), true);
     }
 
     /**
@@ -849,7 +855,7 @@ class Modx extends AbstractCmsConnector
         $result = $modx->db->select('msc.id as id', $siteContent . ' msc left join ' . $siteTmplvarContentvalues . ' mstc on msc.id = mstc.contentid left join ' . $siteTmplvars . ' mst on mstc.tmplvarid = mst.id', 'mst.name = "' . $this::TV_APP_ALIAS_NAME . '" and mstc.value = "' . $app->getAliasWithNamespace() . '"');
         $pages = [];
         while ($row = $modx->db->getRow($result)) {
-            $pages[] = $this->loadPageByIdCms($row['id'], true);
+            $pages[] = $this->loadPageByCmsId($row['id'], true);
         }
         
         return $pages;
