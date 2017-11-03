@@ -688,7 +688,7 @@ SQL;
         $result = $modx->db->select('msc.id as id', $siteContent . ' msc left join ' . $siteTmplvarContentvalues . ' mstc on msc.id = mstc.contentid left join ' . $siteTmplvars . ' mst on mstc.tmplvarid = mst.id', 'mst.name = "' . $this::TV_APP_ALIAS_NAME . '" and mstc.value = "' . $app->getAliasWithNamespace() . '"');
         $pages = [];
         while ($row = $modx->db->getRow($result)) {
-            $pages[] = $this->loadPageByCmsId($row['id'], true);
+            $pages[] = $this->getPageFromCms($row['id'], null, null, true);
         }
         
         return $pages;
