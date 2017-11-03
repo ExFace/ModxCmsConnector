@@ -13,6 +13,8 @@ use exface\Core\Exceptions\RuntimeException;
 use exface\Core\Exceptions\UiPageIdNotUniqueError;
 use exface\Core\CommonLogic\Model\UiPage;
 use exface\Core\CommonLogic\AbstractCmsConnector;
+use exface\Core\Interfaces\Log\LoggerInterface;
+use exface\Core\Exceptions\UiPageLoadingError;
 
 class Modx extends AbstractCmsConnector
 {
@@ -55,8 +57,6 @@ class Modx extends AbstractCmsConnector
 
     const MODX_UPDATE_ACTION = '27';
 
-    const DEFAULT_MENU_PARENT_ALIAS = 'exface.core.new-pages';
-
     /**
      *
      * @deprecated use CmsConnectorFactory instead
@@ -85,33 +85,6 @@ class Modx extends AbstractCmsConnector
     }
 
     /**
-     *
-     * {@inheritdoc}
-     *
-     * @see \exface\Core\Interfaces\CmsConnectorInterface::getPageCurrentId()
-     */
-    public function getPageCurrentId()
-    {
-        global $modx;
-        return $modx->documentIdentifier;
-    }
-
-    /**
-     *
-     * {@inheritdoc}
-     *
-     * @see \exface\Core\Interfaces\CmsConnectorInterface::getPageContents()
-     */
-    public function getPageContents($doc_id)
-    {
-        global $modx;
-        
-        $q = $modx->db->select('content', $modx->getFullTableName('site_content'), 'id = ' . intval($doc_id));
-        $source = $modx->db->getValue($q);
-        return $source;
-    }
-
-    /**
      * 
      * {@inheritDoc}
      * @see \exface\Core\Interfaces\CmsConnectorInterface::createLinkInternal()
@@ -119,8 +92,20 @@ class Modx extends AbstractCmsConnector
     public function createLinkInternal($page_or_id_or_alias, $url_params = '')
     {
         global $modx;
-        $id_or_alias = $page_or_id_or_alias instanceof UiPageInterface ? $page_or_id_or_alias->getId() : $page_or_id_or_alias;
-        return $modx->makeUrl($this->getPageIdCms($id_or_alias), null, $url_params, 'full');
+        if ($page_or_id_or_alias instanceof UiPageInterface) {
+            $cmsId = $this->getPageIdInCms($page_or_id_or_alias);
+        } elseif ($this->isCmsId($page_or_id_or_alias)) {
+            $cmsId = $page_or_id_or_alias;
+        } else {
+            try {
+                $page = $this->loadPage($page_or_id_or_alias);
+                $cmsId = $this->getPageIdInCms($page);
+            } catch (\Throwable $e) {
+                $this->getWorkbench()->getLogger()->logException($e, LoggerInterface::WARNING);
+                return '';
+            }
+        }
+        return $modx->makeUrl($cmsId, null, $url_params, 'full');
     }
 
     /**
@@ -160,22 +145,6 @@ class Modx extends AbstractCmsConnector
     public function removeSystemRequestParams(array $param_array)
     {
         return $param_array;
-    }
-
-    /**
-     * 
-     * {@inheritDoc}
-     * @see \exface\Core\Interfaces\CmsConnectorInterface::getPageTitle()
-     */
-    public function getPageTitle($resource_id = null)
-    {
-        global $modx;
-        if (is_null($resource_id) || $resource_id == $modx->documentIdentifier) {
-            return $modx->documentObject['pagetitle'];
-        } else {
-            $doc = $modx->getDocument($resource_id, 'pagetitle');
-            return $doc['pagetitle'];
-        }
     }
 
     /**
@@ -366,40 +335,9 @@ class Modx extends AbstractCmsConnector
      * {@inheritDoc}
      * @see \exface\Core\Interfaces\CmsConnectorInterface::loadPageByAlias()
      */
-    public function loadPageByAlias($alias_with_namespace, $ignore_replacements = false, $replaced_aliases = [])
+    public function loadPageByAlias($alias_with_namespace, $ignore_replacements = false)
     {
-        global $modx;
-        
-        $siteContent = $modx->getFullTableName('site_content');
-        $siteTmplvars = $modx->getFullTableName('site_tmplvars');
-        $siteTmplvarContentvalues = $modx->getFullTableName('site_tmplvar_contentvalues');
-        
-        if (! $ignore_replacements) {
-            // Ueberpruefen ob die Seite durch eine andere ersetzt wird.
-            $result = $modx->db->select('msc.alias as id', $siteContent . ' msc left join ' . $siteTmplvarContentvalues . ' mstc on msc.id = mstc.contentid left join ' . $siteTmplvars . ' mst on mstc.tmplvarid = mst.id', 'mst.name = "' . $this::TV_REPLACE_ALIAS_NAME . '" and mstc.value = "' . $alias_with_namespace . '"');
-            $uiPage = $this->getReplacePage($result, $alias_with_namespace, $ignore_replacements, $replaced_aliases);
-            if (! is_null($uiPage)) {
-                return $uiPage;
-            }
-        }
-        
-        if ($alias_with_namespace == $modx->documentObject['alias']) {
-            // Es ist die momentan geladene Seite.
-            $uiPage = $this->getPageFromModx();
-        } else {
-            // Die Seite muss aus der Datenbank geladen werden.
-            $result = $modx->db->select('msc.id as id, msc.pagetitle as name, msc.description as shortDescription, msc.alias as alias, msc.template as template, msc.menuindex as menuIndex, msc.hidemenu as hideMenu, msc.parent as menuParentIdCms, msc.content as contents', $siteContent . ' msc', 'msc.alias = "' . $alias_with_namespace . '"');
-            if ($modx->db->getRecordCount($result) == 0) {
-                throw new UiPageNotFoundError('No page with alias "' . $alias_with_namespace . '" defined.');
-            } elseif ($modx->db->getRecordCount($result) == 1) {
-                $resultTmplVars = $modx->db->select('mst.name as name, mstc.value as value', $siteTmplvarContentvalues . ' mstc left join ' . $siteTmplvars . ' mst on mstc.tmplvarid = mst.id', 'mstc.contentid = (select msc.id from ' . $siteContent . ' msc where msc.alias = "' . $alias_with_namespace . '")');
-                $uiPage = $this->getPageFromDb($result, $resultTmplVars);
-            } else {
-                throw new UiPageIdNotUniqueError('More than one page with alias "' . $alias_with_namespace . '" defined.');
-            }
-        }
-        
-        return $uiPage;
+        return $this->getPageFromCms(null, null, $alias_with_namespace, $ignore_replacements);
     }
 
     /**
@@ -407,147 +345,17 @@ class Modx extends AbstractCmsConnector
      * {@inheritDoc}
      * @see \exface\Core\Interfaces\CmsConnectorInterface::loadPageById()
      */
-    public function loadPageById($uid, $ignore_replacements = false, $replaced_uids = [])
+    public function loadPageById($uid, $ignore_replacements = false)
     {
-        global $modx;
-        
-        $siteContent = $modx->getFullTableName('site_content');
-        $siteTmplvars = $modx->getFullTableName('site_tmplvars');
-        $siteTmplvarContentvalues = $modx->getFullTableName('site_tmplvar_contentvalues');
-        
-        if (! $ignore_replacements) {
-            // Ueberpruefen ob die Seite durch eine andere ersetzt wird.
-            $result = $modx->db->select('mstc.value as id', $siteTmplvarContentvalues . ' mstc left join ' . $siteTmplvars . ' mst on mstc.tmplvarid = mst.id', 'mst.name = "' . $this::TV_UID_NAME . '" and mstc.contentid in (select msc.id as id from ' . $siteContent . ' msc left join ' . $siteTmplvarContentvalues . ' mstc on msc.id = mstc.contentid left join ' . $siteTmplvars . ' mst on mstc.tmplvarid = mst.id where mst.name = "' . $this::TV_REPLACE_ALIAS_NAME . '" and mstc.value = (select msc.alias as alias from ' . $siteContent . ' msc left join ' . $siteTmplvarContentvalues . ' mstc on msc.id = mstc.contentid left join ' . $siteTmplvars . ' mst on mstc.tmplvarid = mst.id where mst.name = "' . $this::TV_UID_NAME . '" and mstc.value = "' . $uid . '"))');
-            $uiPage = $this->getReplacePage($result, $uid, $ignore_replacements, $replaced_uids);
-            if (! is_null($uiPage)) {
-                return $uiPage;
-            }
-        }
-        
-        if ($modx->documentObject[$this::TV_UID_NAME] && $uid == $modx->documentObject[$this::TV_UID_NAME][1]) {
-            // Es ist die momentan geladene Seite.
-            $uiPage = $this->getPageFromModx();
-        } else {
-            // Die Seite muss aus der Datenbank geladen werden.
-            $result = $modx->db->select('msc.id as id, msc.pagetitle as name, msc.description as shortDescription, msc.alias as alias, msc.template as template, msc.menuindex as menuIndex, msc.hidemenu as hideMenu, msc.parent as menuParentIdCms, msc.content as contents', $siteContent . ' msc left join ' . $siteTmplvarContentvalues . ' mstc on msc.id = mstc.contentid left join ' . $siteTmplvars . ' mst on mstc.tmplvarid = mst.id', 'mst.name = "' . $this::TV_UID_NAME . '" and mstc.value = "' . $uid . '"');
-            if ($modx->db->getRecordCount($result) == 0) {
-                throw new UiPageNotFoundError('No page with UID "' . $uid . '" defined.');
-            } elseif ($modx->db->getRecordCount($result) == 1) {
-                $resultTmplVars = $modx->db->select('mst.name as name, mstc.value as value', $siteTmplvarContentvalues . ' mstc left join ' . $siteTmplvars . ' mst on mstc.tmplvarid = mst.id', 'mstc.contentid = (select mstc.contentid from ' . $siteTmplvarContentvalues . ' mstc left join ' . $siteTmplvars . ' mst on mstc.tmplvarid = mst.id where mst.name = "' . $this::TV_UID_NAME . '" and mstc.value = "' . $uid . '")');
-                $uiPage = $this->getPageFromDb($result, $resultTmplVars);
-            } else {
-                throw new UiPageIdNotUniqueError('More than one page with UID "' . $uid . '" defined.');
-            }
-        }
-        
-        return $uiPage;
+        return $this->getPageFromCms(null, $uid, null, $ignore_replacements);
     }
 
     /**
      * 
-     * {@inheritDoc}
-     * @see \exface\Core\Interfaces\CmsConnectorInterface::loadPageByIdCms()
-     */
-    public function loadPageByIdCms($page_id_cms, $ignore_replacements = false, $replaced_ids = [])
-    {
-        global $modx;
-        
-        $siteContent = $modx->getFullTableName('site_content');
-        $siteTmplvars = $modx->getFullTableName('site_tmplvars');
-        $siteTmplvarContentvalues = $modx->getFullTableName('site_tmplvar_contentvalues');
-        
-        if (! $ignore_replacements) {
-            // Ueberpruefen ob die Seite durch eine andere ersetzt wird.
-            $result = $modx->db->select('msc.id as id', $siteContent . ' msc left join ' . $siteTmplvarContentvalues . ' mstc on msc.id = mstc.contentid left join ' . $siteTmplvars . ' mst on mstc.tmplvarid = mst.id', 'mst.name = "' . $this::TV_REPLACE_ALIAS_NAME . '" and mstc.value = (select msc.alias as alias from ' . $siteContent . ' msc where msc.id = ' . $page_id_cms . ')');
-            $uiPage = $this->getReplacePage($result, $page_id_cms, $ignore_replacements, $replaced_ids);
-            if (! is_null($uiPage)) {
-                return $uiPage;
-            }
-        }
-        
-        if ($page_id_cms == $modx->documentObject['id']) {
-            // Es ist die momentan geladene Seite.
-            $uiPage = $this->getPageFromModx();
-        } else {
-            // Die Seite muss aus der Datenbank geladen werden.
-            $result = $modx->db->select('msc.id as id, msc.pagetitle as name, msc.description as shortDescription, msc.alias as alias, msc.template as template, msc.menuindex as menuIndex, msc.hidemenu as hideMenu, msc.parent as menuParentIdCms, msc.content as contents', $siteContent . ' msc', 'msc.id = ' . $page_id_cms);
-            if ($modx->db->getRecordCount($result) == 0) {
-                throw new UiPageNotFoundError('No page with CMS-ID "' . $page_id_cms . '" defined.');
-            } elseif ($modx->db->getRecordCount($result) == 1) {
-                $resultTmplVars = $modx->db->select('mst.name as name, mstc.value as value', $siteTmplvarContentvalues . ' mstc left join ' . $siteTmplvars . ' mst on mstc.tmplvarid = mst.id', 'mstc.contentid = ' . $page_id_cms);
-                $uiPage = $this->getPageFromDb($result, $resultTmplVars);
-            } else {
-                throw new UiPageIdNotUniqueError('More than one page with CMS-ID "' . $page_id_cms . '" defined.');
-            }
-        }
-        
-        return $uiPage;
-    }
-
-    /**
-     *
      * {@inheritDoc}
      * @see \exface\Core\Interfaces\CmsConnectorInterface::loadPageCurrent()
      */
     public function loadPageCurrent()
-    {
-        global $modx;
-        
-        return $this->loadPageByAlias($modx->documentObject['alias']);
-    }
-
-    /**
-     * Checks if a UiPage is replaced by another UiPage and returns the replacement if so.
-     * 
-     * @param resource $sql_result contains the page_id_or_alias as id of the replacement page
-     * @param string $id the page_id_or_alias of the original page
-     * @param boolean $ignore_replacements
-     * @param string[] $replaced_ids contains the page_id_or_alias of the already replaced pages
-     * @throws RuntimeException if serveral pages replace the same page, or pages are replaced
-     * in a circular fashion
-     * @return null|UiPageInterface
-     */
-    protected function getReplacePage($sql_result, $id, $ignore_replacements, $replaced_ids)
-    {
-        global $modx;
-        
-        if ($modx->db->getRecordCount($sql_result) == 0) {
-            // Seite wird durch keine andere ersetzt und wird normal geladen.
-            return null;
-        } elseif ($modx->db->getRecordCount($sql_result) == 1) {
-            // Seite wird von einer anderen Seite ersetzt.
-            if ($row = $modx->db->getRow($sql_result)) {
-                if (in_array($row['id'], $replaced_ids)) {
-                    // Kreisfoermige Ersetzung von Seiten.
-                    throw new RuntimeException('Several pages "' . implode(', ', array_merge($replaced_ids, [
-                        $id
-                    ])) . '" replace themselves in a circular fashion.');
-                }
-                if ($row['id'] == $id) {
-                    // Seite ersetzt sich selbst und wird normal geladen.
-                    return null;
-                } else {
-                    return $this->loadPage($row['id'], $ignore_replacements, array_merge($replaced_ids, [
-                        $id
-                    ]));
-                }
-            }
-        } else {
-            // Es gibt mehrere Seiten, welche die Seite ersetzen.
-            $ids = [];
-            while ($row = $modx->db->getRow($sql_result)) {
-                $ids[] = $row['id'];
-            }
-            throw new RuntimeException('Several pages "' . implode(', ', $ids) . '" replace the same page "' . $id . '".');
-        }
-    }
-
-    /**
-     * Returns a UiPage from the currently loaded page in $modx.
-     * 
-     * @return UiPageInterface
-     */
-    protected function getPageFromModx()
     {
         global $modx;
         
@@ -560,81 +368,172 @@ class Modx extends AbstractCmsConnector
         $uiPage->setShortDescription($modx->documentObject['description']);
         $uiPage->setMenuIndex($modx->documentObject['menuindex']);
         $uiPage->setMenuVisible(! $modx->documentObject['hidemenu']);
-        $uiPage->setMenuParentPageAlias($this->getPageAlias($modx->documentObject['parent']));
+        $uiPage->setMenuParentPageSelector($modx->documentObject['parent']);
         $uiPage->setUpdateable(array_key_exists($this::TV_DO_UPDATE_NAME, $modx->documentObject) ? $modx->documentObject[$this::TV_DO_UPDATE_NAME][1] : $this::TV_DO_UPDATE_DEFAULT);
         $uiPage->setReplacesPageAlias($modx->documentObject[$this::TV_REPLACE_ALIAS_NAME] ? $modx->documentObject[$this::TV_REPLACE_ALIAS_NAME][1] : $this::TV_REPLACE_ALIAS_DEFAULT);
         $uiPage->setMenuParentPageDefaultAlias($modx->documentObject[$this::TV_DEFAULT_PARENT_ALIAS_NAME] ? $modx->documentObject[$this::TV_DEFAULT_PARENT_ALIAS_NAME] : $this::TV_DEFAULT_PARENT_ALIAS_DEFAULT);
         $uiPage->setContents($modx->documentObject['content']);
         
+        $this->addPageToCache($modx->documentIdentifier, $uiPage);
+        
+        // FIXME look for replacing pages!
+        
         return $uiPage;
+    }
+    
+    protected function getPageFromCms($cmsId = null, $uid = null, $alias = null, $ignore_replacements = false) {        
+        global $modx;
+        
+        if (! is_null($modx->documentIdentifier)) {
+            $currentPage = $this->loadPageCurrent();
+            if (! is_null($alias)) {
+                if ($currentPage->getAliasWithNamespace() === $alias) {
+                    return $currentPage;
+                }
+            } elseif (! is_null($uid)) {
+                if ($currentPage->getId() === $uid) {
+                    return $currentPage;
+                }
+            } elseif (! is_null($cmsId)) {
+                // We can't check as a page directly for it's CMS-id, but once the current page is loaded (see above)
+                // it will be added to the cache, so checking the cache will return it here.
+                if ($this->getPageFromCache($cmsId) === $currentPage) {
+                    return $currentPage;
+                }
+            } else {
+                throw new UiPageLoadingError('Error loading page from CMS database: no page identifier specified!');
+            }
+        }
+        
+        return $this->getPageFromDb($cmsId, $uid, $alias, $ignore_replacements);
+    }
+    
+    protected function getPageFromDb($cmsId = null, $uid = null, $alias = null, $ignore_replacements = false)
+    {
+        if (is_null($cmsId) && is_null($uid) && is_null($alias)) {
+            throw new UiPageLoadingError('Error loading page from CMS database: no page identifier specified!');
+        }
+        
+        global $modx;
+        
+        $siteContent = $modx->getFullTableName('site_content');
+        $siteTmplvarContentvalues = $modx->getFullTableName('site_tmplvar_contentvalues');
+        $siteTmplvars = $modx->getFullTableName('site_tmplvars');
+        $replaceAliasTvName = self::TV_REPLACE_ALIAS_NAME;
+        
+        $uidSubselect = $this->buildSqlTmplvarSubselect($this::TV_UID_NAME);
+        
+        if (! is_null($uid)) {
+            $where = 'EXISTS (' . $uidSubselect . ' and mstc.value = "' . $uid . '")';
+        } 
+        if (! is_null($alias)) {
+            $where = 'msc.alias = "' . $alias . '"';
+        }
+        if (! is_null($cmsId)) {
+            $where = 'msc.id = ' . intval($cmsId);
+        }
+        
+        $query = <<<SQL
+    SELECT 
+        msc.id as id, 
+        msc.pagetitle as name, 
+        msc.description as shortDescription, 
+        msc.alias as alias, 
+        msc.template as template, 
+        msc.menuindex as menuIndex, 
+        msc.hidemenu as hideMenu, 
+        msc.parent as menuParentIdCms, 
+        msc.content as contents,
+        ({$uidSubselect}) as uid,
+        ({$this->buildSqlTmplvarSubselect(self::TV_APP_ALIAS_NAME)}) as app_alias,
+        ({$this->buildSqlTmplvarSubselect(self::TV_DEFAULT_PARENT_ALIAS_NAME)}) as default_parent_alias,
+        ({$this->buildSqlTmplvarSubselect(self::TV_REPLACE_ALIAS_NAME)}) as replace_alias,
+        ({$this->buildSqlTmplvarSubselect(self::TV_DO_UPDATE_NAME)}) as do_update,
+        (SELECT 
+            GROUP_CONCAT(r_mstc.contentid SEPARATOR ',')
+            FROM {$siteTmplvarContentvalues} r_mstc
+                LEFT JOIN {$siteTmplvars} r_mst ON r_mstc.tmplvarid = r_mst.id 
+            WHERE r_mst.name = "{$replaceAliasTvName}"
+                AND r_mstc.value = msc.alias
+        ) as replacing_ids
+    FROM {$siteContent}  msc
+    WHERE {$where}
+SQL;
+        $result = $modx->db->query($query);
+        $row = $modx->db->getRow($result);
+        $page = $this->createPageFromDbRow($row);
+        
+        if (! $ignore_replacements && ! is_null($row['replacing_ids'])) {
+            $replacing_ids = explode(',', $row['replacing_ids']);
+            if (count($replacing_ids > 1)) {
+                throw new UiPageLoadingError('Page "' . $page->getAliasWithNamespace() . '" is replaced by multiple pages with the respective CMS-Ids ' . $row['replacing_ids'] . ': only one replacement per page allowed!');
+            }
+            
+        }
+        
+        $this->addPageToCache($row['id'], $page);
+        
+        return $page;
+    }
+    
+    protected function buildSqlTmplvarSubselect($tmplvarName)
+    {
+        global $modx;
+        
+        $siteTmplvars = $modx->getFullTableName('site_tmplvars');
+        $siteTmplvarContentvalues = $modx->getFullTableName('site_tmplvar_contentvalues');
+        
+        return <<<SQL
+        SELECT
+            mstc.value
+        FROM {$siteTmplvarContentvalues} mstc
+            LEFT JOIN {$siteTmplvars} mst ON mstc.tmplvarid = mst.id
+        WHERE msc.id = mstc.contentid
+            AND mst.name = "{$tmplvarName}"
+SQL;
     }
 
     /**
      * Returns a UiPage from the database.
      * 
      * @param resource $result contains the modx_site_contents of the page
-     * @param resource $resultTmplVars contains the modx_site_tmplvar_contentvalues of the page
      * @return UiPageInterface
      */
-    protected function getPageFromDb($result, $resultTmplVars)
+    protected function createPageFromDbRow($row)
     {
-        global $modx;
-        
-        $row = $modx->db->getRow($result);
-        $tmplVars = [];
-        while ($tvRow = $modx->db->getRow($resultTmplVars)) {
-            $tmplVars[$tvRow['name']] = $tvRow['value'];
-        }
-        
         $pageAlias = $row['alias'];
-        $pageUid = $tmplVars[$this::TV_UID_NAME] ? $tmplVars[$this::TV_UID_NAME] : $this::TV_UID_DEFAULT;
-        $appAlias = $tmplVars[$this::TV_APP_ALIAS_NAME] ? $tmplVars[$this::TV_APP_ALIAS_NAME] : $this::TV_APP_ALIAS_DEFAULT;
+        $pageUid = $row['uid'];
+        $appAlias = $row['app_alias'] ? $row['app_alias'] : $this::TV_APP_ALIAS_DEFAULT;
         $uiPage = UiPageFactory::create($this->getWorkbench()->ui(), $pageAlias, $pageUid, $appAlias);
         
         $uiPage->setName($row['name']);
         $uiPage->setShortDescription($row['shortDescription']);
         $uiPage->setMenuIndex($row['menuIndex']);
         $uiPage->setMenuVisible(! $row['hideMenu']);
-        $uiPage->setMenuParentPageAlias($this->getPageAlias($row['menuParentIdCms']));
-        $uiPage->setUpdateable(array_key_exists($this::TV_DO_UPDATE_NAME, $tmplVars) ? $tmplVars[$this::TV_DO_UPDATE_NAME] : $this::TV_DO_UPDATE_DEFAULT);
-        $uiPage->setReplacesPageAlias($tmplVars[$this::TV_REPLACE_ALIAS_NAME] ? $tmplVars[$this::TV_REPLACE_ALIAS_NAME] : $this::TV_REPLACE_ALIAS_DEFAULT);
-        $uiPage->setMenuParentPageDefaultAlias($tmplVars[$this::TV_DEFAULT_PARENT_ALIAS_NAME] ? $tmplVars[$this::TV_DEFAULT_PARENT_ALIAS_NAME] : $this::TV_DEFAULT_PARENT_ALIAS_DEFAULT);
+        $uiPage->setMenuParentPageSelector($row['menuParentIdCms']);
+        $uiPage->setUpdateable($row['do_update']);
+        $uiPage->setReplacesPageAlias($row['replace_alias']);
+        $uiPage->setMenuParentPageDefaultAlias($row['default_parent_alias']);
         $uiPage->setContents($row['contents']);
         
         return $uiPage;
     }
-
+    
     /**
-     * 
-     * {@inheritDoc}
-     * @see \exface\Core\Interfaces\CmsConnectorInterface::getPageId()
+     * Returns TRUE if the given page exists in MODx and is published.
+     * @param integer $cmsId
+     * @throws UiPageNotFoundError if the page does not exist
+     * @return boolean
      */
-    public function getPageId($page_or_id_or_alias)
+    protected function isPublished($cmsId) 
     {
-        $id_or_alias = $page_or_id_or_alias instanceof UiPageInterface ? $page_or_id_or_alias->getId() : $page_or_id_or_alias;
-        return $this->getPageIds($id_or_alias)['id'];
-    }
-
-    /**
-     * 
-     * {@inheritDoc}
-     * @see \exface\Core\Interfaces\CmsConnectorInterface::getPageAlias()
-     */
-    public function getPageAlias($page_or_id_or_alias)
-    {
-        $id_or_alias = $page_or_id_or_alias instanceof UiPageInterface ? $page_or_id_or_alias->getId() : $page_or_id_or_alias;
-        return $this->getPageIds($id_or_alias)['alias'];
-    }
-
-    /**
-     *
-     * {@inheritDoc}
-     * @see \exface\Core\Interfaces\CmsConnectorInterface::getPageIdCms()
-     */
-    public function getPageIdCms($page_or_id_or_alias)
-    {
-        $id_or_alias = $page_or_id_or_alias instanceof UiPageInterface ? $page_or_id_or_alias->getId() : $page_or_id_or_alias;
-        return $this->getPageIds($id_or_alias)['idCms'];
+        global $modx;
+        
+        $doc = $modx->getDocument($cmsId, 'id, published');
+        if ($doc['id'] == $cmsId && $doc['published'] == 1) {
+            return true;
+        }
+        return false;
     }
 
     /**
@@ -648,22 +547,14 @@ class Modx extends AbstractCmsConnector
         
         // Page IDs bestimmen.
         try {
-            $parentAlias = $page->getMenuParentPageAlias() ? $page->getMenuParentPageAlias() : $this::DEFAULT_MENU_PARENT_ALIAS;
-            $parentIdCms = $this->getPageIdCms($parentAlias);
+            $parentAlias = $page->getMenuParentPageAlias();
+            $parentIdCms = $this->getPageCmsId($parentAlias);
+            $publish = $this->isPublished($parentIdCms);
         } catch (UiPageNotFoundError $upnfe) {
-            // Die Parent-Seite hat eine ID, welche im CMS nicht existiert.
-            if ($parentAlias != $this::DEFAULT_MENU_PARENT_ALIAS) {
-                try {
-                    $parentAlias = $this::DEFAULT_MENU_PARENT_ALIAS;
-                    $parentIdCms = $this->getPageIdCms($parentAlias);
-                } catch (UiPageNotFoundError $upnfe) {
-                    // Die Default-Parent Seite existiert nicht im CMS.
-                    throw new UiPageNotFoundError('The default parent page doesn\'t exist in the CMS.');
-                }
-            } else {
-                // Die Default-Parent Seite existiert nicht im CMS.
-                throw new UiPageNotFoundError('The default parent page doesn\'t exist in the CMS.');
-            }
+            $parentIdCms = $this->getApp()->getConfig()->getOption('MODX.PAGES.ROOT_CONTAINER_ID');
+            $publish = false;
+            $this->getWorkbench()->getLogger()->logException($upnfe, LoggerInterface::INFO);
+            // TODO check if the root exists!
         }
         
         // Parent Document Groups bestimmen.
@@ -679,6 +570,7 @@ class Modx extends AbstractCmsConnector
         $resource->set('pagetitle', $page->getName());
         $resource->set('description', $page->getShortDescription());
         $resource->set('alias', $page->getAliasWithNamespace());
+        $resource->set('published', $publish ? 1 : 0);
         $resource->set('template', $modx->config['default_template']);
         $resource->set('menuindex', $page->getMenuIndex());
         $resource->set('hidemenu', $page->getMenuVisible() ? '0' : '1');
@@ -723,24 +615,13 @@ class Modx extends AbstractCmsConnector
         global $modx;
         
         // Page IDs bestimmen.
-        $idCms = $this->getPageIdCms($page->getId());
+        $idCms = $this->getPageCmsId($page->getId());
         try {
-            $parentAlias = $page->getMenuParentPageAlias() ? $page->getMenuParentPageAlias() : $this::DEFAULT_MENU_PARENT_ALIAS;
-            $parentIdCms = $this->getPageIdCms($parentAlias);
+            $parentAlias = $page->getMenuParentPageAlias();
+            $parentIdCms = $this->getPageCmsId($parentAlias);
         } catch (UiPageNotFoundError $upnfe) {
-            // Die Parent-Seite hat eine ID, welche im CMS nicht existiert.
-            if ($parentAlias != $this::DEFAULT_MENU_PARENT_ALIAS) {
-                try {
-                    $parentAlias = $this::DEFAULT_MENU_PARENT_ALIAS;
-                    $parentIdCms = $this->getPageIdCms($parentAlias);
-                } catch (UiPageNotFoundError $upnfe) {
-                    // Die Default-Parent Seite existiert nicht im CMS.
-                    throw new UiPageNotFoundError('The default parent page doesn\'t exist in the CMS.');
-                }
-            } else {
-                // Die Default-Parent Seite existiert nicht im CMS.
-                throw new UiPageNotFoundError('The default parent page doesn\'t exist in the CMS.');
-            }
+            $this->getWorkbench()->getLogger()->logException($upnfe);
+            $parentIdCms = false;
         }
         
         require_once ($modx->config['base_path'] . DIRECTORY_SEPARATOR . 'assets' . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR . 'MODxAPI' . DIRECTORY_SEPARATOR . 'modResource.php');
@@ -751,7 +632,9 @@ class Modx extends AbstractCmsConnector
         $resource->set('alias', $page->getAliasWithNamespace());
         $resource->set('menuindex', $page->getMenuIndex());
         $resource->set('hidemenu', $page->getMenuVisible() ? '0' : '1');
-        $resource->set('parent', $parentIdCms);
+        if ($parentIdCms !== false) {
+            $resource->set('parent', $parentIdCms);
+        }
         $resource->set('content', $page->getContents());
         $resource->set($this::TV_UID_NAME, $page->getId());
         $resource->set($this::TV_APP_ALIAS_NAME, $page->getApp()->getAliasWithNamespace());
@@ -774,7 +657,7 @@ class Modx extends AbstractCmsConnector
         
         require_once ($modx->config['base_path'] . DIRECTORY_SEPARATOR . 'assets' . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR . 'MODxAPI' . DIRECTORY_SEPARATOR . 'modResource.php');
         $resource = new \modResource($modx);
-        $resource->delete($this->getPageIdCms($id_or_alias), true);
+        $resource->delete($this->getPageCmsId($id_or_alias), true);
     }
 
     /**
@@ -787,45 +670,6 @@ class Modx extends AbstractCmsConnector
         require_once ($modx->config['base_path'] . DIRECTORY_SEPARATOR . 'assets' . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR . 'MODxAPI' . DIRECTORY_SEPARATOR . 'modResource.php');
         $resource = new \modResource($modx);
         $resource->clearTrash(true);
-    }
-
-    /**
-     * Determines the IDs of the page (UID, CMS-ID, alias) for any one of them passed.
-     * 
-     * @param string $page_id_or_alias
-     * @throws UiPageNotFoundError if no page with the passed UID or CMS-ID or alias exists
-     * @throws UiPageIdNotUniqueError if several pages with the same UID or CMS-ID or alias
-     * exist
-     * @return string
-     */
-    private function getPageIds($page_id_or_alias)
-    {
-        if (! $page_id_or_alias) {
-            throw new UiPageNotFoundError('Empty page_id_or_alias passed.');
-        }
-        
-        global $modx;
-        
-        $siteContent = $modx->getFullTableName('site_content');
-        $siteTmplvars = $modx->getFullTableName('site_tmplvars');
-        $siteTmplvarContentvalues = $modx->getFullTableName('site_tmplvar_contentvalues');
-        
-        if (substr($page_id_or_alias, 0, 2) == '0x') {
-            $where = 'mst.name = "' . $this::TV_UID_NAME . '" and mstc.value = "' . $page_id_or_alias . '"';
-        } elseif (! is_numeric($page_id_or_alias)) {
-            $where = 'mst.name = "' . $this::TV_UID_NAME . '" and msc.alias = "' . $page_id_or_alias . '"';
-        } else {
-            $where = 'mst.name = "' . $this::TV_UID_NAME . '" and msc.id = ' . $page_id_or_alias;
-        }
-        
-        $result = $modx->db->select('msc.id as idCms, msc.alias as alias, mstc.value as id', $siteContent . ' msc left join ' . $siteTmplvarContentvalues . ' mstc on msc.id = mstc.contentid left join ' . $siteTmplvars . ' mst on mstc.tmplvarid = mst.id', $where);
-        if ($modx->db->getRecordCount($result) == 0) {
-            throw new UiPageNotFoundError('No page with UID/CMS-ID/alias "' . $page_id_or_alias . '" defined or page has no UID or alias.');
-        } elseif ($modx->db->getRecordCount($result) == 1) {
-            return $modx->db->getRow($result);
-        } else {
-            throw new UiPageIdNotUniqueError('More than one page with UID/CMS-ID/alias "' . $page_id_or_alias . '" defined.');
-        }
     }
 
     /**
@@ -844,7 +688,7 @@ class Modx extends AbstractCmsConnector
         $result = $modx->db->select('msc.id as id', $siteContent . ' msc left join ' . $siteTmplvarContentvalues . ' mstc on msc.id = mstc.contentid left join ' . $siteTmplvars . ' mst on mstc.tmplvarid = mst.id', 'mst.name = "' . $this::TV_APP_ALIAS_NAME . '" and mstc.value = "' . $app->getAliasWithNamespace() . '"');
         $pages = [];
         while ($row = $modx->db->getRow($result)) {
-            $pages[] = $this->loadPageByIdCms($row['id'], true);
+            $pages[] = $this->getPageFromCms($row['id'], null, null, true);
         }
         
         return $pages;
@@ -965,7 +809,7 @@ class Modx extends AbstractCmsConnector
      * getriggert), so bleibt das Plugin gesperrt und wird beim folgenden Aufruf nicht
      * ausgefuehrt. Diese Funktion entsperrt das Plugin manuell.
      * 
-     * @param strin $plugin_name
+     * @param string $plugin_name
      */
     public function unlockPlugin($plugin_name)
     {
@@ -973,6 +817,15 @@ class Modx extends AbstractCmsConnector
         if (is_file($lock_file_path)) {
             unlink($lock_file_path);
         }
+    }
+    
+    protected function isCmsId($page_id_or_alias)
+    {
+        if (! $this->isUid($page_id_or_alias) && is_numeric($page_id_or_alias)) {
+            return true;
+        }
+        
+        return false;
     }
 }
 ?>
