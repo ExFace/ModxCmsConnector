@@ -800,13 +800,8 @@ class Modx extends AbstractCmsConnector
      */
     private function getPageIds($page_id_or_alias)
     {
-        if (is_null($page_id_or_alias) || $page_id_or_alias === '') {
+        if (! $page_id_or_alias) {
             throw new UiPageNotFoundError('Empty page_id_or_alias passed.');
-        }
-        
-        // Die Wurzel des Modx-Menübaums.
-        if ($page_id_or_alias === '0' or $page_id_or_alias === 0) {
-            return ['idCms' => '0', 'alias' => '', 'id' => ''];
         }
         
         global $modx;
