@@ -468,7 +468,9 @@ SQL;
             if (count($replacing_ids > 1)) {
                 throw new UiPageLoadingError('Page "' . $page->getAliasWithNamespace() . '" is replaced by multiple pages with the respective CMS-Ids ' . $row['replacing_ids'] . ': only one replacement per page allowed!');
             }
-            
+            $replacingPage = $this->getPageFromCms($replacing_ids[0]);
+            $this->replacePageInCache($page, $replacing_ids[0], $replacingPage);
+            return $replacingPage;
         }
         
         $this->addPageToCache($row['id'], $page);
