@@ -69,7 +69,7 @@ switch ($eventName) {
         
         // Default Parent Alias setzen
         if (! $_POST['tv' . $tvIds[TV_DEFAULT_PARENT_ALIAS]] && $_POST['parent']) {
-            $_POST['tv' . $tvIds[TV_DEFAULT_PARENT_ALIAS]] = $exface->getCMS()->getPageAlias($_POST['parent']);
+            $_POST['tv' . $tvIds[TV_DEFAULT_PARENT_ALIAS]] = $exface->getCMS()->loadPage($_POST['parent'])->getAliasWithNamespace();
         }
         
         break;
