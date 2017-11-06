@@ -468,7 +468,9 @@ SQL;
             if (count($replacing_ids > 1)) {
                 throw new UiPageLoadingError('Page "' . $page->getAliasWithNamespace() . '" is replaced by multiple pages with the respective CMS-Ids ' . $row['replacing_ids'] . ': only one replacement per page allowed!');
             }
-            
+            $replacingPage = $this->getPageFromCms($replacing_ids[0]);
+            $this->replacePageInCache($page, $replacing_ids[0], $replacingPage);
+            return $replacingPage;
         }
         
         $this->addPageToCache($row['id'], $page);
@@ -548,7 +550,8 @@ SQL;
         // Page IDs bestimmen.
         try {
             $parentAlias = $page->getMenuParentPageAlias();
-            $parentIdCms = $this->getPageCmsId($parentAlias);
+            $parentPage = $this->loadPage($parentAlias);
+            $parentIdCms = $this->getPageIdInCms($parentPage);
             $publish = $this->isPublished($parentIdCms);
         } catch (UiPageNotFoundError $upnfe) {
             $parentIdCms = $this->getApp()->getConfig()->getOption('MODX.PAGES.ROOT_CONTAINER_ID');
@@ -615,10 +618,11 @@ SQL;
         global $modx;
         
         // Page IDs bestimmen.
-        $idCms = $this->getPageCmsId($page->getId());
+        $idCms = $this->getPageIdInCms($page);
         try {
             $parentAlias = $page->getMenuParentPageAlias();
-            $parentIdCms = $this->getPageCmsId($parentAlias);
+            $parentPage = $this->loadPage($parentAlias);
+            $parentIdCms = $this->getPageIdInCms($parentPage);
         } catch (UiPageNotFoundError $upnfe) {
             $this->getWorkbench()->getLogger()->logException($upnfe);
             $parentIdCms = false;
@@ -653,11 +657,11 @@ SQL;
     {
         global $modx;
         
-        $id_or_alias = $page_or_id_or_alias instanceof UiPageInterface ? $page_or_id_or_alias->getId() : $page_or_id_or_alias;
+        $page = $page_or_id_or_alias instanceof UiPageInterface ? $page_or_id_or_alias : $this->loadPage($page_or_id_or_alias);
         
         require_once ($modx->config['base_path'] . DIRECTORY_SEPARATOR . 'assets' . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR . 'MODxAPI' . DIRECTORY_SEPARATOR . 'modResource.php');
         $resource = new \modResource($modx);
-        $resource->delete($this->getPageCmsId($id_or_alias), true);
+        $resource->delete($this->getPageIdInCms($page), true);
     }
 
     /**
