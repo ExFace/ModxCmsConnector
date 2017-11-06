@@ -574,6 +574,8 @@ SQL;
         $resource->set('description', $page->getShortDescription());
         $resource->set('alias', $page->getAliasWithNamespace());
         $resource->set('published', $publish ? 1 : 0);
+        // IDEA configure the default template in the connector config as the default MODx template
+        // may be one without all the needed TVs
         $resource->set('template', $modx->config['default_template']);
         $resource->set('menuindex', $page->getMenuIndex());
         $resource->set('hidemenu', $page->getMenuVisible() ? '0' : '1');
@@ -606,6 +608,8 @@ SQL;
         if (count($ids) > 0) {
             $modx->db->update('privatemgr = 1', $siteContent, 'id IN (' . implode(', ', $ids) . ')');
         }
+        
+        return $this;
     }
 
     /**
@@ -617,8 +621,12 @@ SQL;
     {
         global $modx;
         
-        // Page IDs bestimmen.
-        $idCms = $this->getPageIdInCms($page);
+        // Get the CMS id of the currently saved page matching the UID of the new page
+        $idCms = $this->getPageIdInCms($this->loadPage($page->getId()));
+        if ($idCms === false) {
+            throw new UiPageNotFoundError('Error updating page "' . $page->getAliasWithNamespace() . '": page not found in the CMS!');
+        }
+        
         try {
             $parentAlias = $page->getMenuParentPageAlias();
             $parentPage = $this->loadPage($parentAlias);
@@ -636,6 +644,7 @@ SQL;
         $resource->set('alias', $page->getAliasWithNamespace());
         $resource->set('menuindex', $page->getMenuIndex());
         $resource->set('hidemenu', $page->getMenuVisible() ? '0' : '1');
+        $resource->set('deleted', 0); // This will undelete pages, that the user marked as deleted.
         if ($parentIdCms !== false) {
             $resource->set('parent', $parentIdCms);
         }
@@ -646,6 +655,11 @@ SQL;
         $resource->set($this::TV_REPLACE_ALIAS_NAME, $page->getReplacesPageAlias());
         $resource->set($this::TV_DEFAULT_PARENT_ALIAS_NAME, $page->getMenuParentPageDefaultAlias());
         $resource->save(true, true);
+        
+        // Now that we saved the page, we must update the cache.
+        $this->addPageToCache($idCms, $page);
+        
+        return $this;
     }
 
     /**
@@ -662,6 +676,11 @@ SQL;
         require_once ($modx->config['base_path'] . DIRECTORY_SEPARATOR . 'assets' . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR . 'MODxAPI' . DIRECTORY_SEPARATOR . 'modResource.php');
         $resource = new \modResource($modx);
         $resource->delete($this->getPageIdInCms($page), true);
+        
+        // Clear the cache to make sure, no references to the page remain
+        $this->clearPagesCache();
+        
+        return $this;
     }
 
     /**
