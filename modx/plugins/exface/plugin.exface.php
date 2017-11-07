@@ -1,8 +1,9 @@
 <?php
-use Ramsey\Uuid\Uuid;
 use exface\Core\CommonLogic\Workbench;
 use exface\Core\Factories\UserFactory;
 use exface\Core\Exceptions\UserNotFoundError;
+use exface\Core\Exceptions\UiPageNotPartOfAppError;
+use exface\Core\CommonLogic\Model\UiPage;
 
 const TV_APP_ALIAS_NAME = 'ExfacePageAppAlias';
 
@@ -28,6 +29,32 @@ if (! isset($exface)) {
 
 switch ($eventName) {
     case "OnStripAlias":
+        // ExfacePageAppAlias TV auslesen
+        $tvIds = $exface->getCMS()->getTemplateVariableIds();
+        
+        // Die folgenden Aufrufe wuerden eigentlich besser in 'OnBeforeDocFormSave' passen.
+        // Dort koennen die TVs $_POST aber nicht mehr effektiv geaendert werden (sie werden
+        // schon vorher ausgelesen), deshalb ist dieser Code hier.
+        
+        // UID setzen.
+        if (! $_POST['tv' . $tvIds[TV_UID_NAME]]) {
+            $_POST['tv' . $tvIds[TV_UID_NAME]] = UiPage::generateUid();
+        }
+        
+        // App vererben
+        if (! $_POST['tv' . $tvIds[TV_APP_ALIAS_NAME]] && $_POST['parent']) {
+            try {
+                $_POST['tv' . $tvIds[TV_APP_ALIAS_NAME]] = $exface->getCMS()->loadPage($_POST['parent'])->getApp()->getAliasWithNamespace();
+            } catch (UiPageNotPartOfAppError $upnae) {
+                // ignorieren
+            }
+        }
+        
+        // Default Parent Alias setzen
+        if (! $_POST['tv' . $tvIds[TV_DEFAULT_PARENT_ALIAS]] && $_POST['parent']) {
+            $_POST['tv' . $tvIds[TV_DEFAULT_PARENT_ALIAS]] = $exface->getCMS()->loadPage($_POST['parent'])->getAliasWithNamespace();
+        }
+        
         // Alias setzen. Zunaechst wird der uebergebene Alias entsprechend dem trans-
         // alias-Plugin verarbeitet. Anschliessend wird der Namespace der App vorange-
         // stellt, falls eine App angegeben ist.
@@ -39,11 +66,8 @@ switch ($eventName) {
         $alias = $trans->stripAlias($alias, 'lowercase alphanumeric', 'dash');
         // Ende: angepasst aus plugin.transalias.php
         
-        // ExfacePageAppAlias TV auslesen
-        $tvIds = $exface->getCMS()->getTemplateVariableIds();
-        $appAlias = $_POST['tv' . $tvIds[TV_APP_ALIAS_NAME]];
-        
         // Alias mit Namespace erzeugen und zurueckgeben
+        $appAlias = $_POST['tv' . $tvIds[TV_APP_ALIAS_NAME]];
         if ($_POST['alias'] === '') {
             if ($appAlias) {
                 $modx->event->output($appAlias . '.' . $alias);
@@ -56,20 +80,6 @@ switch ($eventName) {
             } else {
                 $modx->event->output($alias);
             }
-        }
-        
-        // Die folgenden Aufrufe wuerden eigentlich besser in 'OnBeforeDocFormSave' passen.
-        // Dort koennen die TVs $_POST aber nicht mehr effektiv geaendert werden (sie werden
-        // schon vorher ausgelesen), deshalb ist dieser Code hier.
-        
-        // UID setzen.
-        if (! $_POST['tv' . $tvIds[TV_UID_NAME]]) {
-            $_POST['tv' . $tvIds[TV_UID_NAME]] = '0x' . Uuid::uuid1()->getHex();
-        }
-        
-        // Default Parent Alias setzen
-        if (! $_POST['tv' . $tvIds[TV_DEFAULT_PARENT_ALIAS]] && $_POST['parent']) {
-            $_POST['tv' . $tvIds[TV_DEFAULT_PARENT_ALIAS]] = $exface->getCMS()->loadPage($_POST['parent'])->getAliasWithNamespace();
         }
         
         break;
@@ -92,7 +102,7 @@ switch ($eventName) {
             // Meldung nicht angezeigt. Problem mit Sessions und globalen Variablen?
             // (global $SystemAlertMsgQueque)?
             
-            //$modx->event->alert($exface->getApp('exface.ModxCmsConnector')->getTranslator()->translate('WARNING_SAVE_DIALOG_WITH_APP_ALIAS'));
+            // $modx->event->alert($exface->getApp('exface.ModxCmsConnector')->getTranslator()->translate('WARNING_SAVE_DIALOG_WITH_APP_ALIAS'));
             $modx->event->alert('You made changes to a dialog, which may be overwritten during the next update.');
         }
         
