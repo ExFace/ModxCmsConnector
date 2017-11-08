@@ -696,10 +696,7 @@ SQL;
         global $modx;
         
         // Get the CMS id of the currently saved page matching the UID of the new page
-        $idCms = $this->getPageIdInCms($this->loadPage($page->getId()));
-        if ($idCms === false) {
-            throw new UiPageNotFoundError('Error updating page "' . $page->getAliasWithNamespace() . '": page not found in the CMS!');
-        }
+        $idCms = $this->getPageIdInCms($page);
         
         try {
             $parentAlias = $page->getMenuParentPageAlias();
