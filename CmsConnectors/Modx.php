@@ -14,6 +14,7 @@ use exface\Core\CommonLogic\Model\UiPage;
 use exface\Core\CommonLogic\AbstractCmsConnector;
 use exface\Core\Interfaces\Log\LoggerInterface;
 use exface\Core\Exceptions\UiPageLoadingError;
+use exface\Core\Exceptions\UiPageIdNotUniqueError;
 
 class Modx extends AbstractCmsConnector
 {
@@ -368,6 +369,13 @@ class Modx extends AbstractCmsConnector
     WHERE msc.id = {$modx->documentIdentifier}
 SQL;
         $result = $modx->db->query($query);
+        
+        if ($modx->db->getRecordCount($result) == 0) {
+            throw new UiPageNotFoundError('The requested UiPage with CMS-ID: "' . $modx->documentIdentifier . '" doesn\'t exist.');
+        } elseif ($modx->db->getRecordCount($result) > 1) {
+            throw new UiPageIdNotUniqueError('Several UiPages with the requested CMS-ID: "' . $modx->documentIdentifier . '" exist.');
+        }
+        
         $row = $modx->db->getRow($result);
         $page = $this->createPageFromModx();
         $this->addPageToCache($modx->documentIdentifier, $page);
@@ -451,6 +459,13 @@ SQL;
     WHERE {$where}
 SQL;
         $result = $modx->db->query($query);
+        
+        if ($modx->db->getRecordCount($result) == 0) {
+            throw new UiPageNotFoundError('The requested UiPage with CMS-ID: "' . $cmsId . '"/UID: "' . $uid . '"/alias: "' . $alias . '" doesn\'t exist.');
+        } elseif ($modx->db->getRecordCount($result) > 1) {
+            throw new UiPageIdNotUniqueError('Several UiPages with the requested CMS-ID: "' . $cmsId . '"/UID: "' . $uid . '"/alias: "' . $alias . '" exist.');
+        }
+        
         $row = $modx->db->getRow($result);
         $page = $this->createPageFromDbRow($row);
         $this->addPageToCache($row['id'], $page);
@@ -597,6 +612,14 @@ SQL;
     public function createPage(UiPageInterface $page)
     {
         global $modx;
+        
+        try {
+            $existingPage = $this->loadPage($page->getAliasWithNamespace());
+            // es existiert bereits eine Seite mit diesem Alias
+            throw new UiPageIdNotUniqueError('A different UiPage with the same alias "' . $page->getAliasWithNamespace() . '" already exists.');
+        } catch (UiPageNotFoundError $e) {
+            // alles ok, es existiert noch keine Seite mit diesem Alias
+        }
         
         // Page IDs bestimmen.
         try {
