@@ -33,9 +33,9 @@ class Modx extends AbstractCmsConnector
 
     private $workbench = null;
 
-    const TV_APP_ALIAS_NAME = 'ExfacePageAppAlias';
+    const TV_APP_UID_NAME = 'ExfacePageAppAlias';
 
-    const TV_APP_ALIAS_DEFAULT = '';
+    const TV_APP_UID_DEFAULT = '';
 
     const TV_REPLACE_ALIAS_NAME = 'ExfacePageReplaceAlias';
 
@@ -49,9 +49,9 @@ class Modx extends AbstractCmsConnector
 
     const TV_DO_UPDATE_DEFAULT = true;
 
-    const TV_DEFAULT_PARENT_ALIAS_NAME = 'ExfacePageDefaultParentAlias';
+    const TV_DEFAULT_MENU_POSITION_NAME = 'ExfacePageDefaultParentAlias';
 
-    const TV_DEFAULT_PARENT_ALIAS_DEFAULT = '';
+    const TV_DEFAULT_MENU_POSITION_DEFAULT = '';
 
     const MODX_ADD_ACTION = '4';
 
@@ -450,8 +450,8 @@ SQL;
         msc.parent as menuParentIdCms,
         msc.content as contents,
         ({$uidSubselect}) as uid,
-        ({$this->buildSqlTmplvarSubselect(self::TV_APP_ALIAS_NAME)}) as app_alias,
-        ({$this->buildSqlTmplvarSubselect(self::TV_DEFAULT_PARENT_ALIAS_NAME)}) as default_parent_alias,
+        ({$this->buildSqlTmplvarSubselect(self::TV_APP_UID_NAME)}) as app_uid,
+        ({$this->buildSqlTmplvarSubselect(self::TV_DEFAULT_MENU_POSITION_NAME)}) as default_menu_position,
         ({$this->buildSqlTmplvarSubselect(self::TV_REPLACE_ALIAS_NAME)}) as replace_alias,
         ({$this->buildSqlTmplvarSubselect(self::TV_DO_UPDATE_NAME)}) as do_update,
         ({$this->buildSqlReplaceIdsSubselect()}) as replacing_ids
@@ -545,8 +545,8 @@ SQL;
         
         $pageAlias = $modx->documentObject['alias'];
         $pageUid = $modx->documentObject[$this::TV_UID_NAME] ? $modx->documentObject[$this::TV_UID_NAME][1] : $this::TV_UID_DEFAULT;
-        $appAlias = $modx->documentObject[$this::TV_APP_ALIAS_NAME] ? $modx->documentObject[$this::TV_APP_ALIAS_NAME][1] : $this::TV_APP_ALIAS_DEFAULT;
-        $uiPage = UiPageFactory::create($this->getWorkbench()->ui(), $pageAlias, $pageUid, $appAlias);
+        $appUid = $modx->documentObject[$this::TV_APP_UID_NAME] ? $modx->documentObject[$this::TV_APP_UID_NAME][1] : $this::TV_APP_UID_DEFAULT;
+        $uiPage = UiPageFactory::create($this->getWorkbench()->ui(), $pageAlias, $pageUid, $appUid);
         
         $uiPage->setName($modx->documentObject['pagetitle']);
         $uiPage->setShortDescription($modx->documentObject['description']);
@@ -555,7 +555,7 @@ SQL;
         $uiPage->setMenuParentPageSelector($modx->documentObject['parent']);
         $uiPage->setUpdateable(array_key_exists($this::TV_DO_UPDATE_NAME, $modx->documentObject) ? $modx->documentObject[$this::TV_DO_UPDATE_NAME][1] : $this::TV_DO_UPDATE_DEFAULT);
         $uiPage->setReplacesPageAlias($modx->documentObject[$this::TV_REPLACE_ALIAS_NAME] ? $modx->documentObject[$this::TV_REPLACE_ALIAS_NAME][1] : $this::TV_REPLACE_ALIAS_DEFAULT);
-        $uiPage->setMenuParentPageDefaultAlias($modx->documentObject[$this::TV_DEFAULT_PARENT_ALIAS_NAME] ? $modx->documentObject[$this::TV_DEFAULT_PARENT_ALIAS_NAME][1] : $this::TV_DEFAULT_PARENT_ALIAS_DEFAULT);
+        $uiPage->setMenuDefaultPosition($modx->documentObject[$this::TV_DEFAULT_MENU_POSITION_NAME] ? $modx->documentObject[$this::TV_DEFAULT_MENU_POSITION_NAME][1] : $this::TV_DEFAULT_MENU_POSITION_DEFAULT);
         $uiPage->setContents($modx->documentObject['content']);
         
         return $uiPage;
@@ -571,8 +571,8 @@ SQL;
     {
         $pageAlias = $row['alias'];
         $pageUid = $row['uid'];
-        $appAlias = $row['app_alias'] ? $row['app_alias'] : $this::TV_APP_ALIAS_DEFAULT;
-        $uiPage = UiPageFactory::create($this->getWorkbench()->ui(), $pageAlias, $pageUid, $appAlias);
+        $appUid = $row['app_uid'] ? $row['app_uid'] : $this::TV_APP_UID_DEFAULT;
+        $uiPage = UiPageFactory::create($this->getWorkbench()->ui(), $pageAlias, $pageUid, $appUid);
         
         $uiPage->setName($row['name']);
         $uiPage->setShortDescription($row['shortDescription']);
@@ -581,7 +581,7 @@ SQL;
         $uiPage->setMenuParentPageSelector($row['menuParentIdCms']);
         $uiPage->setUpdateable($row['do_update']);
         $uiPage->setReplacesPageAlias($row['replace_alias']);
-        $uiPage->setMenuParentPageDefaultAlias($row['default_parent_alias']);
+        $uiPage->setMenuDefaultPosition($row['default_menu_position']);
         $uiPage->setContents($row['contents']);
         
         return $uiPage;
@@ -656,10 +656,10 @@ SQL;
         $resource->set('parent', $parentIdCms);
         $resource->set('content', $page->getContents());
         $resource->set($this::TV_UID_NAME, $page->getId());
-        $resource->set($this::TV_APP_ALIAS_NAME, $page->getApp()->getAliasWithNamespace());
+        $resource->set($this::TV_APP_UID_NAME, $page->getApp()->getUid());
         $resource->set($this::TV_DO_UPDATE_NAME, $page->isUpdateable() ? '1' : '0');
-        $resource->set($this::TV_REPLACE_ALIAS_NAME, $page->getReplacesPageAlias());
-        $resource->set($this::TV_DEFAULT_PARENT_ALIAS_NAME, $page->getMenuParentPageDefaultAlias());
+        $resource->set($this::TV_REPLACE_ALIAS_NAME, $page->getReplacesPageAlias() ? $page->getReplacesPageAlias(): ''); // wird null uebergeben, wird es ignoriert
+        $resource->set($this::TV_DEFAULT_MENU_POSITION_NAME, $page->getMenuDefaultPosition());
         $resource->setDocumentGroups(0, $docGroups);
         $idCms = $resource->save(true, true);
         
@@ -721,10 +721,10 @@ SQL;
         }
         $resource->set('content', $page->getContents());
         $resource->set($this::TV_UID_NAME, $page->getId());
-        $resource->set($this::TV_APP_ALIAS_NAME, $page->getApp()->getAliasWithNamespace());
+        $resource->set($this::TV_APP_UID_NAME, $page->getApp()->getUid());
         $resource->set($this::TV_DO_UPDATE_NAME, $page->isUpdateable() ? '1' : '0');
-        $resource->set($this::TV_REPLACE_ALIAS_NAME, $page->getReplacesPageAlias());
-        $resource->set($this::TV_DEFAULT_PARENT_ALIAS_NAME, $page->getMenuParentPageDefaultAlias());
+        $resource->set($this::TV_REPLACE_ALIAS_NAME, $page->getReplacesPageAlias() ? $page->getReplacesPageAlias(): ''); // wird null uebergeben, wird es ignoriert
+        $resource->set($this::TV_DEFAULT_MENU_POSITION_NAME, $page->getMenuDefaultPosition());
         $resource->save(true, true);
         
         // Now that we saved the page, we must update the cache.
@@ -779,7 +779,7 @@ SQL;
         $siteTmplvars = $modx->getFullTableName('site_tmplvars');
         $siteTmplvarContentvalues = $modx->getFullTableName('site_tmplvar_contentvalues');
         
-        $result = $modx->db->select('msc.id as id', $siteContent . ' msc left join ' . $siteTmplvarContentvalues . ' mstc on msc.id = mstc.contentid left join ' . $siteTmplvars . ' mst on mstc.tmplvarid = mst.id', 'mst.name = "' . $this::TV_APP_ALIAS_NAME . '" and mstc.value = "' . $app->getAliasWithNamespace() . '"');
+        $result = $modx->db->select('msc.id as id', $siteContent . ' msc left join ' . $siteTmplvarContentvalues . ' mstc on msc.id = mstc.contentid left join ' . $siteTmplvars . ' mst on mstc.tmplvarid = mst.id', 'mst.name = "' . $this::TV_APP_UID_NAME . '" and mstc.value = "' . $app->getUid() . '"');
         $pages = [];
         while ($row = $modx->db->getRow($result)) {
             $pages[] = $this->getPageFromCms($row['id'], null, null, true);

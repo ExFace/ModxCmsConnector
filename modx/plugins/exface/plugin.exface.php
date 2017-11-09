@@ -4,8 +4,9 @@ use exface\Core\Factories\UserFactory;
 use exface\Core\Exceptions\UserNotFoundError;
 use exface\Core\Exceptions\UiPageNotPartOfAppError;
 use exface\Core\CommonLogic\Model\UiPage;
+use exface\Core\CommonLogic\NameResolver;
 
-const TV_APP_ALIAS_NAME = 'ExfacePageAppAlias';
+const TV_APP_UID_NAME = 'ExfacePageAppAlias';
 
 const TV_REPLACE_ALIAS_NAME = 'ExfacePageReplaceAlias';
 
@@ -13,7 +14,7 @@ const TV_UID_NAME = 'ExfacePageUID';
 
 const TV_DO_UPDATE_NAME = 'ExfacePageDoUpdate';
 
-const TV_DEFAULT_PARENT_ALIAS = 'ExfacePageDefaultParentAlias';
+const TV_DEFAULT_MENU_POSITION_NAME = 'ExfacePageDefaultParentAlias';
 
 $eventName = $modx->event->name;
 
@@ -29,7 +30,6 @@ if (! isset($exface)) {
 
 switch ($eventName) {
     case "OnStripAlias":
-        // ExfacePageAppAlias TV auslesen
         $tvIds = $exface->getCMS()->getTemplateVariableIds();
         
         // Die folgenden Aufrufe wuerden eigentlich besser in 'OnBeforeDocFormSave' passen.
@@ -42,17 +42,17 @@ switch ($eventName) {
         }
         
         // App vererben
-        if (! $_POST['tv' . $tvIds[TV_APP_ALIAS_NAME]] && $_POST['parent']) {
+        if (! $_POST['tv' . $tvIds[TV_APP_UID_NAME]] && $_POST['parent']) {
             try {
-                $_POST['tv' . $tvIds[TV_APP_ALIAS_NAME]] = $exface->getCMS()->loadPage($_POST['parent'])->getApp()->getAliasWithNamespace();
+                $_POST['tv' . $tvIds[TV_APP_UID_NAME]] = $exface->getCMS()->loadPage($_POST['parent'])->getApp()->getUid();
             } catch (UiPageNotPartOfAppError $upnae) {
                 // ignorieren
             }
         }
         
         // Default Parent Alias setzen
-        if (! $_POST['tv' . $tvIds[TV_DEFAULT_PARENT_ALIAS]] && $_POST['parent']) {
-            $_POST['tv' . $tvIds[TV_DEFAULT_PARENT_ALIAS]] = $exface->getCMS()->loadPage($_POST['parent'])->getAliasWithNamespace();
+        if (! $_POST['tv' . $tvIds[TV_DEFAULT_MENU_POSITION_NAME]] && $_POST['parent']) {
+            $_POST['tv' . $tvIds[TV_DEFAULT_MENU_POSITION_NAME]] = $exface->getCMS()->loadPage($_POST['parent'])->getAliasWithNamespace() . ':' . $_POST['menuindex'];
         }
         
         // Alias setzen. Zunaechst wird der uebergebene Alias entsprechend dem trans-
@@ -67,30 +67,28 @@ switch ($eventName) {
         // Ende: angepasst aus plugin.transalias.php
         
         // Alias mit Namespace erzeugen und zurueckgeben
-        $appAlias = $_POST['tv' . $tvIds[TV_APP_ALIAS_NAME]];
-        if ($_POST['alias'] === '') {
-            if ($appAlias) {
-                $modx->event->output($appAlias . '.' . $alias);
+        $appNameResolver = NameResolver::createFromString($alias, 'Apps', $exface);
+        if (isset($_POST['tv' . $tvIds[TV_APP_UID_NAME]])) {
+            // manuelles Speichern
+            if ($appUid = $_POST['tv' . $tvIds[TV_APP_UID_NAME]]) {
+                $appAlias = strtolower($exface->getApp($appUid)->getAliasWithNamespace());
+                $appNameResolver->setNamespace($appAlias);
             } else {
-                $modx->event->output($alias);
-            }
-        } else {
-            if ($appAlias && stripos($alias, $appAlias) === false) {
-                $modx->event->output($appAlias . '.' . $alias);
-            } else {
-                $modx->event->output($alias);
+                $appNameResolver->setNamespace('');
             }
         }
+        // else: Speichern durch Modx->create/updatePage
+        $modx->event->output(trim($appNameResolver->getAliasWithNamespace(), ' .'));
         
         break;
     
     case 'OnDocFormSave':
-        // ExfacePageAppAlias TV auslesen
+        // ExfacePageAppUID TV auslesen
         $tvIds = $exface->getCMS()->getTemplateVariableIds();
-        $appAlias = $_POST['tv' . $tvIds[TV_APP_ALIAS_NAME]];
+        $appUid = $_POST['tv' . $tvIds[TV_APP_UID_NAME]];
         
         $warnOnSavePageInApp = $exface->getApp('exface.ModxCmsConnector')->getConfig()->getOption('MODX.WARNING.ON_SAVE_PAGE_IN_APP');
-        if ($appAlias && $warnOnSavePageInApp) {
+        if ($appUid && $warnOnSavePageInApp) {
             // Wird eine Seite mit gesetztem App-Alias gespeichert, so wird eine Warnung
             // angezeigt, dass die Aenderungen beim naechsten Update ueberschrieben werden
             // koennten.
