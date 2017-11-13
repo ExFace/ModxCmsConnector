@@ -586,23 +586,6 @@ SQL;
         
         return $uiPage;
     }
-    
-    /**
-     * Returns TRUE if the given page exists in MODx and is published.
-     * @param integer $cmsId
-     * @throws UiPageNotFoundError if the page does not exist
-     * @return boolean
-     */
-    protected function isPublished($cmsId) 
-    {
-        global $modx;
-        
-        $doc = $modx->getDocument($cmsId, 'id, published');
-        if ($doc['id'] == $cmsId && $doc['published'] == 1) {
-            return true;
-        }
-        return false;
-    }
 
     /**
      * 
@@ -614,11 +597,19 @@ SQL;
         global $modx;
         
         try {
+            $existingPage = $this->loadPage($page->getId());
+            // Es existiert bereits eine Seite mit dieser UID.
+            throw new UiPageIdNotUniqueError('A different UiPage with the same UID "' . $page->getId() . '" already exists.');
+        } catch (UiPageNotFoundError $upnfe) {
+            // Alles ok, es existiert noch keine Seite mit dieser UID.
+        }
+        
+        try {
             $existingPage = $this->loadPage($page->getAliasWithNamespace());
-            // es existiert bereits eine Seite mit diesem Alias
+            // Es existiert bereits eine Seite mit diesem Alias.
             throw new UiPageIdNotUniqueError('A different UiPage with the same alias "' . $page->getAliasWithNamespace() . '" already exists.');
-        } catch (UiPageNotFoundError $e) {
-            // alles ok, es existiert noch keine Seite mit diesem Alias
+        } catch (UiPageNotFoundError $upnfe) {
+            // Alles ok, es existiert noch keine Seite mit diesem Alias.
         }
         
         // Page IDs bestimmen.
@@ -626,13 +617,20 @@ SQL;
             $parentAlias = $page->getMenuParentPageAlias();
             $parentPage = $this->loadPage($parentAlias);
             $parentIdCms = $this->getPageIdInCms($parentPage);
-            $publish = $this->isPublished($parentIdCms);
         } catch (UiPageNotFoundError $upnfe) {
             $this->getWorkbench()->getLogger()->logException($upnfe, LoggerInterface::INFO);
             // TODO check if the root exists!
             $parentIdCms = $this->getPageIdRoot();
-            $publish = false;
         }
+        
+        // Parent Document Object von Modx laden.
+        $parentDoc = $modx->getDocument($parentIdCms);
+        if (! $parentDoc) {
+            $parentDoc = [];
+        }
+        
+        $published = $parentDoc['published'];
+        $template = $parentDoc['template'] ? $parentDoc['template'] : $modx->config['default_template'];
         
         // Parent Document Groups bestimmen.
         $result = $modx->db->select('dg.document_group as document_group', $modx->getFullTableName('document_groups') . ' dg', 'dg.document = ' . $parentIdCms);
@@ -647,10 +645,10 @@ SQL;
         $resource->set('pagetitle', $page->getName());
         $resource->set('description', $page->getShortDescription());
         $resource->set('alias', $page->getAliasWithNamespace());
-        $resource->set('published', $publish ? 1 : 0);
+        $resource->set('published', $published ? '1' : '0');
         // IDEA configure the default template in the connector config as the default MODx template
         // may be one without all the needed TVs
-        $resource->set('template', $modx->config['default_template']);
+        $resource->set('template', $template);
         $resource->set('menuindex', $page->getMenuIndex());
         $resource->set('hidemenu', $page->getMenuVisible() ? '0' : '1');
         $resource->set('parent', $parentIdCms);
