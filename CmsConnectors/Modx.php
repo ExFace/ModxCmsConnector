@@ -628,10 +628,10 @@ SQL;
             $parentIdCms = $this->getPageIdInCms($parentPage);
             $publish = $this->isPublished($parentIdCms);
         } catch (UiPageNotFoundError $upnfe) {
-            $parentIdCms = $this->getPageIdRoot();
-            $publish = false;
             $this->getWorkbench()->getLogger()->logException($upnfe, LoggerInterface::INFO);
             // TODO check if the root exists!
+            $parentIdCms = $this->getPageIdRoot();
+            $publish = false;
         }
         
         // Parent Document Groups bestimmen.
@@ -703,8 +703,9 @@ SQL;
             $parentPage = $this->loadPage($parentAlias);
             $parentIdCms = $this->getPageIdInCms($parentPage);
         } catch (UiPageNotFoundError $upnfe) {
-            $this->getWorkbench()->getLogger()->logException($upnfe);
-            $parentIdCms = false;
+            $this->getWorkbench()->getLogger()->logException($upnfe, LoggerInterface::INFO);
+            // TODO check if the root exists!
+            $parentIdCms = $this->getPageIdRoot();
         }
         
         require_once ($modx->config['base_path'] . DIRECTORY_SEPARATOR . 'assets' . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR . 'MODxAPI' . DIRECTORY_SEPARATOR . 'modResource.php');
@@ -716,9 +717,7 @@ SQL;
         $resource->set('menuindex', $page->getMenuIndex());
         $resource->set('hidemenu', $page->getMenuVisible() ? '0' : '1');
         $resource->set('deleted', 0); // This will undelete pages, that the user marked as deleted.
-        if ($parentIdCms !== false) {
-            $resource->set('parent', $parentIdCms);
-        }
+        $resource->set('parent', $parentIdCms);
         $resource->set('content', $page->getContents());
         $resource->set($this::TV_UID_NAME, $page->getId());
         $resource->set($this::TV_APP_UID_NAME, $page->getApp()->getUid());
