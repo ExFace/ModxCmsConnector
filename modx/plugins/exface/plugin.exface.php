@@ -28,6 +28,12 @@ if (! isset($exface)) {
     $exface->start();
 }
 
+// Start: angepasst aus plugin.transalias.php
+require_once $modx->config['base_path'] . 'assets/plugins/transalias/transalias.class.php';
+$trans = new TransAlias($modx);
+$trans->loadTable('common', 'No');
+// Ende: angepasst aus plugin.transalias.php
+
 switch ($eventName) {
     case "OnStripAlias":
         $tvIds = $exface->getCMS()->getTemplateVariableIds();
@@ -50,23 +56,13 @@ switch ($eventName) {
             }
         }
         
-        // Default Parent Alias setzen
+        // Default Menu Position setzen
         if (! $_POST['tv' . $tvIds[TV_DEFAULT_MENU_POSITION_NAME]] && $_POST['parent']) {
             $_POST['tv' . $tvIds[TV_DEFAULT_MENU_POSITION_NAME]] = $exface->getCMS()->loadPage($_POST['parent'])->getAliasWithNamespace() . ':' . $_POST['menuindex'];
         }
         
-        // Alias setzen. Zunaechst wird der uebergebene Alias entsprechend dem trans-
-        // alias-Plugin verarbeitet. Anschliessend wird der Namespace der App vorange-
-        // stellt, falls eine App angegeben ist.
-        
-        // Start: angepasst aus plugin.transalias.php
-        require_once $modx->config['base_path'] . 'assets/plugins/transalias/transalias.class.php';
-        $trans = new TransAlias($modx);
-        $trans->loadTable('common', 'No');
-        $alias = $trans->stripAlias($alias, 'lowercase alphanumeric', 'dash');
-        // Ende: angepasst aus plugin.transalias.php
-        
         // Alias mit Namespace erzeugen und zurueckgeben
+        $alias = $trans->stripAlias($alias, 'lowercase alphanumeric', 'dash');
         $appNameResolver = NameResolver::createFromString($alias, 'Apps', $exface);
         if (isset($_POST['tv' . $tvIds[TV_APP_UID_NAME]])) {
             // manuelles Speichern
@@ -103,6 +99,47 @@ switch ($eventName) {
             // $modx->event->alert($exface->getApp('exface.ModxCmsConnector')->getTranslator()->translate('WARNING_SAVE_DIALOG_WITH_APP_ALIAS'));
             $modx->event->alert('You made changes to a dialog, which may be overwritten during the next update.');
         }
+        
+        break;
+    
+    case 'OnDocDuplicate':
+        // Die duplizierte Seite hat keinen Alias und u.U. (wenn die UID-TV durch mmrules readonly ist)
+        // auch keine UID, kann daher durch die herkoemmlichen Methoden nicht so einfach geladen werden.
+        // Daher werden hier erst einmal UID und Alias auf anderem Weg vergeben.
+        
+        require_once ($modx->config['base_path'] . DIRECTORY_SEPARATOR . 'assets' . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR . 'MODxAPI' . DIRECTORY_SEPARATOR . 'modResource.php');
+        $resource = new \modResource($modx);
+        $resource->edit($new_id);
+        
+        // Hat die duplizierte Seite keinen Alias wird einer erzeugt.
+        if (! $resource->get('alias')) {
+            if ($resource->get('pagetitle')) {
+                $alias = $trans->stripAlias($resource->get('pagetitle'), 'lowercase alphanumeric', 'dash');
+            } else {
+                $alias = UiPage::generateAlias('');
+            }
+            
+            $appNameResolver = NameResolver::createFromString($alias, 'Apps', $exface);
+            if ($appUid = $resource->get(TV_APP_UID_NAME)) {
+                $appAlias = strtolower($exface->getApp($appUid)->getAliasWithNamespace());
+                $appNameResolver->setNamespace($appAlias);
+            } else {
+                $appNameResolver->setNamespace('');
+            }
+            
+            $resource->set('alias', trim($appNameResolver->getAliasWithNamespace(), ' .'));
+        }
+        
+        // Die duplizierte Seite bekommt eine neue UID.
+        $resource->set(TV_UID_NAME, UiPage::generateUid());
+        
+        // Default Menu Position setzen.
+        if ($resource->get('parent')) {
+            $resource->set(TV_DEFAULT_MENU_POSITION_NAME, $exface->getCMS()->loadPage($resource->get('parent'))->getAliasWithNamespace() . ':' . $resource->get('menuindex'));
+        }
+        
+        // Speichern der aktualisierten Seite.
+        $resource->save();
         
         break;
     
