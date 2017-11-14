@@ -377,7 +377,7 @@ SQL;
         }
         
         $row = $modx->db->getRow($result);
-        $page = $this->createPageFromModx();
+        $page = $this->createPageFromApi();
         $this->addPageToCache($modx->documentIdentifier, $page);
         
         if (! $ignore_replacements && ! is_null($replacingPage = $this->getReplacePage($page, $row['replacing_ids']))) {
@@ -387,6 +387,11 @@ SQL;
         return $page;
     }
     
+    /**
+     * 
+     * {@inheritDoc}
+     * @see \exface\Core\CommonLogic\AbstractCmsConnector::getPageFromCms()
+     */
     protected function getPageFromCms($cmsId = null, $uid = null, $alias = null, $ignore_replacements = false) {        
         global $modx;
         
@@ -414,6 +419,18 @@ SQL;
         return $this->getPageFromDb($cmsId, $uid, $alias, $ignore_replacements);
     }
     
+    /**
+     * Loads and returns the requested UiPage from the database.
+     * 
+     * @param integer $cmsId
+     * @param string $uid
+     * @param string $alias
+     * @param boolean $ignore_replacements
+     * @throws UiPageLoadingError
+     * @throws UiPageNotFoundError
+     * @throws UiPageIdNotUniqueError
+     * @return UiPageInterface
+     */
     protected function getPageFromDb($cmsId = null, $uid = null, $alias = null, $ignore_replacements = false)
     {
         if (is_null($cmsId) && is_null($uid) && is_null($alias)) {
@@ -478,7 +495,10 @@ SQL;
     }
     
     /**
+     * Returns the UiPage specified by $replacingIdsConcatString, replacing the UiPage
+     * $page.
      * 
+     * The replaced UiPage $page is also replaced in the page cache by the replacing page.
      * 
      * @param UiPageInterface $page
      * @param string $replacingIdsConcatString
@@ -499,6 +519,12 @@ SQL;
         return null;
     }
     
+    /**
+     * Returns an SQL subquery to obtain a template variable.
+     * 
+     * @param string $tmplvarName
+     * @return string
+     */
     protected function buildSqlTmplvarSubselect($tmplvarName)
     {
         global $modx;
@@ -516,6 +542,11 @@ SQL;
 SQL;
     }
     
+    /**
+     * Returns an SQL subquery to obtain the CMS-IDs of the replacing pages.
+     * 
+     * @return string
+     */
     protected function buildSqlReplaceIdsSubselect()
     {
         global $modx;
@@ -539,7 +570,7 @@ SQL;
      * 
      * @return UiPageInterface
      */
-    protected function createPageFromModx()
+    protected function createPageFromApi()
     {
         global $modx;
         
@@ -910,6 +941,11 @@ SQL;
         }
     }
     
+    /**
+     * 
+     * {@inheritDoc}
+     * @see \exface\Core\CommonLogic\AbstractCmsConnector::isCmsId()
+     */
     protected function isCmsId($page_id_or_alias)
     {
         if (! $this->isUid($page_id_or_alias) && is_numeric($page_id_or_alias)) {
