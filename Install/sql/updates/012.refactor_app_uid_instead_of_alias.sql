@@ -1,0 +1,1 @@
+UPDATE modx_site_tmplvar_contentvalues mstc LEFT JOIN exf_app ea ON mstc.value = ea.app_alias SET mstc.value = CONCAT('0x', HEX(ea.oid)) WHERE mstc.tmplvarid = (SELECT mst.id FROM modx_site_tmplvars mst WHERE mst.name = 'ExfacePageAppAlias')
