@@ -15,6 +15,8 @@ use exface\Core\CommonLogic\AbstractCmsConnector;
 use exface\Core\Interfaces\Log\LoggerInterface;
 use exface\Core\Exceptions\UiPageLoadingError;
 use exface\Core\Exceptions\UiPageIdNotUniqueError;
+use exface\Core\Exceptions\UiPageCreateError;
+use exface\Core\Exceptions\UiPageUpdateError;
 
 class Modx extends AbstractCmsConnector
 {
@@ -682,6 +684,10 @@ SQL;
         $resource->setDocumentGroups(0, $docGroups);
         $idCms = $resource->save(true, true);
         
+        if ($idCms === false) {
+            throw new UiPageCreateError($resource->list_log());
+        }
+        
         // secure web documents - flag as private, siehe secure_web_documents.inc.php
         $siteContent = $modx->getFullTableName('site_content');
         $documentGroups = $modx->getFullTableName('document_groups');
@@ -743,7 +749,11 @@ SQL;
         $resource->set($this::TV_DO_UPDATE_NAME, $page->isUpdateable() ? '1' : '0');
         $resource->set($this::TV_REPLACE_ALIAS_NAME, $page->getReplacesPageAlias() ? $page->getReplacesPageAlias(): ''); // wird null uebergeben, wird es ignoriert
         $resource->set($this::TV_DEFAULT_MENU_POSITION_NAME, $page->getMenuDefaultPosition());
-        $resource->save(true, true);
+        $updateResult = $resource->save(true, true);
+        
+        if ($updateResult === false) {
+            throw new UiPageUpdateError($resource->list_log());
+        }
         
         // Now that we saved the page, we must update the cache.
         $this->addPageToCache($idCms, $page);
