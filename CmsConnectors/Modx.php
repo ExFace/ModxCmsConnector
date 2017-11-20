@@ -655,20 +655,10 @@ SQL;
         }
         
         // Parent Document Object von Modx laden.
-        $parentDoc = $modx->getDocument($parentIdCms);
-        if (! $parentDoc) {
-            $parentDoc = [];
-        }
-        
+        $parentDoc = $this->getModxDocument($parentIdCms);
         $published = $parentDoc['published'];
         $template = $parentDoc['template'] ? $parentDoc['template'] : $modx->config['default_template'];
-        
-        // Parent Document Groups bestimmen.
-        $result = $modx->db->select('dg.document_group as document_group', $modx->getFullTableName('document_groups') . ' dg', 'dg.document = ' . $parentIdCms);
-        $docGroups = [];
-        while ($row = $modx->db->getRow($result)) {
-            $docGroups[] = $row['document_group'];
-        }
+        $docGroups = $parentDoc['document_groups'] ? explode(',', $parentDoc['document_groups']) : [];
         
         require_once ($modx->config['base_path'] . DIRECTORY_SEPARATOR . 'assets' . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR . 'MODxAPI' . DIRECTORY_SEPARATOR . 'modResource.php');
         $resource = new \modResource($modx);
@@ -939,6 +929,57 @@ SQL;
         if (is_file($lock_file_path)) {
             unlink($lock_file_path);
         }
+    }
+    
+    /**
+     * This function is a replacement for $modx->getDocument().
+     * 
+     * The original function doesn't return private documents (documents with restricted
+     * resource groups) when ModX is in the frontend mode.
+     * 
+     * It additionally returns the document groups of the requested document.
+     * 
+     * @param integer $cmsId
+     * @throws UiPageNotFoundError
+     * @throws UiPageIdNotUniqueError
+     * @return string[]
+     */
+    protected function getModxDocument($cmsId)
+    {
+        global $modx;
+        
+        if (! $cmsId) {
+            return [];
+        }
+        
+        $siteContent = $modx->getFullTableName('site_content');
+        $documentGroups = $modx->getFullTableName('document_groups');
+        
+        $query = <<<SQL
+    SELECT
+        msc.*,
+        (SELECT
+            GROUP_CONCAT(dg.document_group SEPARATOR ',')
+        FROM
+            {$documentGroups} dg
+        WHERE
+            dg.document = {$cmsId}) as document_groups
+    FROM
+        {$siteContent} msc
+    WHERE
+        msc.id = {$cmsId}
+SQL;
+        $result = $modx->db->query($query);
+        
+        if ($modx->db->getRecordCount($result) == 0) {
+            throw new UiPageNotFoundError('The requested UiPage with CMS-ID: "' . $cmsId . '" doesn\'t exist.');
+        } elseif ($modx->db->getRecordCount($result) > 1) {
+            throw new UiPageIdNotUniqueError('Several UiPages with the requested CMS-ID: "' . $cmsId . '" exist.');
+        }
+        
+        $row = $modx->db->getRow($result);
+        
+        return $row;
     }
     
     /**
