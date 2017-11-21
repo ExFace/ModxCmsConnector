@@ -2,7 +2,6 @@
 use exface\Core\CommonLogic\Workbench;
 use exface\Core\Factories\UserFactory;
 use exface\Core\Exceptions\UserNotFoundError;
-use exface\Core\Exceptions\UiPageNotPartOfAppError;
 use exface\Core\CommonLogic\Model\UiPage;
 use exface\Core\CommonLogic\NameResolver;
 
@@ -28,61 +27,57 @@ if (! isset($exface)) {
     $exface->start();
 }
 
-// Start: angepasst aus plugin.transalias.php
-require_once $modx->config['base_path'] . 'assets/plugins/transalias/transalias.class.php';
-$trans = new TransAlias($modx);
-$trans->loadTable('common', 'No');
-// Ende: angepasst aus plugin.transalias.php
-
 switch ($eventName) {
     case "OnStripAlias":
-        $tvIds = $exface->getCMS()->getTemplateVariableIds();
+        // Start: angepasst aus plugin.transalias.php
+        require_once $modx->config['base_path'] . 'assets/plugins/transalias/transalias.class.php';
+        $trans = new TransAlias($modx);
+        $trans->loadTable('common', 'No');
+        // Ende: angepasst aus plugin.transalias.php
         
-        // Die folgenden Aufrufe wuerden eigentlich besser in 'OnBeforeDocFormSave' passen.
-        // Dort koennen die TVs $_POST aber nicht mehr effektiv geaendert werden (sie werden
-        // schon vorher ausgelesen), deshalb ist dieser Code hier.
-        
-        // UID setzen.
-        if (! $_POST['tv' . $tvIds[TV_UID_NAME]]) {
-            $_POST['tv' . $tvIds[TV_UID_NAME]] = UiPage::generateUid();
-        }
-        
-        // App vererben
-        if (! $_POST['tv' . $tvIds[TV_APP_UID_NAME]] && $_POST['parent']) {
-            try {
-                $_POST['tv' . $tvIds[TV_APP_UID_NAME]] = $exface->getCMS()->loadPage($_POST['parent'])->getApp()->getUid();
-            } catch (UiPageNotPartOfAppError $upnae) {
-                // ignorieren
-            }
-        }
-        
-        // Default Menu Position setzen
-        if (! $_POST['tv' . $tvIds[TV_DEFAULT_MENU_POSITION_NAME]] && $_POST['parent']) {
-            $_POST['tv' . $tvIds[TV_DEFAULT_MENU_POSITION_NAME]] = $exface->getCMS()->loadPage($_POST['parent'])->getAliasWithNamespace() . ':' . $_POST['menuindex'];
-        }
-        
-        // Alias mit Namespace erzeugen und zurueckgeben
-        $alias = $trans->stripAlias($alias, 'lowercase alphanumeric', 'dash');
-        $appNameResolver = NameResolver::createFromString($alias, 'Apps', $exface);
-        if (isset($_POST['tv' . $tvIds[TV_APP_UID_NAME]])) {
-            // manuelles Speichern
-            if ($appUid = $_POST['tv' . $tvIds[TV_APP_UID_NAME]]) {
-                $appAlias = strtolower($exface->getApp($appUid)->getAliasWithNamespace());
-                $appNameResolver->setNamespace($appAlias);
-            } else {
-                $appNameResolver->setNamespace('');
-            }
-        }
-        // else: Speichern durch Modx->create/updatePage
-        $modx->event->output(trim($appNameResolver->getAliasWithNamespace(), ' .'));
+        $modx->event->output($trans->stripAlias($alias, 'lowercase alphanumeric', 'dash'));
         
         break;
     
     case 'OnDocFormSave':
-        // ExfacePageAppUID TV auslesen
-        $tvIds = $exface->getCMS()->getTemplateVariableIds();
-        $appUid = $_POST['tv' . $tvIds[TV_APP_UID_NAME]];
+        require_once ($modx->config['base_path'] . DIRECTORY_SEPARATOR . 'assets' . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR . 'MODxAPI' . DIRECTORY_SEPARATOR . 'modResource.php');
+        $savedPage = new \modResource($modx);
+        $savedPage->edit($id);
+        if (! ($savedPage->get(TV_APP_UID_NAME) || $savedPage->get(TV_DEFAULT_MENU_POSITION_NAME)) && $savedPage->get('parent')) {
+            $parentPage = new modResource($modx);
+            $parentPage->edit($savedPage->get('parent'));
+        }
         
+        // Hat eine neu erzeugte Seite keine App wird versucht die App zu vererben.
+        if ($mode === 'new' && ! $savedPage->get(TV_APP_UID_NAME) && $savedPage->get('parent') && $parentPage->get(TV_APP_UID_NAME)) {
+            $savedPage->set(TV_APP_UID_NAME, $parentPage->get(TV_APP_UID_NAME));
+        }
+        
+        // UID setzen
+        if (! $savedPage->get(TV_UID_NAME)) {
+            $savedPage->set(TV_UID_NAME, UiPage::generateUid());
+        }
+        
+        // Default Menu Position setzen
+        if (! $savedPage->get(TV_DEFAULT_MENU_POSITION_NAME) && $savedPage->get('parent')) {
+            $savedPage->set(TV_DEFAULT_MENU_POSITION_NAME, $parentPage->get('alias') . ':' . $savedPage->get('menuindex'));
+        }
+        
+        // Alias setzen
+        $appNameResolver = NameResolver::createFromString($savedPage->get('alias'), 'Apps', $exface);
+        if ($savedPage->get(TV_APP_UID_NAME)) {
+            $appAlias = strtolower($exface->getApp($savedPage->get(TV_APP_UID_NAME))->getAliasWithNamespace());
+            $appNameResolver->setNamespace($appAlias);
+        } else {
+            $appNameResolver->setNamespace('');
+        }
+        $savedPage->set('alias', trim($appNameResolver->getAliasWithNamespace(), ' .'));
+        
+        // Speichern der aktualisierten Seite, keine Events feuern.
+        $savedPage->save();
+        
+        // Warnung beim Speichern ausgeben
+        $appUid = $savedPage->get(TV_APP_UID_NAME);
         $warnOnSavePageInApp = $exface->getApp('exface.ModxCmsConnector')->getConfig()->getOption('MODX.WARNING.ON_SAVE_PAGE_IN_APP');
         if ($appUid && $warnOnSavePageInApp) {
             // Wird eine Seite mit gesetztem App-Alias gespeichert, so wird eine Warnung
@@ -138,7 +133,7 @@ switch ($eventName) {
             $resource->set(TV_DEFAULT_MENU_POSITION_NAME, $exface->getCMS()->loadPage($resource->get('parent'))->getAliasWithNamespace() . ':' . $resource->get('menuindex'));
         }
         
-        // Speichern der aktualisierten Seite.
+        // Speichern der aktualisierten Seite, keine Events feuern.
         $resource->save();
         
         break;
