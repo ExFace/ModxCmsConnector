@@ -806,8 +806,22 @@ SQL;
         $siteContent = $modx->getFullTableName('site_content');
         $siteTmplvars = $modx->getFullTableName('site_tmplvars');
         $siteTmplvarContentvalues = $modx->getFullTableName('site_tmplvar_contentvalues');
+        $tvAppUidName = self::TV_APP_UID_NAME;
         
-        $result = $modx->db->select('msc.id as id', $siteContent . ' msc left join ' . $siteTmplvarContentvalues . ' mstc on msc.id = mstc.contentid left join ' . $siteTmplvars . ' mst on mstc.tmplvarid = mst.id', 'mst.name = "' . $this::TV_APP_UID_NAME . '" and mstc.value = "' . $app->getUid() . '"');
+        $query = <<<SQL
+    SELECT
+        msc.id as id
+    FROM
+        {$siteContent} msc
+        LEFT JOIN {$siteTmplvarContentvalues} mstc ON msc.id = mstc.contentid
+        LEFT JOIN {$siteTmplvars} mst ON mstc.tmplvarid = mst.id
+    WHERE
+        mst.name = "{$tvAppUidName}"
+        AND mstc.value = "{$app->getUid()}"
+        AND msc.deleted = "0"
+SQL;
+        $result = $modx->db->query($query);
+        
         $pages = [];
         while ($row = $modx->db->getRow($result)) {
             $pages[] = $this->getPageFromCms($row['id'], null, null, true);
