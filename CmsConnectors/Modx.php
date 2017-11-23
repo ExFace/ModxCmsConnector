@@ -8,15 +8,15 @@ use exface\ModxCmsConnector\ModxCmsConnectorApp;
 use exface\Core\Factories\UiPageFactory;
 use exface\Core\CommonLogic\Filemanager;
 use exface\Core\Interfaces\AppInterface;
-use exface\Core\Exceptions\UiPageNotFoundError;
+use exface\Core\Exceptions\UiPage\UiPageNotFoundError;
 use exface\Core\Exceptions\RuntimeException;
 use exface\Core\CommonLogic\Model\UiPage;
 use exface\Core\CommonLogic\AbstractCmsConnector;
 use exface\Core\Interfaces\Log\LoggerInterface;
-use exface\Core\Exceptions\UiPageLoadingError;
-use exface\Core\Exceptions\UiPageIdNotUniqueError;
-use exface\Core\Exceptions\UiPageCreateError;
-use exface\Core\Exceptions\UiPageUpdateError;
+use exface\Core\Exceptions\UiPage\UiPageLoadingError;
+use exface\Core\Exceptions\UiPage\UiPageIdNotUniqueError;
+use exface\Core\Exceptions\UiPage\UiPageCreateError;
+use exface\Core\Exceptions\UiPage\UiPageUpdateError;
 
 class Modx extends AbstractCmsConnector
 {
