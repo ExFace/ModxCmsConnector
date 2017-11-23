@@ -8,13 +8,15 @@ use exface\ModxCmsConnector\ModxCmsConnectorApp;
 use exface\Core\Factories\UiPageFactory;
 use exface\Core\CommonLogic\Filemanager;
 use exface\Core\Interfaces\AppInterface;
-use exface\Core\Exceptions\UiPageNotFoundError;
+use exface\Core\Exceptions\UiPage\UiPageNotFoundError;
 use exface\Core\Exceptions\RuntimeException;
 use exface\Core\CommonLogic\Model\UiPage;
 use exface\Core\CommonLogic\AbstractCmsConnector;
 use exface\Core\Interfaces\Log\LoggerInterface;
-use exface\Core\Exceptions\UiPageLoadingError;
-use exface\Core\Exceptions\UiPageIdNotUniqueError;
+use exface\Core\Exceptions\UiPage\UiPageLoadingError;
+use exface\Core\Exceptions\UiPage\UiPageIdNotUniqueError;
+use exface\Core\Exceptions\UiPage\UiPageCreateError;
+use exface\Core\Exceptions\UiPage\UiPageUpdateError;
 
 class Modx extends AbstractCmsConnector
 {
@@ -655,20 +657,10 @@ SQL;
         }
         
         // Parent Document Object von Modx laden.
-        $parentDoc = $modx->getDocument($parentIdCms);
-        if (! $parentDoc) {
-            $parentDoc = [];
-        }
-        
+        $parentDoc = $this->getModxDocument($parentIdCms);
         $published = $parentDoc['published'];
         $template = $parentDoc['template'] ? $parentDoc['template'] : $modx->config['default_template'];
-        
-        // Parent Document Groups bestimmen.
-        $result = $modx->db->select('dg.document_group as document_group', $modx->getFullTableName('document_groups') . ' dg', 'dg.document = ' . $parentIdCms);
-        $docGroups = [];
-        while ($row = $modx->db->getRow($result)) {
-            $docGroups[] = $row['document_group'];
-        }
+        $docGroups = $parentDoc['document_groups'] ? explode(',', $parentDoc['document_groups']) : [];
         
         require_once ($modx->config['base_path'] . DIRECTORY_SEPARATOR . 'assets' . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR . 'MODxAPI' . DIRECTORY_SEPARATOR . 'modResource.php');
         $resource = new \modResource($modx);
@@ -691,6 +683,10 @@ SQL;
         $resource->set($this::TV_DEFAULT_MENU_POSITION_NAME, $page->getMenuDefaultPosition());
         $resource->setDocumentGroups(0, $docGroups);
         $idCms = $resource->save(true, true);
+        
+        if ($idCms === false) {
+            throw new UiPageCreateError($resource->list_log());
+        }
         
         // secure web documents - flag as private, siehe secure_web_documents.inc.php
         $siteContent = $modx->getFullTableName('site_content');
@@ -753,7 +749,11 @@ SQL;
         $resource->set($this::TV_DO_UPDATE_NAME, $page->isUpdateable() ? '1' : '0');
         $resource->set($this::TV_REPLACE_ALIAS_NAME, $page->getReplacesPageAlias() ? $page->getReplacesPageAlias(): ''); // wird null uebergeben, wird es ignoriert
         $resource->set($this::TV_DEFAULT_MENU_POSITION_NAME, $page->getMenuDefaultPosition());
-        $resource->save(true, true);
+        $updateResult = $resource->save(true, true);
+        
+        if ($updateResult === false) {
+            throw new UiPageUpdateError($resource->list_log());
+        }
         
         // Now that we saved the page, we must update the cache.
         $this->addPageToCache($idCms, $page);
@@ -806,8 +806,22 @@ SQL;
         $siteContent = $modx->getFullTableName('site_content');
         $siteTmplvars = $modx->getFullTableName('site_tmplvars');
         $siteTmplvarContentvalues = $modx->getFullTableName('site_tmplvar_contentvalues');
+        $tvAppUidName = self::TV_APP_UID_NAME;
         
-        $result = $modx->db->select('msc.id as id', $siteContent . ' msc left join ' . $siteTmplvarContentvalues . ' mstc on msc.id = mstc.contentid left join ' . $siteTmplvars . ' mst on mstc.tmplvarid = mst.id', 'mst.name = "' . $this::TV_APP_UID_NAME . '" and mstc.value = "' . $app->getUid() . '"');
+        $query = <<<SQL
+    SELECT
+        msc.id as id
+    FROM
+        {$siteContent} msc
+        LEFT JOIN {$siteTmplvarContentvalues} mstc ON msc.id = mstc.contentid
+        LEFT JOIN {$siteTmplvars} mst ON mstc.tmplvarid = mst.id
+    WHERE
+        mst.name = "{$tvAppUidName}"
+        AND mstc.value = "{$app->getUid()}"
+        AND msc.deleted = "0"
+SQL;
+        $result = $modx->db->query($query);
+        
         $pages = [];
         while ($row = $modx->db->getRow($result)) {
             $pages[] = $this->getPageFromCms($row['id'], null, null, true);
@@ -939,6 +953,57 @@ SQL;
         if (is_file($lock_file_path)) {
             unlink($lock_file_path);
         }
+    }
+    
+    /**
+     * This function is a replacement for $modx->getDocument().
+     * 
+     * The original function doesn't return private documents (documents with restricted
+     * resource groups) when ModX is in the frontend mode.
+     * 
+     * It additionally returns the document groups of the requested document.
+     * 
+     * @param integer $cmsId
+     * @throws UiPageNotFoundError
+     * @throws UiPageIdNotUniqueError
+     * @return string[]
+     */
+    protected function getModxDocument($cmsId)
+    {
+        global $modx;
+        
+        if (! $cmsId) {
+            return [];
+        }
+        
+        $siteContent = $modx->getFullTableName('site_content');
+        $documentGroups = $modx->getFullTableName('document_groups');
+        
+        $query = <<<SQL
+    SELECT
+        msc.*,
+        (SELECT
+            GROUP_CONCAT(dg.document_group SEPARATOR ',')
+        FROM
+            {$documentGroups} dg
+        WHERE
+            dg.document = {$cmsId}) as document_groups
+    FROM
+        {$siteContent} msc
+    WHERE
+        msc.id = {$cmsId}
+SQL;
+        $result = $modx->db->query($query);
+        
+        if ($modx->db->getRecordCount($result) == 0) {
+            throw new UiPageNotFoundError('The requested UiPage with CMS-ID: "' . $cmsId . '" doesn\'t exist.');
+        } elseif ($modx->db->getRecordCount($result) > 1) {
+            throw new UiPageIdNotUniqueError('Several UiPages with the requested CMS-ID: "' . $cmsId . '" exist.');
+        }
+        
+        $row = $modx->db->getRow($result);
+        
+        return $row;
     }
     
     /**
