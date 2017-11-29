@@ -850,6 +850,25 @@ SQL;
     }
 
     /**
+     * Returns an associative array in which the names of the system-events are the keys
+     * and the their ids are the values.
+     * 
+     * @return string[] ['system_event_name' => 'system_event_id', ...]
+     */
+    public function getSystemEventIds()
+    {
+        global $modx;
+        
+        $result = $modx->db->select('id, name', $modx->getFullTableName('system_eventnames'));
+        $eventIds = [];
+        while ($row = $modx->db->getRow($result)) {
+            $eventIds[$row['name']] = $row['id'];
+        }
+        
+        return $eventIds;
+    }
+    
+    /**
      * Tests if the passed $username is a modx web user.
      * 
      * @param string $username
