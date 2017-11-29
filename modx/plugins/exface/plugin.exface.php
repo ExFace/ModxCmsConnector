@@ -27,14 +27,14 @@ if (! isset($exface)) {
     $exface->start();
 }
 
+// Start: angepasst aus plugin.transalias.php
+require_once $modx->config['base_path'] . 'assets/plugins/transalias/transalias.class.php';
+$trans = new TransAlias($modx);
+$trans->loadTable('common', 'No');
+// Ende: angepasst aus plugin.transalias.php
+
 switch ($eventName) {
     case "OnStripAlias":
-        // Start: angepasst aus plugin.transalias.php
-        require_once $modx->config['base_path'] . 'assets/plugins/transalias/transalias.class.php';
-        $trans = new TransAlias($modx);
-        $trans->loadTable('common', 'No');
-        // Ende: angepasst aus plugin.transalias.php
-        
         $modx->event->output($trans->stripAlias($alias, 'lowercase alphanumeric', 'dash'));
         
         break;
