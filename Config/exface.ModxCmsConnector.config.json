@@ -1,4 +1,23 @@
 {
 	"PATH_TO_MODX": "../index-exface.php",
-	"LAST_PERFORMED_MODEL_SOURCE_UPDATE_ID": 1
+	"LAST_PERFORMED_MODEL_SOURCE_UPDATE_ID": 1,
+	"EMAIL_SCHEMA_DEFAULT": "[#username#]@mydomain.com",
+	
+	"MODX.PAGES.ROOT_CONTAINER_ID": "0",
+	
+	"USERS.LANGUAGE_LOCALE_MAPPING": {
+		"english-british": "en_GB",
+        "english": "en_US",
+        "francais-utf8": "fr_FR",
+        "francais": "fr_FR",
+        "german": "de_DE"
+	},
+	"USERS.LOCALE_LANGUAGE_MAPPING": {
+		"en_GB": "english-british",
+		"en_US": "english",
+		"fr_FR": "francais-utf8",
+		"de_DE": "german"
+	},
+	
+	"MODX.WARNING.ON_SAVE_PAGE_IN_APP": false
 }
