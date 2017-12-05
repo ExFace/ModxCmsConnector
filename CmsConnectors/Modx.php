@@ -659,7 +659,7 @@ SQL;
         // Parent Document Object von Modx laden.
         $parentDoc = $this->getModxDocument($parentIdCms);
         $published = $parentDoc['published'];
-        $template = $parentDoc['template'] ? $parentDoc['template'] : $modx->config['default_template'];
+        $template = $parentDoc['template'] ? $parentDoc['template'] : $this->getDefaultTemplateId();
         $docGroups = $parentDoc['document_groups'] ? explode(',', $parentDoc['document_groups']) : [];
         
         require_once ($modx->config['base_path'] . DIRECTORY_SEPARATOR . 'assets' . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR . 'MODxAPI' . DIRECTORY_SEPARATOR . 'modResource.php');
@@ -973,7 +973,26 @@ SQL;
             unlink($lock_file_path);
         }
     }
-    
+
+    /**
+     * Returns the default template ID.
+     *
+     * @return string
+     */
+    public function getDefaultTemplateId()
+    {
+        global $modx;
+        
+        $siteTemplates = $modx->getFullTableName('site_templates');
+        $templateResult = $modx->db->select('id', $siteTemplates, 'templatename = "' . $this->getApp()->getConfig()->getOption('MODX.TEMPLATE_NAME_DEFAULT') . '"');
+        if ($modx->db->getRecordCount($templateResult) === 1) {
+            $templateRow = $modx->db->getRow($templateResult);
+            return $templateRow['id'];
+        } else {
+            return $modx->config['default_template'];
+        }
+    }
+
     /**
      * This function is a replacement for $modx->getDocument().
      * 
