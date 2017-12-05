@@ -28,10 +28,7 @@ if (! isset($exface)) {
         $exface = new \exface\Core\CommonLogic\Workbench();
         $exface->start();
     } catch (Throwable $e) {
-        if ($e instanceof ExceptionInterface){
-            $log_hint = ' (see log ID ' . $e->getId() . ')';
-        }
-        $modx->event->alert('Error instantiating exface;' . $e->getMessage() . ' in ' . $e->getFile() . ' at line ' . $e->getLine() . $log_hint);
+        $modx->event->alert('Error instantiating exface;' . $e->getMessage() . ' in ' . $e->getFile() . ' at line ' . $e->getLine());
         return;
     }
 }
