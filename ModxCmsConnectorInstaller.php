@@ -43,19 +43,12 @@ class ModxCmsConnectorInstaller extends AbstractAppInstaller
             $modx->db->update(['setting_value' => '0'], $systemSettings, 'setting_name = "allow_duplicate_alias"');
             $modx->db->update(['setting_value' => '1'], $systemSettings, 'setting_name = "automatic_alias"');
             $modx->db->update(['setting_value' => '1'], $systemSettings, 'setting_name = "udperms_allowroot"');
+            $modx->db->update(['setting_value' => $this->getWorkbench()->getCMS()->getDefaultTemplateId()], $systemSettings, 'setting_name = "default_template"');
             
             // Plugins
             $sitePlugins = $modx->getFullTableName('site_plugins');
             $modx->db->update(['disabled' => 1], $sitePlugins, 'name = "TransAlias"');
             $modx->db->update(['disabled' => 0], $sitePlugins, 'name = "ExFace"');
-            
-            // Default template
-            $siteTemplates = $modx->getFullTableName('site_templates');
-            $templateResult = $modx->db->select('id', $siteTemplates, 'templatename = "' . $this->getApp()->getConfig()->getOption('MODX.TEMPLATE_NAME_DEFAULT') . '"');
-            if ($modx->db->getRecordCount($templateResult) === 1) {
-                $templateRow = $modx->db->getRow($templateResult);
-                $modx->db->update(['setting_value' => $templateRow['id']], $systemSettings, 'setting_name = "default_template"');
-            }
             
             $result .= "\nUpdated MODx settings";
         } catch (\Throwable $e) {
