@@ -25,7 +25,7 @@ require_once $vendorPath . 'autoload.php';
 global $exface;
 if (! isset($exface)) {
     try {
-        $exface = new \exface\Core\CommonLogic\Workbench();
+        $exface = new Workbench();
         $exface->start();
     } catch (Throwable $e) {
         $modx->event->alert('Error instantiating exface;' . $e->getMessage() . ' in ' . $e->getFile() . ' at line ' . $e->getLine());
@@ -36,11 +36,13 @@ if (! isset($exface)) {
 if (! function_exists('generateError')) {
     function generateError(Throwable $e, string $message) {
         global $exface, $modx;
-        $exface->getLogger()->logException($e);
         if ($e instanceof ExceptionInterface){
             $log_hint = ' (see log ID ' . $e->getId() . ')';
         }
         $modx->event->alert($message . ';' . $e->getMessage() . ' in ' . $e->getFile() . ' at line ' . $e->getLine() . $log_hint);
+        // Unbedingt als letztes Loggen, sonst werden die Modx-Meldungen nicht angezeigt.
+        // Zusammenhang mit TODO unten?
+        $exface->getLogger()->logException($e);
     }
 }
 
@@ -69,15 +71,15 @@ switch ($eventName) {
     case 'OnDocFormSave':
         try {
             require_once ($modx->config['base_path'] . DIRECTORY_SEPARATOR . 'assets' . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR . 'MODxAPI' . DIRECTORY_SEPARATOR . 'modResource.php');
-            $savedPage = new \modResource($modx);
+            $savedPage = new modResource($modx);
             $savedPage->edit($id);
-            if (! ($savedPage->get(TV_APP_UID_NAME) || $savedPage->get(TV_DEFAULT_MENU_POSITION_NAME)) && $savedPage->get('parent')) {
+            if (! $savedPage->get(TV_APP_UID_NAME) || ! $savedPage->get(TV_DEFAULT_MENU_POSITION_NAME) && $savedPage->get('parent')) {
                 $parentPage = new modResource($modx);
                 $parentPage->edit($savedPage->get('parent'));
             }
             
             // Hat eine neu erzeugte Seite keine App wird versucht die App zu vererben.
-            if ($mode === 'new' && ! $savedPage->get(TV_APP_UID_NAME) && $savedPage->get('parent') && $parentPage->get(TV_APP_UID_NAME)) {
+            if ($mode === 'new' && ! $savedPage->get(TV_APP_UID_NAME) && ! is_null($parentPage) && $parentPage->get(TV_APP_UID_NAME)) {
                 $savedPage->set(TV_APP_UID_NAME, $parentPage->get(TV_APP_UID_NAME));
             }
             
@@ -87,7 +89,7 @@ switch ($eventName) {
             }
             
             // Default Menu Position setzen
-            if (! $savedPage->get(TV_DEFAULT_MENU_POSITION_NAME) && $savedPage->get('parent')) {
+            if (! $savedPage->get(TV_DEFAULT_MENU_POSITION_NAME) && ! is_null($parentPage)) {
                 $savedPage->set(TV_DEFAULT_MENU_POSITION_NAME, $parentPage->get('alias') . ':' . $savedPage->get('menuindex'));
             }
             
