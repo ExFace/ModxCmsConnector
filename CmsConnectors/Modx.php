@@ -361,6 +361,10 @@ class Modx extends AbstractCmsConnector
     {
         global $modx;
         
+        if (is_null($modx->documentIdentifier)) {
+            return $this->getDefaultPage();
+        }
+        
         $siteContent = $modx->getFullTableName('site_content');
         
         $query = <<<SQL
