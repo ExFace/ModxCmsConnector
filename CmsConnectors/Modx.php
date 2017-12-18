@@ -375,7 +375,7 @@ SQL;
         if ($modx->db->getRecordCount($result) == 0) {
             throw new UiPageNotFoundError('The requested UiPage with CMS-ID: "' . $modx->documentIdentifier . '" doesn\'t exist.');
         } elseif ($modx->db->getRecordCount($result) > 1) {
-            throw new UiPageIdNotUniqueError('Several UiPages with the requested CMS-ID: "' . $modx->documentIdentifier . '" exist.');
+            throw new UiPageIdNotUniqueError('Multiple UiPages with the requested CMS-ID: "' . $modx->documentIdentifier . '" exist.');
         }
         
         $row = $modx->db->getRow($result);
@@ -482,7 +482,10 @@ SQL;
         if ($modx->db->getRecordCount($result) == 0) {
             throw new UiPageNotFoundError('The requested UiPage with CMS-ID: "' . $cmsId . '"/UID: "' . $uid . '"/alias: "' . $alias . '" doesn\'t exist.');
         } elseif ($modx->db->getRecordCount($result) > 1) {
-            throw new UiPageIdNotUniqueError('Several UiPages with the requested CMS-ID: "' . $cmsId . '"/UID: "' . $uid . '"/alias: "' . $alias . '" exist.');
+            $selector = $cmsId ? 'CMS-Id: "' . $cmsId . '"' : '';
+            $selector .= $uid ? ($selector ? ' / ' : '') . 'UID: "' . $uid . '"' : '';
+            $selector .= $alias ? ($selector ? ' / ' : '') . 'alias: "' . $alias . '"' : '';
+            throw new UiPageIdNotUniqueError('Multiple UiPages with the requested ' . $selector . ' exist!');
         }
         
         $row = $modx->db->getRow($result);
