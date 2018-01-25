@@ -47,6 +47,12 @@ class ModxCmsConnectorApp extends App
     public function getModx()
     {
         global $modx;
+        if (! isset($modx)) {
+            require_once '..\..\..\..\index.php';
+            //require_once '..\..\..\..\manager\includes\config.inc.php';
+            //require_once '..\..\..\..\manager\includes\document.parser.class.inc.php';
+            //$modx = new \DocumentParser(); 
+        }
         return $modx;
     }
 }
