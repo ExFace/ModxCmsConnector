@@ -87,6 +87,10 @@ switch ($action) {
     case "exface.ModxCmsConnector.ShowTemplate":
         $result = file_get_contents($exface->filemanager()->getPathToBaseFolder() . DIRECTORY_SEPARATOR . $file);
         break;
+    case "exface.ModxCmsConnector.GetLanguageCode":
+        $locale = $exface->context()->getScopeSession()->getSessionLocale();
+        $result = explode('_', $locale)[0];
+        break;
     default:
         $result = $template_instance->processRequest($docAlias, null, $action);
         break;
