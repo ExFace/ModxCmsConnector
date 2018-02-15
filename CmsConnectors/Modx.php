@@ -465,7 +465,8 @@ SQL;
     SELECT
         msc.id as id,
         msc.pagetitle as name,
-        msc.description as shortDescription,
+        msc.description,
+        msc.introtext as intro,
         msc.alias as alias,
         msc.template as template,
         msc.menuindex as menuIndex,
@@ -589,7 +590,7 @@ SQL;
         $uiPage = UiPageFactory::create($this->getWorkbench()->ui(), $pageAlias, $pageUid, $appUid);
         
         $uiPage->setName($modx->documentObject['pagetitle']);
-        $uiPage->setShortDescription($modx->documentObject['description']);
+        $uiPage->setIntro($modx->documentObject['description']);
         $uiPage->setMenuIndex($modx->documentObject['menuindex']);
         $uiPage->setMenuVisible(! $modx->documentObject['hidemenu']);
         $uiPage->setMenuParentPageSelector($modx->documentObject['parent']);
@@ -615,7 +616,8 @@ SQL;
         $uiPage = UiPageFactory::create($this->getWorkbench()->ui(), $pageAlias, $pageUid, $appUid);
         
         $uiPage->setName($row['name']);
-        $uiPage->setShortDescription($row['shortDescription']);
+        $uiPage->setDescription($row['description']);
+        $uiPage->setIntro($row['intro']);
         $uiPage->setMenuIndex($row['menuIndex']);
         $uiPage->setMenuVisible(! $row['hideMenu']);
         $uiPage->setMenuParentPageSelector($row['menuParentIdCms']);
@@ -673,7 +675,8 @@ SQL;
         $resource = new \modResource($modx);
         $resource->close();
         $resource->set('pagetitle', $page->getName());
-        $resource->set('description', $page->getShortDescription());
+        $resource->set('introtext', $page->getIntro());
+        $resource->set('description', $page->getDescription());
         $resource->set('alias', $page->getAliasWithNamespace());
         $resource->set('published', $published ? '1' : '0');
         // IDEA configure the default template in the connector config as the default MODx template
@@ -744,7 +747,8 @@ SQL;
         $resource = new \modResource($modx);
         $resource->edit($idCms);
         $resource->set('pagetitle', $page->getName());
-        $resource->set('description', $page->getShortDescription());
+        $resource->set('description', $page->getDescription());
+        $resource->set('introtext', $page->getIntro());
         $resource->set('alias', $page->getAliasWithNamespace());
         $resource->set('menuindex', $page->getMenuIndex());
         $resource->set('hidemenu', $page->getMenuVisible() ? '0' : '1');
