@@ -156,7 +156,7 @@ switch ($eventName) {
                 // Generate an app namespace prefix for the alias if it does not have one yet. If it does,
                 // leave it - regardless of whether it corresponds to the current app - because the user
                 // will not expect it to change silently!
-                if (UiPageSelector::getAppAliasFromNamespace($savedPage->get('alias')) === false) {
+                if (UiPageSelector::getAppAliasFromNamespace($alias) === false) {
                     $appNameResolver = NameResolver::createFromString($alias, 'Apps', $exface);
                     if ($appUid = $resource->get(TV_APP_UID_NAME)) {
                         $appAlias = strtolower($exface->getApp($appUid)->getAliasWithNamespace());
