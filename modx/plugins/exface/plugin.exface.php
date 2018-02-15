@@ -5,6 +5,7 @@ use exface\Core\Exceptions\UserNotFoundError;
 use exface\Core\CommonLogic\Model\UiPage;
 use exface\Core\CommonLogic\NameResolver;
 use exface\Core\Interfaces\Exceptions\ExceptionInterface;
+use exface\Core\CommonLogic\Selectors\UiPageSelector;
 
 const TV_APP_UID_NAME = 'ExfacePageAppAlias';
 
@@ -93,15 +94,19 @@ switch ($eventName) {
                 $savedPage->set(TV_DEFAULT_MENU_POSITION_NAME, $parentPage->get('alias') . ':' . $savedPage->get('menuindex'));
             }
             
-            // Alias setzen
-            $appNameResolver = NameResolver::createFromString($savedPage->get('alias'), 'Apps', $exface);
-            if ($savedPage->get(TV_APP_UID_NAME)) {
-                $appAlias = strtolower($exface->getApp($savedPage->get(TV_APP_UID_NAME))->getAliasWithNamespace());
-                $appNameResolver->setNamespace($appAlias);
-            } else {
-                $appNameResolver->setNamespace('');
+            // Generate an app namespace prefix for the alias if it does not have one yet. If it does,
+            // leave it - regardless of whether it corresponds to the current app - because the user
+            // will not expect it to change silently!
+            if (UiPageSelector::getAppAliasFromNamespace($savedPage->get('alias')) === false) {
+                $appNameResolver = NameResolver::createFromString($savedPage->get('alias'), 'Apps', $exface);
+                if ($savedPage->get(TV_APP_UID_NAME)) {
+                    $appAlias = strtolower($exface->getApp($savedPage->get(TV_APP_UID_NAME))->getAliasWithNamespace());
+                    $appNameResolver->setNamespace($appAlias);
+                } else {
+                    $appNameResolver->setNamespace('');
+                }
+                $savedPage->set('alias', trim($appNameResolver->getAliasWithNamespace(), ' .'));
             }
-            $savedPage->set('alias', trim($appNameResolver->getAliasWithNamespace(), ' .'));
             
             // Speichern der aktualisierten Seite, keine Events feuern.
             $savedPage->save();
@@ -148,15 +153,20 @@ switch ($eventName) {
                     $alias = UiPage::generateAlias('');
                 }
                 
-                $appNameResolver = NameResolver::createFromString($alias, 'Apps', $exface);
-                if ($appUid = $resource->get(TV_APP_UID_NAME)) {
-                    $appAlias = strtolower($exface->getApp($appUid)->getAliasWithNamespace());
-                    $appNameResolver->setNamespace($appAlias);
-                } else {
-                    $appNameResolver->setNamespace('');
+                // Generate an app namespace prefix for the alias if it does not have one yet. If it does,
+                // leave it - regardless of whether it corresponds to the current app - because the user
+                // will not expect it to change silently!
+                if (UiPageSelector::getAppAliasFromNamespace($savedPage->get('alias')) === false) {
+                    $appNameResolver = NameResolver::createFromString($alias, 'Apps', $exface);
+                    if ($appUid = $resource->get(TV_APP_UID_NAME)) {
+                        $appAlias = strtolower($exface->getApp($appUid)->getAliasWithNamespace());
+                        $appNameResolver->setNamespace($appAlias);
+                    } else {
+                        $appNameResolver->setNamespace('');
+                    }
+                    
+                    $resource->set('alias', trim($appNameResolver->getAliasWithNamespace(), ' .'));
                 }
-                
-                $resource->set('alias', trim($appNameResolver->getAliasWithNamespace(), ' .'));
             }
             
             // Die duplizierte Seite bekommt eine neue UID.
