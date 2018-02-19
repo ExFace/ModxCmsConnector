@@ -3,9 +3,9 @@ use exface\Core\CommonLogic\Workbench;
 use exface\Core\Factories\UserFactory;
 use exface\Core\Exceptions\UserNotFoundError;
 use exface\Core\CommonLogic\Model\UiPage;
-use exface\Core\CommonLogic\NameResolver;
 use exface\Core\Interfaces\Exceptions\ExceptionInterface;
 use exface\Core\CommonLogic\Selectors\UiPageSelector;
+use exface\Core\Interfaces\Selectors\AliasSelectorInterface;
 
 const TV_APP_UID_NAME = 'ExfacePageAppAlias';
 
@@ -98,14 +98,10 @@ switch ($eventName) {
             // leave it - regardless of whether it corresponds to the current app - because the user
             // will not expect it to change silently!
             if (UiPageSelector::getAppAliasFromNamespace($savedPage->get('alias')) === false) {
-                $appNameResolver = NameResolver::createFromString($savedPage->get('alias'), 'Apps', $exface);
                 if ($savedPage->get(TV_APP_UID_NAME)) {
                     $appAlias = strtolower($exface->getApp($savedPage->get(TV_APP_UID_NAME))->getAliasWithNamespace());
-                    $appNameResolver->setNamespace($appAlias);
-                } else {
-                    $appNameResolver->setNamespace('');
+                    $savedPage->set('alias', strtolower($appAlias) . AliasSelectorInterface::ALIAS_NAMESPACE_DELIMITER . $savedPage->get('alias'));
                 }
-                $savedPage->set('alias', trim($appNameResolver->getAliasWithNamespace(), ' .'));
             }
             
             // Speichern der aktualisierten Seite, keine Events feuern.
@@ -157,15 +153,10 @@ switch ($eventName) {
                 // leave it - regardless of whether it corresponds to the current app - because the user
                 // will not expect it to change silently!
                 if (UiPageSelector::getAppAliasFromNamespace($alias) === false) {
-                    $appNameResolver = NameResolver::createFromString($alias, 'Apps', $exface);
                     if ($appUid = $resource->get(TV_APP_UID_NAME)) {
-                        $appAlias = strtolower($exface->getApp($appUid)->getAliasWithNamespace());
-                        $appNameResolver->setNamespace($appAlias);
-                    } else {
-                        $appNameResolver->setNamespace('');
+                        $appAlias = $exface->getApp($appUid)->getAliasWithNamespace();
+                        $resource->set('alias', strtolower($appAlias) . AliasSelectorInterface::ALIAS_NAMESPACE_DELIMITER . $alias);
                     }
-                    
-                    $resource->set('alias', trim($appNameResolver->getAliasWithNamespace(), ' .'));
                 }
             }
             
