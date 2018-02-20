@@ -77,7 +77,7 @@ switch ($action) {
             $ui = $exface->ui();
             $page = \exface\Core\Factories\UiPageFactory::create($ui, '');
             try {
-                $result = $template_instance->drawHeaders($e->createWidget($page));
+                $result = $template_instance->buildIncludes($e->createWidget($page));
             } catch (\Exception $ee) {
                 // If the exception widget cannot be rendered either, output no headers in order not to break them.
                 $exface->getLogger()->logException($ee);
