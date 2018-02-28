@@ -32,14 +32,14 @@ if (! function_exists('exf_get_default_template')) {
 global $exface, $modx;
 
 $template = $template ? $template : exf_get_default_template();
-$action = $action ? $action : 'exface.Core.ShowWidget';
+$action = $action ? strtolower($action) : 'exface.Core.ShowWidget';
 $docAlias = $docAlias ? $docAlias : $modx->documentObject['alias'];
 $fallback_field = $fallback_field ? $fallback_field : '';
 $file = $file ? $file : null;
 
 if (! $content)
     $content = $modx->documentObject['content'];
-if (strcasecmp($action, 'exface.Core.ShowWidget') === 0 && substr(trim($content), 0, 1) !== '{') {
+if ($action === 'exface.core.showwidget' && substr(trim($content), 0, 1) !== '{') {
     if ($fallback_field) {
         return $modx->documentObject[$fallback_field];
     } else {
@@ -65,13 +65,12 @@ if (! $exface) {
     $exface->start();
 }
 
-$exface->ui()->setBaseTemplateAlias($template);
-$template_instance = $exface->ui()->getTemplate();
+$template_instance = $exface->ui()->getTemplate($template);
 
 switch ($action) {
-    case "exface.Core.ShowHeaders":
+    case "exface.core.showheaders":
         try {
-            $result = $template_instance->processRequest($docAlias, null, 'exface.Core.ShowHeaders', true);
+            $response = $template_instance->handle(\GuzzleHttp\Psr7\ServerRequest::fromGlobals(), $docAlias, 'exface.Core.ShowHeaders', true);
         } catch (\exface\Core\Interfaces\Exceptions\ErrorExceptionInterface $e) {
             $exface->getLogger()->logException($e);
             $ui = $exface->ui();
@@ -84,16 +83,20 @@ switch ($action) {
             }
         }
         break;
-    case "exface.ModxCmsConnector.ShowTemplate":
+    case "exface.modxcmsconnector.showtemplate":
         $result = file_get_contents($exface->filemanager()->getPathToBaseFolder() . DIRECTORY_SEPARATOR . $file);
         break;
-    case "exface.ModxCmsConnector.GetLanguageCode":
+    case "exface.modxcmsconnector.getlanguagecode":
         $locale = $exface->context()->getScopeSession()->getSessionLocale();
         $result = explode('_', $locale)[0];
         break;
     default:
-        $result = $template_instance->processRequest($docAlias, null, $action);
+        $response = $template_instance->handle(\GuzzleHttp\Psr7\ServerRequest::fromGlobals(), $docAlias, $action);
         break;
+}
+
+if (! isset($result) && isset($response)) {
+    $result = (string) $response->getBody();
 }
 
 // Restore session
