@@ -1,4 +1,9 @@
 <?php
+use exface\Core\Interfaces\Tasks\HttpTaskInterface;
+use exface\Core\Interfaces\Templates\HttpTemplateInterface;
+use exface\Core\Templates\AbstractHttpTemplate\AbstractHttpTemplate;
+use exface\Core\Templates\AbstractAjaxTemplate\AbstractAjaxTemplate;
+
 /**
  * ExFace
  *
@@ -32,7 +37,7 @@ if (! function_exists('exf_get_default_template')) {
 global $exface, $modx;
 
 $template = $template ? $template : exf_get_default_template();
-$action = $action ? strtolower($action) : 'exface.Core.ShowWidget';
+$action = $action ? strtolower($action) : 'exface.core.showwidget';
 $docAlias = $docAlias ? $docAlias : $modx->documentObject['alias'];
 $fallback_field = $fallback_field ? $fallback_field : '';
 $file = $file ? $file : null;
@@ -70,11 +75,15 @@ $template_instance = $exface->ui()->getTemplate($template);
 switch ($action) {
     case "exface.core.showheaders":
         try {
-            $response = $template_instance->handle(\GuzzleHttp\Psr7\ServerRequest::fromGlobals(), $docAlias, 'exface.Core.ShowHeaders', true);
+            $request = \GuzzleHttp\Psr7\ServerRequest::fromGlobals();
+            $request = $request->withAttribute($template_instance->getRequestAttributeForRenderingMode(), AbstractAjaxTemplate::MODE_HEAD);
+            $request = $request->withAttribute($template_instance->getRequestAttributeForPage(), $docAlias);
+            $request = $request->withAttribute($template_instance->getRequestAttributeForAction(), 'exface.Core.ShowHeaders');
+            $response = $template_instance->handle($request, null, null, true);
         } catch (\exface\Core\Interfaces\Exceptions\ErrorExceptionInterface $e) {
             $exface->getLogger()->logException($e);
             $ui = $exface->ui();
-            $page = \exface\Core\Factories\UiPageFactory::create($ui, '');
+            $page = \exface\Core\Factories\UiPageFactory::createEmpty($ui);
             try {
                 $result = $template_instance->buildIncludes($e->createWidget($page));
             } catch (\Exception $ee) {
@@ -82,6 +91,13 @@ switch ($action) {
                 $exface->getLogger()->logException($ee);
             }
         }
+        break;
+    case 'exface.core.showwidget':
+        $request = \GuzzleHttp\Psr7\ServerRequest::fromGlobals();
+        $request = $request->withAttribute($template_instance->getRequestAttributeForRenderingMode(), AbstractAjaxTemplate::MODE_BODY);
+        $request = $request->withAttribute($template_instance->getRequestAttributeForPage(), $docAlias);
+        $request = $request->withAttribute($template_instance->getRequestAttributeForAction(), $action);
+        $response = $template_instance->handle($request);
         break;
     case "exface.modxcmsconnector.showtemplate":
         $result = file_get_contents($exface->filemanager()->getPathToBaseFolder() . DIRECTORY_SEPARATOR . $file);
