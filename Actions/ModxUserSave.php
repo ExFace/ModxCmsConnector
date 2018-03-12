@@ -10,6 +10,10 @@ use exface\Core\Exceptions\Actions\ActionRuntimeError;
 use exface\Core\Exceptions\UserNotFoundError;
 use exface\Core\Exceptions\UserAlreadyExistsError;
 use exface\ModxCmsConnector\CommonLogic\ModxSessionManager;
+use exface\Core\Interfaces\Tasks\TaskInterface;
+use exface\Core\Interfaces\DataSources\DataTransactionInterface;
+use exface\Core\Interfaces\Tasks\TaskResultInterface;
+use exface\Core\Factories\TaskResultFactory;
 
 /**
  * Creates or Updates a modx web-user or Updates a modx mgr-user.
@@ -40,10 +44,12 @@ class ModxUserSave extends AbstractAction
      * {@inheritDoc}
      * @see \exface\Core\CommonLogic\AbstractAction::perform()
      */
-    protected function perform()
+    protected function perform(TaskInterface $task, DataTransactionInterface $transaction) : TaskResultInterface
     {
-        if (! $this->getInputDataSheet()->getMetaObject()->isExactly('exface.Core.USER')) {
-            throw new ActionInputInvalidObjectError($this, 'InputDataSheet with "exface.Core.USER" required, "' . $this->getInputDataSheet()->getMetaObject()->getAliasWithNamespace() . '" given instead.');
+        $input = $this->getInputDataSheet($task);
+        
+        if (! $input->getMetaObject()->isExactly('exface.Core.USER')) {
+            throw new ActionInputInvalidObjectError($this, 'InputDataSheet with "exface.Core.USER" required, "' . $input->getMetaObject()->getAliasWithNamespace() . '" given instead.');
         }
         
         $modx = $this->getWorkbench()->getApp('exface.ModxCmsConnector')->getModx();
@@ -62,7 +68,7 @@ class ModxUserSave extends AbstractAction
         $exfUserSheet = DataSheetFactory::createFromObject($exfUserObj);
         $exfUserSheet->getColumns()->addFromAttribute($exfUserObj->getAttribute('USERNAME'));
         
-        foreach ($this->getInputDataSheet()->getRows() as $row) {
+        foreach ($input->getRows() as $row) {
             $userRow = [];
             $userRow['username'] = $row['USERNAME'];
             
@@ -204,8 +210,7 @@ class ModxUserSave extends AbstractAction
         // wiederhergestellt.
         $modxSessionManager->sessionClose();
         
-        $this->setResult('');
-        $this->setResultMessage('Exface user saved.');
+        return TaskResultFactory::createMessageResult($task, 'Exface user saved.');
     }
 
     /**

@@ -7,6 +7,10 @@ use exface\Core\Exceptions\Actions\ActionInputInvalidObjectError;
 use exface\ModxCmsConnector\CmsConnectors\Modx;
 use exface\Core\Factories\DataSheetFactory;
 use exface\ModxCmsConnector\CommonLogic\ModxSessionManager;
+use exface\Core\Interfaces\Tasks\TaskInterface;
+use exface\Core\Interfaces\DataSources\DataTransactionInterface;
+use exface\Core\Interfaces\Tasks\TaskResultInterface;
+use exface\Core\Factories\TaskResultFactory;
 
 /**
  * Deletes an modx web- or manager user with the given username.
@@ -25,10 +29,12 @@ class ModxUserDelete extends AbstractAction
      * {@inheritDoc}
      * @see \exface\Core\CommonLogic\AbstractAction::perform()
      */
-    protected function perform()
+    protected function perform(TaskInterface $task, DataTransactionInterface $transaction) : TaskResultInterface
     {
-        if (! $this->getInputDataSheet()->getMetaObject()->isExactly('exface.Core.USER')) {
-            throw new ActionInputInvalidObjectError($this, 'InputDataSheet with "exface.Core.USER" required, "' . $this->getInputDataSheet()->getMetaObject()->getAliasWithNamespace() . '" given instead.');
+        $input = $this->getInputDataSheet($task);
+        
+        if (! $input->getMetaObject()->isExactly('exface.Core.USER')) {
+            throw new ActionInputInvalidObjectError($this, 'InputDataSheet with "exface.Core.USER" required, "' . $input->getMetaObject()->getAliasWithNamespace() . '" given instead.');
         }
         
         $modx = $this->getWorkbench()->getApp('exface.ModxCmsConnector')->getModx();
@@ -46,14 +52,14 @@ class ModxUserDelete extends AbstractAction
         // aber ohne rows uebergeben. Dann werden die geloeschten Nutzer eingelesen. Wird ein
         // Exface-Nutzer aus dem Exface-Plugin heraus geloescht, wird ein DataSheet ohne Filter
         // aber mit rows uebergeben. Dieses wird einfach verwendet.
-        if ($this->getInputDataSheet()->countRows() == 0 && $this->getInputDataSheet()->getFilters()->countConditions() > 0) {
+        if ($input->countRows() == 0 && $input->getFilters()->countConditions() > 0) {
             $exfUserObj = $this->getWorkbench()->model()->getObject('exface.Core.USER');
             $exfUserSheet = DataSheetFactory::createFromObject($exfUserObj);
             $exfUserSheet->getColumns()->addFromAttribute($exfUserObj->getAttribute('USERNAME'));
-            $exfUserSheet->setFilters($this->getInputDataSheet()->getFilters());
+            $exfUserSheet->setFilters($input->getFilters());
             $exfUserSheet->dataRead();
         } else {
-            $exfUserSheet = $this->getInputDataSheet();
+            $exfUserSheet = $input;
         }
         
         foreach ($exfUserSheet->getRows() as $row) {
@@ -74,7 +80,6 @@ class ModxUserDelete extends AbstractAction
         // wiederhergestellt.
         $modxSessionManager->sessionClose();
         
-        $this->setResult('');
-        $this->setResultMessage('Exface user deleted.');
+        return TaskResultFactory::createMessageResult($task, 'Exface user deleted.');
     }
 }

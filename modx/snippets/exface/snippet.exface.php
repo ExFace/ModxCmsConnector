@@ -78,7 +78,7 @@ switch ($action) {
             $request = \GuzzleHttp\Psr7\ServerRequest::fromGlobals();
             $request = $request->withAttribute($template_instance->getRequestAttributeForRenderingMode(), AbstractAjaxTemplate::MODE_HEAD);
             $request = $request->withAttribute($template_instance->getRequestAttributeForPage(), $docAlias);
-            $request = $request->withAttribute($template_instance->getRequestAttributeForAction(), 'exface.Core.ShowHeaders');
+            $request = $request->withAttribute($template_instance->getRequestAttributeForAction(), 'exface.Core.ShowWidget');
             $response = $template_instance->handle($request, null, null, true);
         } catch (\exface\Core\Interfaces\Exceptions\ErrorExceptionInterface $e) {
             $exface->getLogger()->logException($e);
