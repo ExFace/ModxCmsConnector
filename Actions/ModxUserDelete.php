@@ -9,8 +9,8 @@ use exface\Core\Factories\DataSheetFactory;
 use exface\ModxCmsConnector\CommonLogic\ModxSessionManager;
 use exface\Core\Interfaces\Tasks\TaskInterface;
 use exface\Core\Interfaces\DataSources\DataTransactionInterface;
-use exface\Core\Interfaces\Tasks\TaskResultInterface;
-use exface\Core\Factories\TaskResultFactory;
+use exface\Core\Interfaces\Tasks\ResultInterface;
+use exface\Core\Factories\ResultFactory;
 
 /**
  * Deletes an modx web- or manager user with the given username.
@@ -29,7 +29,7 @@ class ModxUserDelete extends AbstractAction
      * {@inheritDoc}
      * @see \exface\Core\CommonLogic\AbstractAction::perform()
      */
-    protected function perform(TaskInterface $task, DataTransactionInterface $transaction) : TaskResultInterface
+    protected function perform(TaskInterface $task, DataTransactionInterface $transaction) : ResultInterface
     {
         $input = $this->getInputDataSheet($task);
         
@@ -80,6 +80,6 @@ class ModxUserDelete extends AbstractAction
         // wiederhergestellt.
         $modxSessionManager->sessionClose();
         
-        return TaskResultFactory::createMessageResult($task, 'Exface user deleted.');
+        return ResultFactory::createMessageResult($task, 'Exface user deleted.');
     }
 }

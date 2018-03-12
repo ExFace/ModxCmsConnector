@@ -12,8 +12,8 @@ use exface\Core\Exceptions\UserAlreadyExistsError;
 use exface\ModxCmsConnector\CommonLogic\ModxSessionManager;
 use exface\Core\Interfaces\Tasks\TaskInterface;
 use exface\Core\Interfaces\DataSources\DataTransactionInterface;
-use exface\Core\Interfaces\Tasks\TaskResultInterface;
-use exface\Core\Factories\TaskResultFactory;
+use exface\Core\Interfaces\Tasks\ResultInterface;
+use exface\Core\Factories\ResultFactory;
 
 /**
  * Creates or Updates a modx web-user or Updates a modx mgr-user.
@@ -44,7 +44,7 @@ class ModxUserSave extends AbstractAction
      * {@inheritDoc}
      * @see \exface\Core\CommonLogic\AbstractAction::perform()
      */
-    protected function perform(TaskInterface $task, DataTransactionInterface $transaction) : TaskResultInterface
+    protected function perform(TaskInterface $task, DataTransactionInterface $transaction) : ResultInterface
     {
         $input = $this->getInputDataSheet($task);
         
@@ -210,7 +210,7 @@ class ModxUserSave extends AbstractAction
         // wiederhergestellt.
         $modxSessionManager->sessionClose();
         
-        return TaskResultFactory::createMessageResult($task, 'Exface user saved.');
+        return ResultFactory::createMessageResult($task, 'Exface user saved.');
     }
 
     /**
