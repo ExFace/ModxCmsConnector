@@ -1,8 +1,7 @@
 <?php
-use exface\Core\Interfaces\Tasks\HttpTaskInterface;
 use exface\Core\Interfaces\Templates\HttpTemplateInterface;
-use exface\Core\Templates\AbstractHttpTemplate\AbstractHttpTemplate;
 use exface\Core\Templates\AbstractAjaxTemplate\AbstractAjaxTemplate;
+use exface\Core\Templates\AbstractHttpTemplate\Middleware\RequestIdNegotiator;
 
 /**
  * ExFace
@@ -37,14 +36,14 @@ if (! function_exists('exf_get_default_template')) {
 global $exface, $modx;
 
 $template = $template ? $template : exf_get_default_template();
-$action = $action ? strtolower($action) : 'exface.core.showwidget';
+$action = $action ? $action : 'exface.Core.ShowWidget';
 $docAlias = $docAlias ? $docAlias : $modx->documentObject['alias'];
 $fallback_field = $fallback_field ? $fallback_field : '';
 $file = $file ? $file : null;
 
 if (! $content)
     $content = $modx->documentObject['content'];
-if ($action === 'exface.core.showwidget' && substr(trim($content), 0, 1) !== '{') {
+if (strcasecmp($action, 'exface.Core.ShowWidget') === 0 && substr(trim($content), 0, 1) !== '{') {
     if ($fallback_field) {
         return $modx->documentObject[$fallback_field];
     } else {
@@ -71,34 +70,18 @@ if (! $exface) {
 }
 
 $template_instance = $exface->ui()->getTemplate($template);
+if (is_null($modx->request)) {
+    $modx->request = \GuzzleHttp\Psr7\ServerRequest::fromGlobals();
+    $modx->request = $modx->request->withAttribute($template_instance->getRequestAttributeForPage(), $docAlias);
+    // Add a request id if not set already. This makes sure, different actions within the same physical request
+    // have the same request id.
+    if (! $modx->request->hasHeader(RequestIdNegotiator::X_REQUEST_ID)) {
+        $modx->request = (new RequestIdNegotiator)->addRequestId($modx->request);
+    }
+}
+$request = $modx->request = $modx->request->withAttribute($template_instance->getRequestAttributeForAction(), $action);
 
-switch ($action) {
-    case "exface.core.showheaders":
-        try {
-            $request = \GuzzleHttp\Psr7\ServerRequest::fromGlobals();
-            $request = $request->withAttribute($template_instance->getRequestAttributeForRenderingMode(), AbstractAjaxTemplate::MODE_HEAD);
-            $request = $request->withAttribute($template_instance->getRequestAttributeForPage(), $docAlias);
-            $request = $request->withAttribute($template_instance->getRequestAttributeForAction(), 'exface.Core.ShowWidget');
-            $response = $template_instance->handle($request, null, null, true);
-        } catch (\exface\Core\Interfaces\Exceptions\ErrorExceptionInterface $e) {
-            $exface->getLogger()->logException($e);
-            $ui = $exface->ui();
-            $page = \exface\Core\Factories\UiPageFactory::createEmpty($ui);
-            try {
-                $result = $template_instance->buildHtmlHead($e->createWidget($page));
-            } catch (\Exception $ee) {
-                // If the exception widget cannot be rendered either, output no headers in order not to break them.
-                $exface->getLogger()->logException($ee);
-            }
-        }
-        break;
-    case 'exface.core.showwidget':
-        $request = \GuzzleHttp\Psr7\ServerRequest::fromGlobals();
-        $request = $request->withAttribute($template_instance->getRequestAttributeForRenderingMode(), AbstractAjaxTemplate::MODE_BODY);
-        $request = $request->withAttribute($template_instance->getRequestAttributeForPage(), $docAlias);
-        $request = $request->withAttribute($template_instance->getRequestAttributeForAction(), $action);
-        $response = $template_instance->handle($request);
-        break;
+switch (strtolower($action)) {
     case "exface.modxcmsconnector.showtemplate":
         $result = file_get_contents($exface->filemanager()->getPathToBaseFolder() . DIRECTORY_SEPARATOR . $file);
         break;
@@ -106,9 +89,23 @@ switch ($action) {
         $locale = $exface->context()->getScopeSession()->getSessionLocale();
         $result = explode('_', $locale)[0];
         break;
-    default:
-        $response = $template_instance->handle(\GuzzleHttp\Psr7\ServerRequest::fromGlobals(), $docAlias, $action);
+    case 'exface.core.showwidget':
+        if ($template_instance instanceof AbstractAjaxTemplate) {
+            $response = $template_instance->handle($request->withAttribute($template_instance->getRequestAttributeForRenderingMode(), AbstractAjaxTemplate::MODE_BODY), 'ShowWidget');
+        } else {
+            $response = $template_instance->handle($request);
+        }
         break;
+    case "exface.core.showheaders":
+        if ($template_instance instanceof AbstractAjaxTemplate) {
+            $request = $request
+                ->withAttribute($template_instance->getRequestAttributeForRenderingMode(), AbstractAjaxTemplate::MODE_HEAD)
+                ->withAttribute($template_instance->getRequestAttributeForAction(), 'exface.Core.ShowWidget');
+            $response = $template_instance->handle($request, 'ShowWidget');
+        }
+        break;
+    default:
+        $response = $template_instance->handle($request);
 }
 
 if (! isset($result) && isset($response)) {
