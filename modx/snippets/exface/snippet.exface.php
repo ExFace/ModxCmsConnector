@@ -102,6 +102,11 @@ switch (strtolower($action)) {
                 ->withAttribute($template_instance->getRequestAttributeForRenderingMode(), AbstractAjaxTemplate::MODE_HEAD)
                 ->withAttribute($template_instance->getRequestAttributeForAction(), 'exface.Core.ShowWidget');
             $response = $template_instance->handle($request, 'ShowWidget');
+            
+            // Mute error messages in headers as they will braek the page.
+            if ($response->getStatusCode() != 200) {
+                $result = '';
+            }
         }
         break;
     default:
