@@ -329,7 +329,21 @@ class Modx extends AbstractCmsConnector
      */
     public function getSiteUrl()
     {
-        return $this->getApp()->getModx()->config['site_url'];
+        return rtrim($this->getApp()->getModx()->config['site_url'], "/");
+    }
+    
+    /**
+     *
+     * {@inheritdoc}
+     *
+     * @see \exface\Core\Interfaces\CmsConnectorInterface::getApiUrl()
+     */
+    public function getApiUrl()
+    {
+        $modx_path = Filemanager::pathNormalize($this->getApp()->getModx()->config['base_path']);
+        $installation_path = Filemanager::pathNormalize($this->getWorkbench()->getInstallationPath());
+        $subfolder = str_replace($modx_path, '', $installation_path);
+        return $this->getSiteUrl() . '/' . trim($subfolder, "/");
     }
 
     /**
