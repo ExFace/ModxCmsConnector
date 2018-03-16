@@ -51,13 +51,6 @@ if (strcasecmp($action, 'exface.Core.ShowWidget') === 0 && substr(trim($content)
     }
 }
 
-unset($_REQUEST['q']); // remove the q parameter, that is used by modx internally
-                       // Remove URL-params added when using quickmanager
-if ($_REQUEST['quickmanagerclose']) {
-    unset($_REQUEST['quickmanagerclose']);
-    unset($_REQUEST['id']);
-}
-
 // Backup and close session
 $session_id = session_id();
 session_write_close();
@@ -71,8 +64,16 @@ if (! $exface) {
 
 $template_instance = $exface->ui()->getTemplate($template);
 if (is_null($modx->request)) {
-    $modx->request = \GuzzleHttp\Psr7\ServerRequest::fromGlobals();
-    $modx->request = $modx->request->withAttribute($template_instance->getRequestAttributeForPage(), $docAlias);
+    $modx->request = \GuzzleHttp\Psr7\ServerRequest::fromGlobals()
+        ->withAttribute($template_instance->getRequestAttributeForPage(), $docAlias);
+    // Remove query parameters specific to MODx
+    $queryParams = $modx->request->getQueryParams();
+    unset($queryParams['q']);
+    if ($queryParmas['quickmanagerclose']) {
+        unset($queryParmas['quickmanagerclose']);
+        unset($queryParmas['id']);
+    }
+    $modx->request = $modx->request->withQueryParams($queryParams);
     // Add a request id if not set already. This makes sure, different actions within the same physical request
     // have the same request id.
     if (! $modx->request->hasHeader(RequestIdNegotiator::X_REQUEST_ID)) {
