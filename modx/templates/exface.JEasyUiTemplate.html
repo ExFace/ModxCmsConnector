@@ -16,23 +16,23 @@
 	    <link rel="apple-touch-icon-precomposed" sizes="128x128" href="assets/images/alexa_icon_128.png">
 		
 		<title>[*pagetitle*] :: [(site_name)]</title>
-		<link rel="stylesheet" type="text/css" href="exface/vendor/exface/JEasyUiTemplate/Template/js/jeasyui/themes/metro-blue/easyui.css">
-		<link rel="stylesheet" type="text/css" href="exface/vendor/exface/JEasyUiTemplate/Template/js/template.css">
+		<link rel="stylesheet" type="text/css" href="exface/vendor/exface/JEasyUiTemplate/Templates/JEasyUiTemplate/js/jeasyui/themes/metro-blue/easyui.css">
+		<link rel="stylesheet" type="text/css" href="exface/vendor/exface/JEasyUiTemplate/Templates/JEasyUiTemplate/js/template.css">
 		<script type="text/javascript" src="exface/vendor/bower-asset/jquery/dist/jquery.min.js"></script>
 		<script type="text/javascript" src="exface/vendor/bower-asset/jeasyui/jquery.easyui.min.js"></script>
 		<script type="text/javascript" src="exface/vendor/bower-asset/jeasyui/locale/easyui-lang-de.js"></script>
-		<script type="text/javascript" src="exface/vendor/exface/JEasyUiTemplate/Template/js/jquery.easyui.patch.1.43.js"></script>
-		<script type="text/javascript" src="exface/vendor/exface/JEasyUiTemplate/Template/js/template.js"></script>
-		<script type="text/javascript" src="exface/vendor/exface/JEasyUiTemplate/Template/js/jeasyui/extensions/datagridview/datagrid-groupview.js"></script>
+		<script type="text/javascript" src="exface/vendor/exface/JEasyUiTemplate/Templates/JEasyUiTemplate/js/jquery.easyui.patch.1.43.js"></script>
+		<script type="text/javascript" src="exface/vendor/exface/JEasyUiTemplate/Templates/JEasyUiTemplate/js/template.js"></script>
+		<script type="text/javascript" src="exface/vendor/exface/JEasyUiTemplate/Templates/JEasyUiTemplate/js/jeasyui/extensions/datagridview/datagrid-groupview.js"></script>
 		
 		<!-- FontAwesome 4.7.0 -->
         <link href="exface/vendor/bower-asset/font-awesome/css/font-awesome.min.css" rel="stylesheet" type="text/css" />
         
 		
-		[[ExFace? &action=`exface.Core.ShowHeaders`]]	
+		[[ExFace? &template=`exface.JEasyUiTemplate.JEasyUiTemplate` &action=`exface.Core.ShowHeaders`]]	
 		
 		<!-- jQuery-Plugin to run in iOS-WebApp window -->
-		<script type="text/javascript" src="exface/vendor/exface/JEasyUiTemplate/Template/js/jquery.stayInWebApp.js"></script>
+		<script type="text/javascript" src="exface/vendor/exface/JEasyUiTemplate/Templates/JEasyUiTemplate/js/jquery.stayInWebApp.js"></script>
 		<script type="text/javascript">
 			$(function() {
 				$.stayInWebApp();
@@ -40,7 +40,7 @@
 		</script>
 		
 		<!-- sparklines -->
-		<script type="text/javascript" src="exface/vendor/exface/JEasyUiTemplate/Template/js/jquery.sparkline.min.js"></script>
+		<script type="text/javascript" src="exface/vendor/exface/JEasyUiTemplate/Templates/JEasyUiTemplate/js/jquery.sparkline.min.js"></script>
 		
 	</head>
 	<body class="easyui-layout">
@@ -116,7 +116,7 @@
 		
 		<!-- MAIN -->
 		<div data-options="region:'center',title:'[[singleQuotes? &string=`[[Breadcrumbs? &showHomeCrumb=`1`]]`]]'">
-			[[ExFace? &fallback_field=`content`]] 
+			[[ExFace? &template=`exface.JEasyUiTemplate.JEasyUiTemplate` &fallback_field=`content`]] 
 		</div>
 	</body>
 </html>

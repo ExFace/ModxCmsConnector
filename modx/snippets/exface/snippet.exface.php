@@ -2,6 +2,8 @@
 use exface\Core\Interfaces\Templates\HttpTemplateInterface;
 use exface\Core\Templates\AbstractAjaxTemplate\AbstractAjaxTemplate;
 use exface\Core\Templates\AbstractHttpTemplate\Middleware\RequestIdNegotiator;
+use Psr\Http\Message\ServerRequestInterface;
+use exface\Core\Factories\TemplateFactory;
 
 /**
  * ExFace
@@ -29,13 +31,38 @@ if (! function_exists('exf_get_default_template')) {
     function exf_get_default_template()
     {
         // TODO get the template from the config of the connector app
-        return 'exface.JEasyUiTemplate';
+        return 'exface.JEasyUiTemplate.JEasyUiTemplate';
+    }
+}
+
+if (! function_exists('exf_get_request')) {
+    
+    function exf_get_request($modx, HttpTemplateInterface $template, string $docAlias, string $actionAlias = null) : ServerRequestInterface
+    {
+        if (is_null($modx->request)) {
+            $modx->request = \GuzzleHttp\Psr7\ServerRequest::fromGlobals()
+            ->withAttribute($template->getRequestAttributeForPage(), $docAlias);
+            // Remove query parameters specific to MODx
+            $queryParams = $modx->request->getQueryParams();
+            unset($queryParams['q']);
+            if ($queryParmas['quickmanagerclose']) {
+                unset($queryParmas['quickmanagerclose']);
+                unset($queryParmas['id']);
+            }
+            $modx->request = $modx->request->withQueryParams($queryParams);
+            // Add a request id if not set already. This makes sure, different actions within the same physical request
+            // have the same request id.
+            if (! $modx->request->hasHeader(RequestIdNegotiator::X_REQUEST_ID)) {
+                $modx->request = (new RequestIdNegotiator)->addRequestId($modx->request);
+            }
+        }
+        return $modx->request->withAttribute($template->getRequestAttributeForAction(), $actionAlias);
     }
 }
 
 global $exface, $modx;
 
-$template = $template ? $template : exf_get_default_template();
+$template = $template ? $template : null;
 $action = $action ? $action : 'exface.Core.ShowWidget';
 $docAlias = $docAlias ? $docAlias : $modx->documentObject['alias'];
 $fallback_field = $fallback_field ? $fallback_field : '';
@@ -62,26 +89,6 @@ if (! $exface) {
     $exface->start();
 }
 
-$template_instance = $exface->ui()->getTemplate($template);
-if (is_null($modx->request)) {
-    $modx->request = \GuzzleHttp\Psr7\ServerRequest::fromGlobals()
-        ->withAttribute($template_instance->getRequestAttributeForPage(), $docAlias);
-    // Remove query parameters specific to MODx
-    $queryParams = $modx->request->getQueryParams();
-    unset($queryParams['q']);
-    if ($queryParmas['quickmanagerclose']) {
-        unset($queryParmas['quickmanagerclose']);
-        unset($queryParmas['id']);
-    }
-    $modx->request = $modx->request->withQueryParams($queryParams);
-    // Add a request id if not set already. This makes sure, different actions within the same physical request
-    // have the same request id.
-    if (! $modx->request->hasHeader(RequestIdNegotiator::X_REQUEST_ID)) {
-        $modx->request = (new RequestIdNegotiator)->addRequestId($modx->request);
-    }
-}
-$request = $modx->request = $modx->request->withAttribute($template_instance->getRequestAttributeForAction(), $action);
-
 switch (strtolower($action)) {
     case "exface.modxcmsconnector.showtemplate":
         $result = file_get_contents($exface->filemanager()->getPathToBaseFolder() . DIRECTORY_SEPARATOR . $file);
@@ -91,6 +98,8 @@ switch (strtolower($action)) {
         $result = explode('_', $locale)[0];
         break;
     case 'exface.core.showwidget':
+        $template_instance = TemplateFactory::createFromString($template, $exface);
+        $request = exf_get_request($modx, $template_instance, $docAlias, $action);
         if ($template_instance instanceof AbstractAjaxTemplate) {
             $response = $template_instance->handle($request->withAttribute($template_instance->getRequestAttributeForRenderingMode(), AbstractAjaxTemplate::MODE_BODY), 'ShowWidget');
         } else {
@@ -98,6 +107,8 @@ switch (strtolower($action)) {
         }
         break;
     case "exface.core.showheaders":
+        $template_instance = TemplateFactory::createFromString($template, $exface);
+        $request = exf_get_request($modx, $template_instance, $docAlias, $action);
         if ($template_instance instanceof AbstractAjaxTemplate) {
             $request = $request
                 ->withAttribute($template_instance->getRequestAttributeForRenderingMode(), AbstractAjaxTemplate::MODE_HEAD)
