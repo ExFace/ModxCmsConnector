@@ -20,7 +20,7 @@ use exface\Core\Factories\TemplateFactory;
 
 /*
  * Parameters:
- * &tempalte - Qualified alias of the ExFace template to be used: e.g. exface.AdminLteTemplate.
+ * &tempalte - Qualified alias of the ExFace template to be used: e.g. exface.AdminLteTemplate.AdminLteTemplate.
  * &action - Qualified alias of the ExFace action, that is to be performed. Default: exface.Core.ShowWidget
  * &docAlias - MODx document alias to call the action for. Default: the alias of the current document, i.e. [*alias*]
  * &fallback_field - The key of the attribute of $modx->documentObject to be displayed if the content is not valid UXON
