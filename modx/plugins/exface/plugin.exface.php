@@ -165,7 +165,7 @@ switch ($eventName) {
             
             // Default Menu Position setzen.
             if ($resource->get('parent')) {
-                $resource->set(TV_DEFAULT_MENU_POSITION_NAME, $exface->getCMS()->loadPage($resource->get('parent'))->getAliasWithNamespace() . ':' . $resource->get('menuindex'));
+                $resource->set(TV_DEFAULT_MENU_POSITION_NAME, $exface->getCMS()->getPage($resource->get('parent'))->getAliasWithNamespace() . ':' . $resource->get('menuindex'));
             }
             
             // Speichern der aktualisierten Seite, keine Events feuern.
