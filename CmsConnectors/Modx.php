@@ -607,7 +607,7 @@ SQL;
         global $modx;
         
         try {
-            $existingPage = $this->getPage($page->getSelector());
+            $this->getPage($page->getSelector());
             // Es existiert bereits eine Seite mit diesem Alias.
             throw new UiPageIdNotUniqueError('A different UiPage with the same "' . $this->buildSelectorText($page->getSelector()) . '" already exists.');
         } catch (UiPageNotFoundError $upnfe) {
