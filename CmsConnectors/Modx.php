@@ -67,11 +67,7 @@ class Modx extends AbstractCmsConnector
     public function __construct(WorkbenchInterface $exface)
     {
         parent::__construct($exface);
-        global $modx;
-        
-        if (! $modx) {
-            require_once $this->getApp()->getModxAjaxIndexPath();
-        }
+        $modx = $this->getModx();
         
         if ($mgr = $modx->getLoginUserName('mgr')) {
             $this->user_name = $mgr;
@@ -93,7 +89,7 @@ class Modx extends AbstractCmsConnector
      */
     public function createLinkInternal($page_or_id_or_alias, $url_params = '')
     {
-        global $modx;
+        $modx = $this->getModx();
         if ($page_or_id_or_alias instanceof UiPageInterface) {
             $cmsId = $this->getPageIdInCms($page_or_id_or_alias);
         } elseif ($this->isCmsPageId($page_or_id_or_alias)) {
@@ -213,7 +209,7 @@ class Modx extends AbstractCmsConnector
     protected function getUserSettings($setting_name = null)
     {
         if (is_null($this->user_settings)) {
-            global $modx;
+            $modx = $this->getModx();
             // Create the settings array an populate it with defaults
             $this->user_settings = array(
                 'manager_language' => $modx->config['manager_language']
@@ -325,7 +321,7 @@ class Modx extends AbstractCmsConnector
      */
     public function getPageCurrent($ignore_replacements = false) : UiPageInterface
     {
-        global $modx;
+        $modx = $this->getModx();
         
         if (is_null($modx->documentIdentifier)) {
             return $this->getPageEmpty();
@@ -366,7 +362,7 @@ SQL;
      */
     protected function getPageFromCms(UiPageSelectorInterface $selector, $ignore_replacements = false) : UiPageInterface
     {        
-        global $modx;
+        $modx = $this->getModx();
         
         if (! is_null($modx->documentIdentifier)) {
             $currentPage = $this->getPageCurrent();
@@ -404,7 +400,7 @@ SQL;
      */
     protected function getPageFromDb(UiPageSelectorInterface $selector, $ignore_replacements = false)
     {        
-        global $modx;
+        $modx = $this->getModx();
         
         $siteContent = $modx->getFullTableName('site_content');
         
@@ -501,7 +497,7 @@ SQL;
      */
     protected function buildSqlTmplvarSubselect($tmplvarName)
     {
-        global $modx;
+        $modx = $this->getModx();
         
         $siteTmplvars = $modx->getFullTableName('site_tmplvars');
         $siteTmplvarContentvalues = $modx->getFullTableName('site_tmplvar_contentvalues');
@@ -523,7 +519,7 @@ SQL;
      */
     protected function buildSqlReplaceIdsSubselect()
     {
-        global $modx;
+        $modx = $this->getModx();
         
         $siteTmplvars = $modx->getFullTableName('site_tmplvars');
         $siteTmplvarContentvalues = $modx->getFullTableName('site_tmplvar_contentvalues');
@@ -546,7 +542,7 @@ SQL;
      */
     protected function createPageFromApi()
     {
-        global $modx;
+        $modx = $this->getModx();
         
         $pageAlias = $modx->documentObject['alias'];
         $pageUid = $modx->documentObject[$this::TV_UID_NAME] ? $modx->documentObject[$this::TV_UID_NAME][1] : $this::TV_UID_DEFAULT;
@@ -604,7 +600,7 @@ SQL;
      */
     public function createPage(UiPageInterface $page)
     {
-        global $modx;
+        $modx = $this->getModx();
         
         try {
             $this->getPage($page->getSelector());
@@ -688,7 +684,7 @@ SQL;
      */
     public function updatePage(UiPageInterface $page)
     {
-        global $modx;
+        $modx = $this->getModx();
         
         // Get the CMS id of the currently saved page matching the UID of the new page
         $idCms = $this->getPageIdInCms($page);
@@ -739,7 +735,7 @@ SQL;
      */
     public function deletePage(UiPageInterface $page) : CmsConnectorInterface
     {
-        global $modx;
+        $modx = $this->getModx();
         
         require_once ($modx->config['base_path'] . DIRECTORY_SEPARATOR . 'assets' . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR . 'MODxAPI' . DIRECTORY_SEPARATOR . 'modResource.php');
         $resource = new \modResource($modx);
@@ -770,7 +766,7 @@ SQL;
      */
     public function getPagesForApp(AppInterface $app)
     {
-        global $modx;
+        $modx = $this->getModx();
         
         $siteContent = $modx->getFullTableName('site_content');
         $siteTmplvars = $modx->getFullTableName('site_tmplvars');
@@ -807,7 +803,7 @@ SQL;
      */
     public function getTemplateVariableIds()
     {
-        global $modx;
+        $modx = $this->getModx();
         
         $result = $modx->db->select('id, name', $modx->getFullTableName('site_tmplvars'));
         $tvIds = [];
@@ -826,7 +822,7 @@ SQL;
      */
     public function getSystemEventIds()
     {
-        global $modx;
+        $modx = $this->getModx();
         
         $result = $modx->db->select('id, name', $modx->getFullTableName('system_eventnames'));
         $eventIds = [];
@@ -846,7 +842,7 @@ SQL;
      */
     public function isModxWebUser($username)
     {
-        global $modx;
+        $modx = $this->getModx();
         
         $web_users = $modx->getFullTableName('web_users');
         $result = $modx->db->select('wu.id as id', $web_users . ' wu', 'wu.username = "' . $modx->db->escape($username) . '"');
@@ -868,7 +864,7 @@ SQL;
      */
     public function getModxWebUserId($username)
     {
-        global $modx;
+        $modx = $this->getModx();
         
         $web_users = $modx->getFullTableName('web_users');
         $result = $modx->db->select('wu.id as id', $web_users . ' wu', 'wu.username = "' . $modx->db->escape($username) . '"');
@@ -890,7 +886,7 @@ SQL;
      */
     public function isModxMgrUser($username)
     {
-        global $modx;
+        $modx = $this->getModx();
         
         $manager_users = $modx->getFullTableName('manager_users');
         $result = $modx->db->select('mu.id as id', $manager_users . ' mu', 'mu.username = "' . $modx->db->escape($username) . '"');
@@ -912,7 +908,7 @@ SQL;
      */
     public function getModxMgrUserId($username)
     {
-        global $modx;
+        $modx = $this->getModx();
         
         $mgr_users = $modx->getFullTableName('manager_users');
         $result = $modx->db->select('mu.id as id', $mgr_users . ' mu', 'mu.username = "' . $modx->db->escape($username) . '"');
@@ -950,7 +946,7 @@ SQL;
      */
     public function getDefaultTemplateId()
     {
-        global $modx;
+        $modx = $this->getModx();
         
         $siteTemplates = $modx->getFullTableName('site_templates');
         $templateResult = $modx->db->select('id', $siteTemplates, 'templatename = "' . $this->getApp()->getConfig()->getOption('MODX.TEMPLATE_NAME_DEFAULT') . '"');
@@ -977,7 +973,7 @@ SQL;
      */
     protected function getModxDocument($cmsId)
     {
-        global $modx;
+        $modx = $this->getModx();
         
         if (! $cmsId) {
             return [];
@@ -1021,6 +1017,21 @@ SQL;
     public function isCmsPageId($value) : bool
     {
         return is_numeric($value) && (intval($value) >= 0);
+    }
+    
+    /**
+     * 
+     * @return DocumentParser
+     */
+    protected function getModx()
+    {
+        global $modx;
+        
+        if (! isset($modx)) {
+            require_once $this->getApp()->getModxAjaxIndexPath();
+        }
+        
+        return $modx;
     }
 }
 ?>
