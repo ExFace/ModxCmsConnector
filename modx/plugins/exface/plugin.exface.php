@@ -6,6 +6,7 @@ use exface\Core\CommonLogic\Model\UiPage;
 use exface\Core\Interfaces\Exceptions\ExceptionInterface;
 use exface\Core\CommonLogic\Selectors\UiPageSelector;
 use exface\Core\Interfaces\Selectors\AliasSelectorInterface;
+use exface\Core\Factories\SelectorFactory;
 
 const TV_APP_UID_NAME = 'ExfacePageAppAlias';
 
@@ -164,8 +165,9 @@ switch ($eventName) {
             $resource->set(TV_UID_NAME, UiPage::generateUid());
             
             // Default Menu Position setzen.
-            if ($resource->get('parent')) {
-                $resource->set(TV_DEFAULT_MENU_POSITION_NAME, $exface->getCMS()->getPage($resource->get('parent'))->getAliasWithNamespace() . ':' . $resource->get('menuindex'));
+            if ($parent = $resource->get('parent')) {
+                $parentSelector = SelectorFactory::createPageSelector($exface, $parent);
+                $resource->set(TV_DEFAULT_MENU_POSITION_NAME, $exface->getCMS()->getPage($parentSelector)->getAliasWithNamespace() . ':' . $resource->get('menuindex'));
             }
             
             // Speichern der aktualisierten Seite, keine Events feuern.

@@ -17,6 +17,8 @@ use exface\Core\Exceptions\UiPage\UiPageCreateError;
 use exface\Core\Exceptions\UiPage\UiPageUpdateError;
 use exface\Core\Interfaces\Selectors\UiPageSelectorInterface;
 use exface\Core\Interfaces\WorkbenchInterface;
+use exface\Core\Factories\SelectorFactory;
+use exface\Core\Interfaces\CmsConnectorInterface;
 
 class Modx extends AbstractCmsConnector
 {
@@ -94,11 +96,11 @@ class Modx extends AbstractCmsConnector
         global $modx;
         if ($page_or_id_or_alias instanceof UiPageInterface) {
             $cmsId = $this->getPageIdInCms($page_or_id_or_alias);
-        } elseif ($this->validateCmsPageId($page_or_id_or_alias)) {
+        } elseif ($this->isCmsPageId($page_or_id_or_alias)) {
             $cmsId = $page_or_id_or_alias;
         } else {
             try {
-                $page = $this->getPage($page_or_id_or_alias);
+                $page = $this->getPage(SelectorFactory::createPageSelector($this->getWorkbench(), $page_or_id_or_alias));
                 $cmsId = $this->getPageIdInCms($page);
             } catch (\Throwable $e) {
                 $this->getWorkbench()->getLogger()->logException($e, LoggerInterface::WARNING);
@@ -269,22 +271,6 @@ class Modx extends AbstractCmsConnector
         return $this->sanitizeOutput($string);
     }
 
-    public function isUiPage($content, $alias = null)
-    {
-        $content = trim($content);
-        if (substr($content, 0, 1) !== '{' || substr($content, - 1, 1) !== '}') {
-            return false;
-        }
-        
-        try {
-            UiPageFactory::createFromString($this->getWorkbench()->ui(), (is_null($alias) ? '' : $alias), $content);
-        } catch (\Throwable $e) {
-            return false;
-        }
-        
-        return true;
-    }
-
     /**
      *
      * {@inheritdoc}
@@ -392,7 +378,7 @@ SQL;
                 if (strcasecmp($currentPage->getId(), $selector->toString()) === 0) {
                     return $currentPage;
                 }
-            } elseif ($selector->isCmsId()) {
+            } elseif ($this->isCmsPageId($selector->toString())) {
                 // We can't check as a page directly for it's CMS-id, but once the current page is loaded (see above)
                 // it will be added to the cache, so checking the cache will return it here.
                 if ($this->getPageFromCache($selector) === $currentPage) {
@@ -430,7 +416,7 @@ SQL;
         if ($selector->isAlias()) {
             $where = 'msc.alias = "' . $selector->toString() . '"';
         }
-        if ($selector->isCmsId()) {
+        if ($this->isCmsPageId($selector->toString())) {
             $where = 'msc.id = ' . intval($selector->toString());
         }
         
@@ -476,7 +462,7 @@ SQL;
     
     protected function buildSelectorText(UiPageSelectorInterface $selector)
     {
-        $selectorText = $selector->isCmsId() ? 'CMS-Id: "' . $selector->toString() . '"' : '';
+        $selectorText = $this->isCmsPageId($selector->toString()) ? 'CMS-Id: "' . $selector->toString() . '"' : '';
         $selectorText .= $selector->isUid() ? ($selector ? ' / ' : '') . 'UID: "' . $selector->toString() . '"' : '';
         $selectorText .= $selector->isAlias() ? ($selector ? ' / ' : '') . 'alias: "' . $selector->toString() . '"' : '';
         return $selectorText;
@@ -565,8 +551,10 @@ SQL;
         $pageAlias = $modx->documentObject['alias'];
         $pageUid = $modx->documentObject[$this::TV_UID_NAME] ? $modx->documentObject[$this::TV_UID_NAME][1] : $this::TV_UID_DEFAULT;
         $appUid = $modx->documentObject[$this::TV_APP_UID_NAME] ? $modx->documentObject[$this::TV_APP_UID_NAME][1] : $this::TV_APP_UID_DEFAULT;
-        $uiPage = UiPageFactory::create($this->getWorkbench()->ui(), $pageAlias, $pageUid, $appUid);
         
+        $uiPage = UiPageFactory::createBlank($this->getWorkbench(), $pageAlias, $this);
+        $uiPage->setId($pageUid);
+        $uiPage->setApp(SelectorFactory::createAppSelector($this->getWorkbench(), $appUid));
         $uiPage->setName($modx->documentObject['pagetitle']);
         $uiPage->setIntro($modx->documentObject['description']);
         $uiPage->setMenuIndex($modx->documentObject['menuindex']);
@@ -591,8 +579,10 @@ SQL;
         $pageAlias = $row['alias'];
         $pageUid = $row['uid'];
         $appUid = $row['app_uid'] ? $row['app_uid'] : $this::TV_APP_UID_DEFAULT;
-        $uiPage = UiPageFactory::create($this->getWorkbench()->ui(), $pageAlias, $pageUid, $appUid);
         
+        $uiPage = UiPageFactory::createBlank($this->getWorkbench(), $pageAlias, $this);
+        $uiPage->setId($pageUid);
+        $uiPage->setApp(SelectorFactory::createAppSelector($this->getWorkbench(), $appUid));
         $uiPage->setName($row['name']);
         $uiPage->setDescription($row['description']);
         $uiPage->setIntro($row['intro']);
@@ -617,17 +607,9 @@ SQL;
         global $modx;
         
         try {
-            $existingPage = $this->getPage($page->getId());
-            // Es existiert bereits eine Seite mit dieser UID.
-            throw new UiPageIdNotUniqueError('A different UiPage with the same UID "' . $page->getId() . '" already exists.');
-        } catch (UiPageNotFoundError $upnfe) {
-            // Alles ok, es existiert noch keine Seite mit dieser UID.
-        }
-        
-        try {
-            $existingPage = $this->getPage($page->getAliasWithNamespace());
+            $existingPage = $this->getPage($page->getSelector());
             // Es existiert bereits eine Seite mit diesem Alias.
-            throw new UiPageIdNotUniqueError('A different UiPage with the same alias "' . $page->getAliasWithNamespace() . '" already exists.');
+            throw new UiPageIdNotUniqueError('A different UiPage with the same "' . $this->buildSelectorText($page->getSelector()) . '" already exists.');
         } catch (UiPageNotFoundError $upnfe) {
             // Alles ok, es existiert noch keine Seite mit diesem Alias.
         }
@@ -635,7 +617,7 @@ SQL;
         // Page IDs bestimmen.
         try {
             $parentAlias = $page->getMenuParentPageAlias();
-            $parentPage = $this->getPage($parentAlias);
+            $parentPage = $this->getPage(SelectorFactory::createPageSelector($this->getWorkbench(), $parentAlias));
             $parentIdCms = $this->getPageIdInCms($parentPage);
         } catch (UiPageNotFoundError $upnfe) {
             $this->getWorkbench()->getLogger()->logException($upnfe, LoggerInterface::INFO);
@@ -713,7 +695,7 @@ SQL;
         
         try {
             $parentAlias = $page->getMenuParentPageAlias();
-            $parentPage = $this->getPage($parentAlias);
+            $parentPage = $this->getPage(SelectorFactory::createPageSelector($this->getWorkbench(), $parentAlias));
             $parentIdCms = $this->getPageIdInCms($parentPage);
         } catch (UiPageNotFoundError $upnfe) {
             $this->getWorkbench()->getLogger()->logException($upnfe, LoggerInterface::INFO);
@@ -755,11 +737,9 @@ SQL;
      * {@inheritDoc}
      * @see \exface\Core\Interfaces\CmsConnectorInterface::deletePage()
      */
-    public function deletePage($page_or_id_or_alias)
+    public function deletePage(UiPageInterface $page) : CmsConnectorInterface
     {
         global $modx;
-        
-        $page = $page_or_id_or_alias instanceof UiPageInterface ? $page_or_id_or_alias : $this->getPage($page_or_id_or_alias);
         
         require_once ($modx->config['base_path'] . DIRECTORY_SEPARATOR . 'assets' . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR . 'MODxAPI' . DIRECTORY_SEPARATOR . 'modResource.php');
         $resource = new \modResource($modx);
@@ -813,7 +793,7 @@ SQL;
         
         $pages = [];
         while ($row = $modx->db->getRow($result)) {
-            $pages[] = $this->getPageFromCms($row['id'], null, null, true);
+            $pages[] = $this->getPageFromCms(SelectorFactory::createPageSelector($this->getWorkbench(), $row['id']), true);
         }
         
         return $pages;
@@ -1036,11 +1016,11 @@ SQL;
     /**
      *
      * {@inheritdoc}
-     * @see \exface\Core\Interfaces\CmsConnectorInterface::validateCmsPageId()
+     * @see \exface\Core\Interfaces\CmsConnectorInterface::isCmsPageId()
      */
-    public function validateCmsPageId($value) : bool
+    public function isCmsPageId($value) : bool
     {
-        return is_int($value) && ($value >= 0);
+        return is_numeric($value) && (intval($value) >= 0);
     }
 }
 ?>
