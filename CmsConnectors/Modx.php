@@ -16,7 +16,7 @@ use exface\Core\Exceptions\UiPage\UiPageIdNotUniqueError;
 use exface\Core\Exceptions\UiPage\UiPageCreateError;
 use exface\Core\Exceptions\UiPage\UiPageUpdateError;
 use exface\Core\Interfaces\Selectors\UiPageSelectorInterface;
-use exface\Core\Interfaces\WorkbenchInterface;
+use exface\Core\Interfaces\Selectors\CmsConnectorSelectorInterface;
 use exface\Core\Factories\SelectorFactory;
 use exface\Core\Interfaces\CmsConnectorInterface;
 
@@ -64,9 +64,9 @@ class Modx extends AbstractCmsConnector
      * @deprecated use CmsConnectorFactory instead
      * @param Workbench $exface            
      */
-    public function __construct(WorkbenchInterface $exface)
+    public function __construct(CmsConnectorSelectorInterface $selector)
     {
-        parent::__construct($exface);
+        parent::__construct($selector);
         $modx = $this->getModx();
         
         if ($mgr = $modx->getLoginUserName('mgr')) {
