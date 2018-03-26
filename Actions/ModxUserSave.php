@@ -81,7 +81,7 @@ class ModxUserSave extends AbstractAction
             if ($exfUserSheet->countRows() == 1 && $exfUserSheet->getCellValue('USERNAME', 0) !== $row['USERNAME']) {
                 // Der Nutzer wird umbenannt. Existiert bereits ein Exface-Nutzer mit dem
                 // neuen Benutzernamen?
-                $userContextScope = $this->getWorkbench()->context()->getScopeUser();
+                $userContextScope = $this->getWorkbench()->getContext()->getScopeUser();
                 try {
                     if ($userContextScope->getUserByName($row['USERNAME'])) {
                         // Ja.

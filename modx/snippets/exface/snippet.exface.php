@@ -94,7 +94,7 @@ switch (strtolower($action)) {
         $result = file_get_contents($exface->filemanager()->getPathToBaseFolder() . DIRECTORY_SEPARATOR . $file);
         break;
     case "exface.modxcmsconnector.getlanguagecode":
-        $locale = $exface->context()->getScopeSession()->getSessionLocale();
+        $locale = $exface->getContext()->getScopeSession()->getSessionLocale();
         $result = explode('_', $locale)[0];
         break;
     case 'exface.core.showwidget':

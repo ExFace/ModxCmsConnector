@@ -209,7 +209,7 @@ switch ($eventName) {
     case 'OnManagerSaveUser':
     case 'OnWebSaveUser':
         try {
-            $userContextScope = $exface->context()->getScopeUser();
+            $userContextScope = $exface->getContext()->getScopeUser();
             
             // Vor- und Nachname aus dem vollen Namen ermitteln.
             if (($seppos = strrpos($userfullname, ' ')) !== false) {
@@ -284,7 +284,7 @@ switch ($eventName) {
     case 'OnManagerDeleteUser':
     case 'OnWebDeleteUser':
         try {
-            $userContextScope = $exface->context()->getScopeUser();
+            $userContextScope = $exface->getContext()->getScopeUser();
             
             try {
                 $exfUser = $userContextScope->getUserByName($username);
