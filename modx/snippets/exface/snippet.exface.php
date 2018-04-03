@@ -68,8 +68,10 @@ $docAlias = $docAlias ? $docAlias : $modx->documentObject['alias'];
 $fallback_field = $fallback_field ? $fallback_field : '';
 $file = $file ? $file : null;
 
-if (! $content)
+if (! $content) {
     $content = $modx->documentObject['content'];
+}
+
 if (strcasecmp($action, 'exface.Core.ShowWidget') === 0 && substr(trim($content), 0, 1) !== '{') {
     if ($fallback_field) {
         return $modx->documentObject[$fallback_field];
