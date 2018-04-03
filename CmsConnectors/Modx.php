@@ -85,9 +85,9 @@ class Modx extends AbstractCmsConnector
     /**
      * 
      * {@inheritDoc}
-     * @see \exface\Core\Interfaces\CmsConnectorInterface::createLinkInternal()
+     * @see \exface\Core\Interfaces\CmsConnectorInterface::buildUrlToPage()
      */
-    public function createLinkInternal($page_or_id_or_alias, $url_params = '')
+    public function buildUrlToPage($page_or_id_or_alias, $url_params = '')
     {
         $modx = $this->getModx();
         if ($page_or_id_or_alias instanceof UiPageInterface) {
@@ -110,9 +110,9 @@ class Modx extends AbstractCmsConnector
      *
      * {@inheritdoc}
      *
-     * @see \exface\Core\Interfaces\CmsConnectorInterface::createLinkToFile()
+     * @see \exface\Core\Interfaces\CmsConnectorInterface::buildUrlToFile()
      */
-    public function createLinkToFile($path_absolute)
+    public function buildUrlToFile($path_absolute)
     {
         $sitePath = Filemanager::pathNormalize($this->getPathToModx(), '/');
         $filePath = Filemanager::pathNormalize($path_absolute, '/');
@@ -127,22 +127,11 @@ class Modx extends AbstractCmsConnector
      *
      * {@inheritdoc}
      *
-     * @see \exface\Core\Interfaces\CmsConnectorInterface::createLinkExternal()
+     * @see \exface\Core\Interfaces\CmsConnectorInterface::buildUrlExternal()
      */
-    public function createLinkExternal($url)
+    public function buildUrlExternal($url)
     {
         return $url;
-    }
-
-    /**
-     * For MODx no request params must be stripped off here, since they all get handled in the snippet.
-     * This way they are only removed on regular requests - not on AJAX.
-     *
-     * @see \exface\Core\Interfaces\CmsConnectorInterface::removeSystemRequestParams()
-     */
-    public function removeSystemRequestParams(array $param_array)
-    {
-        return $param_array;
     }
 
     /**
@@ -293,9 +282,9 @@ class Modx extends AbstractCmsConnector
      *
      * {@inheritdoc}
      *
-     * @see \exface\Core\Interfaces\CmsConnectorInterface::getSiteUrl()
+     * @see \exface\Core\Interfaces\CmsConnectorInterface::buildUrlToSiteRoot()
      */
-    public function getSiteUrl()
+    public function buildUrlToSiteRoot()
     {
         return rtrim($this->getApp()->getModx()->config['site_url'], "/");
     }
@@ -304,14 +293,14 @@ class Modx extends AbstractCmsConnector
      *
      * {@inheritdoc}
      *
-     * @see \exface\Core\Interfaces\CmsConnectorInterface::getApiUrl()
+     * @see \exface\Core\Interfaces\CmsConnectorInterface::buildUrlToApi()
      */
-    public function getApiUrl()
+    public function buildUrlToApi()
     {
         $modx_path = Filemanager::pathNormalize($this->getApp()->getModx()->config['base_path']);
         $installation_path = Filemanager::pathNormalize($this->getWorkbench()->getInstallationPath());
         $subfolder = str_replace($modx_path, '', $installation_path);
-        return $this->getSiteUrl() . '/' . trim($subfolder, "/");
+        return $this->buildUrlToSiteRoot() . '/' . trim($subfolder, "/");
     }
 
     /**
@@ -1032,6 +1021,12 @@ SQL;
         }
         
         return $modx;
+    }
+    
+    public function buildUrlToInclude(string $pathFromVendorFolder) : string
+    {
+        return 'exface/vendor/' . $pathFromVendorFolder;
+
     }
 }
 ?>
