@@ -544,7 +544,9 @@ SQL;
         $uiPage->setIntro($modx->documentObject['description']);
         $uiPage->setMenuIndex($modx->documentObject['menuindex']);
         $uiPage->setMenuVisible(! $modx->documentObject['hidemenu']);
-        $uiPage->setMenuParentPageSelector($modx->documentObject['parent']);
+        if ($modx->documentObject['parent']) {
+            $uiPage->setMenuParentPageSelector($modx->documentObject['parent']);
+        }
         $uiPage->setUpdateable(array_key_exists($this::TV_DO_UPDATE_NAME, $modx->documentObject) ? $modx->documentObject[$this::TV_DO_UPDATE_NAME][1] : $this::TV_DO_UPDATE_DEFAULT);
         $uiPage->setReplacesPageAlias($modx->documentObject[$this::TV_REPLACE_ALIAS_NAME] ? $modx->documentObject[$this::TV_REPLACE_ALIAS_NAME][1] : $this::TV_REPLACE_ALIAS_DEFAULT);
         $uiPage->setMenuDefaultPosition($modx->documentObject[$this::TV_DEFAULT_MENU_POSITION_NAME] ? $modx->documentObject[$this::TV_DEFAULT_MENU_POSITION_NAME][1] : $this::TV_DEFAULT_MENU_POSITION_DEFAULT);
@@ -573,7 +575,9 @@ SQL;
         $uiPage->setIntro($row['intro']);
         $uiPage->setMenuIndex($row['menuIndex']);
         $uiPage->setMenuVisible(! $row['hideMenu']);
-        $uiPage->setMenuParentPageSelector($row['menuParentIdCms']);
+        if ($row['menuParentIdCms']) {
+            $uiPage->setMenuParentPageSelector($row['menuParentIdCms']);
+        }
         $uiPage->setUpdateable($row['do_update']);
         $uiPage->setReplacesPageAlias($row['replace_alias']);
         $uiPage->setMenuDefaultPosition($row['default_menu_position']);
