@@ -93,7 +93,11 @@ if (! $exface) {
 
 switch (strtolower($action)) {
     case "exface.modxcmsconnector.showtemplate":
-        $result = file_get_contents($exface->filemanager()->getPathToBaseFolder() . DIRECTORY_SEPARATOR . $file);
+        $path = $exface->filemanager()->getPathToBaseFolder() . DIRECTORY_SEPARATOR . $file;
+        $result = file_get_contents($path);
+        if ($result === false) {
+            throw new RuntimeException('Cannot read template file "' . $path . '"!');
+        }
         break;
     case "exface.modxcmsconnector.getlanguagecode":
         $locale = $exface->getContext()->getScopeSession()->getSessionLocale();
