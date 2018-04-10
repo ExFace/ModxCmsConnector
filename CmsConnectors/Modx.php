@@ -568,8 +568,12 @@ SQL;
         $appUid = $row['app_uid'] ? $row['app_uid'] : $this::TV_APP_UID_DEFAULT;
         
         $uiPage = UiPageFactory::createBlank($this->getWorkbench(), $pageAlias, $this);
-        $uiPage->setId($pageUid);
-        $uiPage->setApp(SelectorFactory::createAppSelector($this->getWorkbench(), $appUid));
+        if ($pageUid !== null) {
+            $uiPage->setId($pageUid);
+        }
+        if ($appUid) {
+            $uiPage->setApp(SelectorFactory::createAppSelector($this->getWorkbench(), $appUid));
+        }
         $uiPage->setName($row['name']);
         $uiPage->setDescription($row['description']);
         $uiPage->setIntro($row['intro']);
