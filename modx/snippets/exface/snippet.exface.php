@@ -128,6 +128,7 @@ switch (strtolower($action)) {
         }
         break;
     default:
+        $template_instance = TemplateFactory::createFromString($template, $exface);
         $response = $template_instance->handle($request);
 }
 
