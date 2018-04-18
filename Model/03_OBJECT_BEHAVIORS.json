@@ -36,6 +36,14 @@
         {
             "name": "APP",
             "attribute_alias": "APP"
+        },
+        {
+            "name": "NAME",
+            "attribute_alias": "NAME"
+        },
+        {
+            "name": "DESCRIPTION",
+            "attribute_alias": "DESCRIPTION"
         }
     ],
     "rows": [
@@ -48,7 +56,9 @@
             "BEHAVIOR": "exface\/Core\/Behaviors\/CallActionBehavior.php",
             "CONFIG_UXON": "{\"object_event_alias\":\"DataSheet.CreateData.After\",\"action\":{\"alias\":\"exface.ModxCmsConnector.ModxUserSave\"}}",
             "OBJECT": "0x31343400000000000000000000000000",
-            "APP": "0x11e680a7f9cdf732a177c0f8dae36b4f"
+            "APP": "0x11e680a7f9cdf732a177c0f8dae36b4f",
+            "NAME": "State machine model",
+            "DESCRIPTION": null
         },
         {
             "CREATED_ON": "2017-09-27 16:07:59",
@@ -59,7 +69,9 @@
             "BEHAVIOR": "exface\/Core\/Behaviors\/CallActionBehavior.php",
             "CONFIG_UXON": "{\"object_event_alias\":\"DataSheet.UpdateData.Before\",\"action\":{\"alias\":\"exface.ModxCmsConnector.ModxUserSave\"}}",
             "OBJECT": "0x31343400000000000000000000000000",
-            "APP": "0x11e680a7f9cdf732a177c0f8dae36b4f"
+            "APP": "0x11e680a7f9cdf732a177c0f8dae36b4f",
+            "NAME": "State machine model",
+            "DESCRIPTION": null
         },
         {
             "CREATED_ON": "2017-09-27 16:09:10",
@@ -70,7 +82,9 @@
             "BEHAVIOR": "exface\/Core\/Behaviors\/CallActionBehavior.php",
             "CONFIG_UXON": "{\"object_event_alias\":\"DataSheet.DeleteData.Before\",\"action\":{\"alias\":\"exface.ModxCmsConnector.ModxUserDelete\"}}",
             "OBJECT": "0x31343400000000000000000000000000",
-            "APP": "0x11e680a7f9cdf732a177c0f8dae36b4f"
+            "APP": "0x11e680a7f9cdf732a177c0f8dae36b4f",
+            "NAME": "State machine model",
+            "DESCRIPTION": null
         }
     ],
     "totals_rows": [],
