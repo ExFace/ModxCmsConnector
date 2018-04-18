@@ -41,14 +41,14 @@
     "rows": [
         {
             "CREATED_ON": "2016-09-22 11:36:02",
-            "MODIFIED_ON": "2017-08-02 09:19:36",
+            "MODIFIED_ON": "2018-04-18 11:00:25",
             "CREATED_BY_USER": "0x31000000000000000000000000000000",
             "MODIFIED_BY_USER": "0x31000000000000000000000000000000",
             "UID": "0x11e680a7f9cdf732a177c0f8dae36b4f",
             "PACKAGE": "exface\/ModxCmsConnector",
             "DEFAULT_LANGUAGE_CODE": "en",
             "ALIAS": "exface.ModxCmsConnector",
-            "NAME": "ExFace CMS Connector for MODx"
+            "NAME": "ExFace CMS Connector for MODx \/ Evolution"
         }
     ],
     "totals_rows": [],
