@@ -447,9 +447,9 @@ SQL;
     
     protected function buildSelectorText(UiPageSelectorInterface $selector)
     {
-        $selectorText = $this->isCmsPageId($selector->toString()) ? 'CMS-Id: "' . $selector->toString() . '"' : '';
-        $selectorText .= $selector->isUid() ? ($selector ? ' / ' : '') . 'UID: "' . $selector->toString() . '"' : '';
-        $selectorText .= $selector->isAlias() ? ($selector ? ' / ' : '') . 'alias: "' . $selector->toString() . '"' : '';
+        $selectorText = $this->isCmsPageId($selector->toString()) ? 'CMS-Id "' . $selector->toString() . '"' : '';
+        $selectorText .= $selector->isUid() ? 'UID: "' . $selector->toString() . '"' : '';
+        $selectorText .= $selector->isAlias() ? 'alias: "' . $selector->toString() . '"' : '';
         return $selectorText;
     }
     
