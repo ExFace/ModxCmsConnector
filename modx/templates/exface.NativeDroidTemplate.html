@@ -36,7 +36,7 @@
 	
 	<link rel="stylesheet" type="text/css" href="[(site_url)]exface/vendor/bower-asset/datatables.net-dt/css/jquery.dataTables.min.css">
 	<script type="text/javascript" src="[(site_url)]exface/vendor/bower-asset/datatables.net/js/jquery.dataTables.min.js"></script>
-	<script type="text/javascript" src="[(site_url)]exface/vendor/bower-asset/datatables.net-select/js/dataTables.select.min.js"></script>
+	<script type="text/javascript" src="[(site_url)]exface/vendor/npm-asset/datatables.net-select/js/dataTables.select.min.js"></script>
     
     <link href="exface/vendor/npm-asset/mfb/src/mfb.min.css" rel="stylesheet" type="text/css" />
     
@@ -74,7 +74,11 @@
 		$(document).on('pageshow', function(){
 			$('.masonry').masonry();
 		});
-
+		
+		$.mobile.document.on( "click", "#offlineMenuButton", function( evt ) {
+		    $( "#offline-popup" ).popup( "open", { x: evt.pageX, y: evt.pageY } );
+		    evt.preventDefault();
+		});
 	-->
 	</script>
 	
@@ -87,7 +91,7 @@
 		<div data-role="header" data-position="fixed" data-tap-toggle="false" class="wow fadeIn">
 			<a href="#leftPanel" data-role="button" class="ui-btn ui-btn-left wow fadeIn" data-wow-delay='0.8s'><i class="fa fa-bars"></i></a>
 			<h1 class="wow fadeIn" data-wow-delay='0.4s'>[*pagetitle*]</h1>
-			<a id="screenfullToggle" data-role="button" class="ui-btn ui-btn-right ui-btn-inline wow fadeIn" href="javascript: if (screenfull.enabled) {screenfull.toggle();}"><i class="fa fa-window-maximize"></i></a>
+			<a id="offlineMenuButton" data-role="button" class="ui-btn ui-btn-right ui-btn-inline wow fadeIn" href="#"><i class="fa fa-globe"></i></a>
 			<!--<a href="#rightPanel" data-role="button" class="ui-btn ui-btn-right ui-btn-inline wow fadeIn" ><i class="fa fa-ellipsis-v"></i></a>-->
 		</div>
 		
@@ -116,6 +120,14 @@
 				<a href="#" data-role="button" data-rel="close" data-icon="navigation-chevron-right" data-iconpos="notext" data-shadow="false" class="ui-corner-all ui-btn-left">???????</a>
 				<h2 class="ui-title">Info</h2>
 			</div>
+		</div>
+		<div data-role="popup" id="offline-popup" data-arrow="true">
+			<ul data-role="listview" data-inset="true" class="ui-listview">
+				<li data-role="list-divider" role="heading" class="ui-li-divider ui-bar-inherit ui-first-child">Online</li>
+				<li><a href="#">Sync-Puffer (3)</a></li>
+				<li><a href="#">Ausgecheckte Objekte (0)</a></li>
+				<li><a href="#">Sync-Fehler (1)</a></li>
+			</ul>
 		</div>
 		
 	</div><!-- /page -->
