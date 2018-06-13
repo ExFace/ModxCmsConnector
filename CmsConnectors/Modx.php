@@ -99,8 +99,9 @@ class Modx extends AbstractCmsConnector
                 $page = $this->getPage(SelectorFactory::createPageSelector($this->getWorkbench(), $page_or_id_or_alias));
                 $cmsId = $this->getPageIdInCms($page);
             } catch (\Throwable $e) {
+                // Do not throw an error here as it would prevent dialogs from loading just because another dialog is not there.
                 $this->getWorkbench()->getLogger()->logException($e, LoggerInterface::WARNING);
-                return '';
+                return $modx->config['error_page'];
             }
         }
         return $modx->makeUrl($cmsId, null, $url_params, 'full');
