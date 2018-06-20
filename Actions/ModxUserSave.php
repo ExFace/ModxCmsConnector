@@ -14,6 +14,7 @@ use exface\Core\Interfaces\Tasks\TaskInterface;
 use exface\Core\Interfaces\DataSources\DataTransactionInterface;
 use exface\Core\Interfaces\Tasks\ResultInterface;
 use exface\Core\Factories\ResultFactory;
+use exface\Core\Factories\UserFactory;
 
 /**
  * Creates or Updates a modx web-user or Updates a modx mgr-user.
@@ -81,15 +82,14 @@ class ModxUserSave extends AbstractAction
             if ($exfUserSheet->countRows() == 1 && $exfUserSheet->getCellValue('USERNAME', 0) !== $row['USERNAME']) {
                 // Der Nutzer wird umbenannt. Existiert bereits ein Exface-Nutzer mit dem
                 // neuen Benutzernamen?
-                $userContextScope = $this->getWorkbench()->getContext()->getScopeUser();
-                try {
-                    if ($userContextScope->getUserByName($row['USERNAME'])) {
-                        // Ja.
-                        throw new UserAlreadyExistsError('An Exface user with username "' . $row['USERNAME'] . '" already exists.');
-                    }
-                } catch (UserNotFoundError $unfe) {}
-                // Nein.
-                $userRow['oldusername'] = $exfUserSheet->getCellValue('USERNAME', 0);
+                $user = UserFactory::createFromModel($this->getWorkbench(), $row['USERNAME']);
+                if ($user->hasModel()) {
+                    // Ja.
+                    throw new UserAlreadyExistsError('An Exface user with username "' . $row['USERNAME'] . '" already exists.');
+                } else {
+                    // Nein.
+                    $userRow['oldusername'] = $exfUserSheet->getCellValue('USERNAME', 0);
+                }
             }
             
             // Name, Locale, Email bestimmen.

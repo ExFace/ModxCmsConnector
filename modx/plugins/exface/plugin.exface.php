@@ -209,7 +209,7 @@ switch ($eventName) {
     case 'OnManagerSaveUser':
     case 'OnWebSaveUser':
         try {
-            $userContextScope = $exface->getContext()->getScopeUser();
+            $modelLoader = $exface->model()->getModelLoader();
             
             // Vor- und Nachname aus dem vollen Namen ermitteln.
             if (($seppos = strrpos($userfullname, ' ')) !== false) {
@@ -228,25 +228,23 @@ switch ($eventName) {
             
             // Wird der Nutzer gerade umbenannt, enthaelt $oldusername den alten, $username den
             // neuen, sonst ist $oldusername leer.
-            try {
-                $exfUserOld = $userContextScope->getUserByName($oldusername);
-            } catch (UserNotFoundError $unfe) {}
-            try {
-                $exfUser = $userContextScope->getUserByName($username);
-            } catch (UserNotFoundError $unfe) {}
-            if ($exfUserOld) {
-                if ($exfUser) {
+            if ($oldusername) {
+                $exfUserOld = UserFactory::createFromModel($exface, $oldusername);
+            }
+            $exfUser = UserFactory::createFromModel($exface, $username);
+            if ($exfUserOld && $exfUserOld->hasModel()) {
+                if ($exfUser->hasModel()) {
                     // Der Nutzer wird gerade umbenannt. Es existiert ein Exface-Nutzer mit dem
                     // alten Namen. Es existiert ebenso ein Exface-Nutzer mit dem neuen Namen.
                     // Der Nutzer mit dem alten Namen wird geloescht. Der Nutzer mit dem neuen
                     // Namen wird aktualisiert.
-                    $userContextScope->deleteUser($exfUserOld);
+                    $modelLoader->deleteUser($exfUserOld);
                     
                     $exfUser->setFirstName($firstname);
                     $exfUser->setLastName($lastname);
                     $exfUser->setLocale($locale);
                     $exfUser->setEmail($useremail);
-                    $userContextScope->updateUser($exfUser);
+                    $modelLoader->updateUser($exfUser);
                 } else {
                     // Der Nutzer wird gerade umbenannt. Es existiert ein Exface-Nutzer mit dem
                     // alten Namen. Es existiert kein Exface-Nutzer mit dem neuen Namen. Der
@@ -256,21 +254,21 @@ switch ($eventName) {
                     $exfUserOld->setLastName($lastname);
                     $exfUserOld->setLocale($locale);
                     $exfUserOld->setEmail($useremail);
-                    $userContextScope->updateUser($exfUserOld);
+                    $modelLoader->updateUser($exfUserOld);
                 }
             } else {
-                if ($exfUser) {
+                if ($exfUser->hasModel()) {
                     // Der Nutzer wird nicht umbenannt. Es existiert ein Exface-Nutzer mit dem
                     // Namen, welcher aktualisert wird.
                     $exfUser->setFirstName($firstname);
                     $exfUser->setLastName($lastname);
                     $exfUser->setLocale($locale);
                     $exfUser->setEmail($useremail);
-                    $userContextScope->updateUser($exfUser);
+                    $modelLoader->updateUser($exfUser);
                 } else {
                     // Der Nutzer wird nicht umbenannt. Es existiert kein Exface-Nutzer mit dem
                     // Namen, daher wird ein neuer Exface-Nutzer angelegt.
-                    $userContextScope->createUser(UserFactory::create($exface, $username, $firstname, $lastname, $locale, $useremail));
+                    $modelLoader->createUser(UserFactory::create($exface, $username, $firstname, $lastname, $locale, $useremail));
                 }
             }
         } catch (Throwable $e) {
@@ -284,14 +282,10 @@ switch ($eventName) {
     case 'OnManagerDeleteUser':
     case 'OnWebDeleteUser':
         try {
-            $userContextScope = $exface->getContext()->getScopeUser();
-            
-            try {
-                $exfUser = $userContextScope->getUserByName($username);
-            } catch (UserNotFoundError $unfe) {}
-            if ($exfUser) {
+            $exfUser = UserFactory::createFromModel($exface, $username);
+            if ($exfUser->hasModel()) {
                 // Es existiert ein Exface-Nutzer mit dem Namen, welcher geloescht wird.
-                $userContextScope->deleteUser($exfUser);
+                $exface->model()->getModelLoader()->deleteUser($exfUser);
             }
         } catch (Throwable $e) {
             generateError($e, 'Error deleting exface user');
