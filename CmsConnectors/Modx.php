@@ -1032,10 +1032,25 @@ SQL;
         return $modx;
     }
     
+    /**
+     * 
+     * {@inheritDoc}
+     * @see \exface\Core\Interfaces\CmsConnectorInterface::buildUrlToInclude()
+     */
     public function buildUrlToInclude(string $pathFromVendorFolder) : string
     {
         return 'exface/vendor/' . $pathFromVendorFolder;
 
+    }
+    
+    /**
+     * 
+     * {@inheritDoc}
+     * @see \exface\Core\Interfaces\CmsConnectorInterface::getFavIcons()
+     */
+    public function getFavIcons() : array
+    {
+        return $this->getApp()->getConfig()->getOption('FAVICONS')->toArray();
     }
 }
 ?>
