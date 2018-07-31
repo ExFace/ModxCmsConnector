@@ -20,6 +20,11 @@ use exface\Core\Interfaces\Selectors\CmsConnectorSelectorInterface;
 use exface\Core\Factories\SelectorFactory;
 use exface\Core\Interfaces\CmsConnectorInterface;
 
+/**
+ *  
+ * @author Andrej Kabachnik
+ *
+ */
 class Modx extends AbstractCmsConnector
 {
 
@@ -277,6 +282,16 @@ class Modx extends AbstractCmsConnector
     protected function getPathToModx()
     {
         return $this->getApp()->getModx()->config['base_path'];
+    } 
+    
+    /**
+     * Returns the absolute path to the MODx installation folder (where index.php is located)
+     *
+     * @return string
+     */
+    protected function getPathToModxFolder() : string
+    {
+        return pathinfo($this->getApp()->getModxAjaxIndexPath(), PATHINFO_DIRNAME);
     }
 
     /**
@@ -1051,6 +1066,40 @@ SQL;
     public function getFavIcons() : array
     {
         return $this->getApp()->getConfig()->getOption('FAVICONS')->toArray();
+    }
+    
+    /**
+     *
+     * {@inheritDoc}
+     * @see \exface\Core\Interfaces\CmsConnectorInterface::createResource()
+     */
+    public function createResource(string $relativeUrl, string $content, bool $noRedirects = false) : CmsConnectorInterface
+    {
+        $root = $this->getPathToModxFolder();
+        
+        $pathinfo = pathinfo($relativeUrl);
+        if ($subdir = $pathinfo['dirname']) {
+            $dir = Filemanager::pathJoin([$root, $subdir]);
+            Filemanager::pathConstruct($dir);
+        } else {
+            $dir = $root;
+        }
+        
+        $resourceFile = Filemanager::pathJoin([$dir, $pathinfo['basename']]);
+        file_put_contents($resourceFile, $content);
+        
+        return $this;
+    }
+    
+    /**
+     * 
+     * {@inheritDoc}
+     * @see \exface\Core\Interfaces\CmsConnectorInterface::deleteResource()
+     */
+    public function deleteResource(string $relativeUrl) : CmsConnectorInterface
+    {
+        unlink(Filemanager::pathJoin([$this->getPathToModxFolder(), $relativeUrl]));
+        return $this;
     }
 }
 ?>
