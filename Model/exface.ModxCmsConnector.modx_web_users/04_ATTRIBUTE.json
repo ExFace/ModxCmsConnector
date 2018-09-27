@@ -157,7 +157,7 @@
             "READABLEFLAG": "1",
             "WRITABLEFLAG": "1",
             "SYSTEMFLAG": "0",
-            "DEFAULT_EDITOR_UXON": "",
+            "DEFAULT_EDITOR_UXON": "{}",
             "LABEL": "Id",
             "ALIAS": "id",
             "DATATYPE": "0x30000000000000000000000000000000",
@@ -178,7 +178,7 @@
             "DATA_ADDRESS_PROPS": "",
             "DEFAULT_VALUE": "",
             "FIXED_VALUE": "",
-            "CUSTOM_DATA_TYPE": ""
+            "CUSTOM_DATA_TYPE": "{}"
         },
         {
             "CREATED_ON": "2017-09-25 15:34:24",
@@ -194,7 +194,7 @@
             "READABLEFLAG": "1",
             "WRITABLEFLAG": "1",
             "SYSTEMFLAG": "0",
-            "DEFAULT_EDITOR_UXON": "",
+            "DEFAULT_EDITOR_UXON": "{}",
             "LABEL": "Username",
             "ALIAS": "username",
             "DATATYPE": "0x30000000000000000000000000000000",
@@ -215,7 +215,7 @@
             "DATA_ADDRESS_PROPS": "",
             "DEFAULT_VALUE": "",
             "FIXED_VALUE": "",
-            "CUSTOM_DATA_TYPE": ""
+            "CUSTOM_DATA_TYPE": "{}"
         },
         {
             "CREATED_ON": "2017-09-25 15:34:24",
@@ -231,7 +231,7 @@
             "READABLEFLAG": "1",
             "WRITABLEFLAG": "1",
             "SYSTEMFLAG": "0",
-            "DEFAULT_EDITOR_UXON": "",
+            "DEFAULT_EDITOR_UXON": "{}",
             "LABEL": "Password",
             "ALIAS": "password",
             "DATATYPE": "0x30000000000000000000000000000000",
@@ -252,7 +252,7 @@
             "DATA_ADDRESS_PROPS": "",
             "DEFAULT_VALUE": "",
             "FIXED_VALUE": "",
-            "CUSTOM_DATA_TYPE": ""
+            "CUSTOM_DATA_TYPE": "{}"
         },
         {
             "CREATED_ON": "2017-09-25 15:34:24",
@@ -268,7 +268,7 @@
             "READABLEFLAG": "1",
             "WRITABLEFLAG": "1",
             "SYSTEMFLAG": "0",
-            "DEFAULT_EDITOR_UXON": "",
+            "DEFAULT_EDITOR_UXON": "{}",
             "LABEL": "Cachepwd",
             "ALIAS": "cachepwd",
             "DATATYPE": "0x30000000000000000000000000000000",
@@ -289,7 +289,7 @@
             "DATA_ADDRESS_PROPS": "",
             "DEFAULT_VALUE": "",
             "FIXED_VALUE": "",
-            "CUSTOM_DATA_TYPE": ""
+            "CUSTOM_DATA_TYPE": "{}"
         }
     ],
     "totals_rows": [],

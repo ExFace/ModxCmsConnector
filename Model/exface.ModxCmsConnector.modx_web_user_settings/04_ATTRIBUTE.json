@@ -157,7 +157,7 @@
             "READABLEFLAG": "1",
             "WRITABLEFLAG": "1",
             "SYSTEMFLAG": "0",
-            "DEFAULT_EDITOR_UXON": "",
+            "DEFAULT_EDITOR_UXON": "{}",
             "LABEL": "Webuser",
             "ALIAS": "webuser",
             "DATATYPE": "0x11e7b0277435425e98350205857feb80",
@@ -178,7 +178,7 @@
             "DATA_ADDRESS_PROPS": "",
             "DEFAULT_VALUE": "",
             "FIXED_VALUE": "",
-            "CUSTOM_DATA_TYPE": ""
+            "CUSTOM_DATA_TYPE": "{}"
         },
         {
             "CREATED_ON": "2017-09-28 12:12:08",
@@ -194,7 +194,7 @@
             "READABLEFLAG": "1",
             "WRITABLEFLAG": "1",
             "SYSTEMFLAG": "0",
-            "DEFAULT_EDITOR_UXON": "",
+            "DEFAULT_EDITOR_UXON": "{}",
             "LABEL": "Setting name",
             "ALIAS": "setting_name",
             "DATATYPE": "0x30000000000000000000000000000000",
@@ -215,7 +215,7 @@
             "DATA_ADDRESS_PROPS": "",
             "DEFAULT_VALUE": "",
             "FIXED_VALUE": "",
-            "CUSTOM_DATA_TYPE": ""
+            "CUSTOM_DATA_TYPE": "{}"
         },
         {
             "CREATED_ON": "2017-09-28 12:12:08",
@@ -231,7 +231,7 @@
             "READABLEFLAG": "1",
             "WRITABLEFLAG": "1",
             "SYSTEMFLAG": "0",
-            "DEFAULT_EDITOR_UXON": "",
+            "DEFAULT_EDITOR_UXON": "{}",
             "LABEL": "Setting value",
             "ALIAS": "setting_value",
             "DATATYPE": "0x31310000000000000000000000000000",
@@ -252,7 +252,7 @@
             "DATA_ADDRESS_PROPS": "",
             "DEFAULT_VALUE": "",
             "FIXED_VALUE": "",
-            "CUSTOM_DATA_TYPE": ""
+            "CUSTOM_DATA_TYPE": "{}"
         }
     ],
     "totals_rows": [],

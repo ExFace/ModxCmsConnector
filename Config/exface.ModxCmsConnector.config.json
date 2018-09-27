@@ -5,6 +5,29 @@
 	
 	"FAVICONS": [],
 	
+	"INSTALLER.SERVICEWORKER.ROUTES": {
+		"modx_pages": {
+    		"description": "Cache all HTML files. Use cache only if offline.",
+			"matcher": "/^.*\\.html/",
+			"strategy": "workbox.strategies.networkFirst"
+		},
+		"assets": {
+			"description": "Cache static assets if not located in the folder assets or manager (i.e. not part of the CMS).",
+			"matcher": "/.*(\\.js|\\.css|\\.woff2)/",
+			"strategy": "workbox.strategies.staleWhileRevalidate",
+			"cacheName": "asset-cache",
+    		"maxAgeSeconds": 604800
+		},
+		"images": {
+			"description": "Cache images.",
+			"matcher": "/.*\\.(?:png|gif|jpg|jpeg|svg)$/",
+			"strategy": "workbox.strategies.cacheFirst",
+			"cacheName": "image-cache",
+    		"maxEntries": 50,
+    		"maxAgeSeconds": 604800
+		}
+	},
+	
 	"MODX.PAGES.ROOT_CONTAINER_ID": "0",
 	"MODX.WARNING.ON_SAVE_PAGE_IN_APP": false,
 	"MODX.TEMPLATE_NAME_DEFAULT": "Desktop (jEasyUI)",
