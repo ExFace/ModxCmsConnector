@@ -4,6 +4,8 @@ namespace exface\ModxCmsConnector;
 use exface\Core\Interfaces\InstallerInterface;
 use exface\Core\CommonLogic\AppInstallers\SqlSchemaInstaller;
 use exface\Core\CommonLogic\Model\App;
+use exface\Core\Templates\AbstractPWATemplate\ServiceWorkerBuilder;
+use exface\Core\Templates\AbstractPWATemplate\ServiceWorkerInstaller;
 
 class ModxCmsConnectorApp extends App
 {
@@ -41,6 +43,24 @@ class ModxCmsConnectorApp extends App
         // theoretically use another connection?
         $schema_installer->setDataConnection($this->getWorkbench()->model()->getModelLoader()->getDataConnection());
         $installer->addInstaller($schema_installer);
+        
+        // Add an installer for the service worker routing
+        $serviceWorkerBuilder = new ServiceWorkerBuilder();
+        foreach ($this->getConfig()->getOption('INSTALLER.SERVICEWORKER.ROUTES') as $id => $uxon) {
+            $serviceWorkerBuilder->addRouteToCache(
+                $id,
+                $uxon->getProperty('matcher'),
+                $uxon->getProperty('strategy'),
+                $uxon->getProperty('method'),
+                $uxon->getProperty('description'),
+                $uxon->getProperty('cacheName'),
+                $uxon->getProperty('maxEntries'),
+                $uxon->getProperty('maxAgeSeconds')
+            );
+        }
+        $serviceWorkerInstaller = new ServiceWorkerInstaller($this->getSelector(), $serviceWorkerBuilder);
+        $installer->addInstaller($serviceWorkerInstaller);
+        
         return $installer;
     }
 

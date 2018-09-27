@@ -5,6 +5,7 @@
 	
 	"FAVICONS": [],
 	
+	"INSTALLER.SERVICEWORKER.URL": "ServiceWorker.js",
 	"INSTALLER.SERVICEWORKER.ROUTES": {
 		"modx_pages": {
     		"description": "Cache all HTML files. Use cache only if offline.",
