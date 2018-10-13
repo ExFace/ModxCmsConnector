@@ -1084,9 +1084,9 @@ SQL;
  */
 {$imports}
 
-// Do not cache any manager content
+// Do not cache any manager or assets content except for assets/images
 workbox.routing.registerRoute(
-    /\/(assets|manager)\/.*/,
+    /\/(manager|assets\/(?!images\/)).*/i,
     workbox.strategies.networkOnly()
 );
 

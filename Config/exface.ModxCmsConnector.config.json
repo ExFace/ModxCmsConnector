@@ -9,19 +9,19 @@
 	"INSTALLER.SERVICEWORKER.ROUTES": {
 		"modx_pages": {
     		"description": "Cache all HTML files. Use cache only if offline.",
-			"matcher": "/^.*\\.html/",
+			"matcher": "/^.*\\.html/i",
 			"strategy": "workbox.strategies.networkFirst"
 		},
 		"assets": {
 			"description": "Cache static assets if not located in the folder assets or manager (i.e. not part of the CMS).",
-			"matcher": "/.*(\\.js|\\.css|\\.woff2)/",
+			"matcher": "/.*(\\.js|\\.css|\\.woff2)/i",
 			"strategy": "workbox.strategies.staleWhileRevalidate",
 			"cacheName": "asset-cache",
     		"maxAgeSeconds": 604800
 		},
 		"images": {
 			"description": "Cache images.",
-			"matcher": "/.*\\.(?:png|gif|jpg|jpeg|svg)$/",
+			"matcher": "/.*\\.(?:png|gif|jpg|jpeg|svg)$/i",
 			"strategy": "workbox.strategies.cacheFirst",
 			"cacheName": "image-cache",
     		"maxEntries": 50,
