@@ -30,6 +30,14 @@
             "attribute_alias": "WRITABLE_FLAG"
         },
         {
+            "name": "COMMENTS",
+            "attribute_alias": "COMMENTS"
+        },
+        {
+            "name": "DOCS",
+            "attribute_alias": "DOCS"
+        },
+        {
             "name": "DATA_SOURCE",
             "attribute_alias": "DATA_SOURCE"
         },
@@ -75,12 +83,14 @@
             "UID": "0x11e7a447de04bbc584f174e5434dc47d",
             "READABLE_FLAG": "1",
             "WRITABLE_FLAG": "1",
+            "COMMENTS": null,
+            "DOCS": null,
             "DATA_SOURCE": "0x11e7109eb7d53d24beb2e4b318306b9a",
             "APP": "0x11e680a7f9cdf732a177c0f8dae36b4f",
-            "SHORT_DESCRIPTION": "",
+            "SHORT_DESCRIPTION": null,
             "PARENT_OBJECT": "",
-            "DATA_ADDRESS_PROPS": "{}",
-            "DEFAULT_EDITOR_UXON": "{}",
+            "DATA_ADDRESS_PROPS": null,
+            "DEFAULT_EDITOR_UXON": null,
             "LABEL": "MODx Webgroup Access",
             "ALIAS": "modx_webgroup_access",
             "DATA_ADDRESS": "modx_webgroup_access"
@@ -98,8 +108,8 @@
             }
         ]
     },
-    "rows_on_page": null,
-    "row_offset": 0,
+    "rows_limit": null,
+    "rows_offset": 0,
     "sorters": [
         {
             "attribute_alias": "CREATED_ON",

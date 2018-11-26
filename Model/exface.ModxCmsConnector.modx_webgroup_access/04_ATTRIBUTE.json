@@ -66,6 +66,14 @@
             "attribute_alias": "DELETE_WITH_RELATED_OBJECT"
         },
         {
+            "name": "DEFAULT_DISPLAY_UXON",
+            "attribute_alias": "DEFAULT_DISPLAY_UXON"
+        },
+        {
+            "name": "COMMENTS",
+            "attribute_alias": "COMMENTS"
+        },
+        {
             "name": "LABEL",
             "attribute_alias": "LABEL"
         },
@@ -165,9 +173,11 @@
             "READABLEFLAG": "1",
             "WRITABLEFLAG": "1",
             "SYSTEMFLAG": "0",
-            "DEFAULT_EDITOR_UXON": "{}",
+            "DEFAULT_EDITOR_UXON": null,
             "COPY_WITH_RELATED_OBJECT": null,
             "DELETE_WITH_RELATED_OBJECT": null,
+            "DEFAULT_DISPLAY_UXON": null,
+            "COMMENTS": null,
             "LABEL": "Id",
             "ALIAS": "id",
             "DATATYPE": "0x30000000000000000000000000000000",
@@ -184,11 +194,11 @@
             "SORTERPOS": null,
             "SORTERDIR": "",
             "RELATED_OBJ_ATTR": "",
-            "SHORT_DESCRIPTION": "",
+            "SHORT_DESCRIPTION": null,
             "DATA_ADDRESS_PROPS": "",
             "DEFAULT_VALUE": "",
             "FIXED_VALUE": "",
-            "CUSTOM_DATA_TYPE": "{}"
+            "CUSTOM_DATA_TYPE": null
         },
         {
             "CREATED_ON": "2017-09-28 12:23:48",
@@ -204,9 +214,11 @@
             "READABLEFLAG": "1",
             "WRITABLEFLAG": "1",
             "SYSTEMFLAG": "0",
-            "DEFAULT_EDITOR_UXON": "{}",
+            "DEFAULT_EDITOR_UXON": null,
             "COPY_WITH_RELATED_OBJECT": null,
             "DELETE_WITH_RELATED_OBJECT": "1",
+            "DEFAULT_DISPLAY_UXON": null,
+            "COMMENTS": null,
             "LABEL": "Webgroup",
             "ALIAS": "webgroup",
             "DATATYPE": "0x11e7b0277435425e98350205857feb80",
@@ -223,11 +235,11 @@
             "SORTERPOS": null,
             "SORTERDIR": "",
             "RELATED_OBJ_ATTR": "",
-            "SHORT_DESCRIPTION": "",
+            "SHORT_DESCRIPTION": null,
             "DATA_ADDRESS_PROPS": "",
             "DEFAULT_VALUE": "",
             "FIXED_VALUE": "",
-            "CUSTOM_DATA_TYPE": "{}"
+            "CUSTOM_DATA_TYPE": null
         },
         {
             "CREATED_ON": "2017-09-28 12:23:48",
@@ -243,9 +255,11 @@
             "READABLEFLAG": "1",
             "WRITABLEFLAG": "1",
             "SYSTEMFLAG": "0",
-            "DEFAULT_EDITOR_UXON": "{}",
+            "DEFAULT_EDITOR_UXON": null,
             "COPY_WITH_RELATED_OBJECT": null,
             "DELETE_WITH_RELATED_OBJECT": "1",
+            "DEFAULT_DISPLAY_UXON": null,
+            "COMMENTS": null,
             "LABEL": "Documentgroup",
             "ALIAS": "documentgroup",
             "DATATYPE": "0x11e7b0277435425e98350205857feb80",
@@ -262,11 +276,11 @@
             "SORTERPOS": null,
             "SORTERDIR": "",
             "RELATED_OBJ_ATTR": "",
-            "SHORT_DESCRIPTION": "",
+            "SHORT_DESCRIPTION": null,
             "DATA_ADDRESS_PROPS": "",
             "DEFAULT_VALUE": "",
             "FIXED_VALUE": "",
-            "CUSTOM_DATA_TYPE": "{}"
+            "CUSTOM_DATA_TYPE": null
         },
         {
             "CREATED_ON": "2017-09-28 12:31:00",
@@ -282,9 +296,11 @@
             "READABLEFLAG": "1",
             "WRITABLEFLAG": "1",
             "SYSTEMFLAG": "0",
-            "DEFAULT_EDITOR_UXON": "{}",
+            "DEFAULT_EDITOR_UXON": null,
             "COPY_WITH_RELATED_OBJECT": null,
             "DELETE_WITH_RELATED_OBJECT": null,
+            "DEFAULT_DISPLAY_UXON": null,
+            "COMMENTS": null,
             "LABEL": "Label",
             "ALIAS": "LABEL",
             "DATATYPE": "0x30000000000000000000000000000000",
@@ -301,11 +317,11 @@
             "SORTERPOS": null,
             "SORTERDIR": "",
             "RELATED_OBJ_ATTR": "",
-            "SHORT_DESCRIPTION": "",
+            "SHORT_DESCRIPTION": null,
             "DATA_ADDRESS_PROPS": "",
             "DEFAULT_VALUE": "",
             "FIXED_VALUE": "",
-            "CUSTOM_DATA_TYPE": "{}"
+            "CUSTOM_DATA_TYPE": null
         }
     ],
     "totals_rows": [],
@@ -320,8 +336,8 @@
             }
         ]
     },
-    "rows_on_page": null,
-    "row_offset": 0,
+    "rows_limit": null,
+    "rows_offset": 0,
     "sorters": [
         {
             "attribute_alias": "CREATED_ON",
