@@ -77,9 +77,9 @@
     "rows": [
         {
             "CREATED_ON": "2017-09-28 12:26:48",
-            "MODIFIED_ON": "2017-09-28 12:26:48",
+            "MODIFIED_ON": "2018-12-13 09:33:31",
             "CREATED_BY_USER": "0x11e7a1cdce842573b8e974e5434dc47d",
-            "MODIFIED_BY_USER": "0x11e7a1cdce842573b8e974e5434dc47d",
+            "MODIFIED_BY_USER": "0x31000000000000000000000000000000",
             "UID": "0x11e7a4484b9bb4a684f174e5434dc47d",
             "READABLE_FLAG": "1",
             "WRITABLE_FLAG": "1",
@@ -91,7 +91,7 @@
             "PARENT_OBJECT": "",
             "DATA_ADDRESS_PROPS": null,
             "DEFAULT_EDITOR_UXON": null,
-            "LABEL": "MODx Documentgroup Names",
+            "LABEL": "Documentgroup Name",
             "ALIAS": "modx_documentgroup_names",
             "DATA_ADDRESS": "modx_documentgroup_names"
         }

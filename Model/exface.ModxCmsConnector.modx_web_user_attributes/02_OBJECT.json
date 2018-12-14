@@ -77,9 +77,9 @@
     "rows": [
         {
             "CREATED_ON": "2017-09-26 07:32:27",
-            "MODIFIED_ON": "2017-09-28 12:04:53",
+            "MODIFIED_ON": "2018-12-13 09:34:20",
             "CREATED_BY_USER": "0x11e7a1cdce842573b8e974e5434dc47d",
-            "MODIFIED_BY_USER": "0x11e7a1cdce842573b8e974e5434dc47d",
+            "MODIFIED_BY_USER": "0x31000000000000000000000000000000",
             "UID": "0x11e7a28cd8f48620b37a74e5434dc47d",
             "READABLE_FLAG": "1",
             "WRITABLE_FLAG": "1",
@@ -91,7 +91,7 @@
             "PARENT_OBJECT": "",
             "DATA_ADDRESS_PROPS": null,
             "DEFAULT_EDITOR_UXON": null,
-            "LABEL": "MODx Web User Attributes",
+            "LABEL": "Web User Attributes",
             "ALIAS": "modx_web_user_attributes",
             "DATA_ADDRESS": "modx_web_user_attributes"
         }

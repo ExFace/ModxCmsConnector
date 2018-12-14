@@ -76,11 +76,11 @@
     ],
     "rows": [
         {
-            "CREATED_ON": "2017-09-28 12:14:31",
-            "MODIFIED_ON": "2018-12-13 09:34:02",
-            "CREATED_BY_USER": "0x11e7a1cdce842573b8e974e5434dc47d",
+            "CREATED_ON": "2018-12-13 23:51:20",
+            "MODIFIED_ON": "2018-12-13 23:51:51",
+            "CREATED_BY_USER": "0x31000000000000000000000000000000",
             "MODIFIED_BY_USER": "0x31000000000000000000000000000000",
-            "UID": "0x11e7a4469440553b84f174e5434dc47d",
+            "UID": "0x11e8ff31fa6b49bf9add0205857feb80",
             "READABLE_FLAG": "1",
             "WRITABLE_FLAG": "1",
             "COMMENTS": "",
@@ -91,9 +91,9 @@
             "PARENT_OBJECT": "",
             "DATA_ADDRESS_PROPS": null,
             "DEFAULT_EDITOR_UXON": null,
-            "LABEL": "Webgroup",
-            "ALIAS": "modx_web_groups",
-            "DATA_ADDRESS": "modx_web_groups"
+            "LABEL": "Manager Group",
+            "ALIAS": "modx_membergroup_names",
+            "DATA_ADDRESS": "modx_membergroup_names"
         }
     ],
     "totals_rows": [],
