@@ -373,7 +373,7 @@ switch ($eventName) {
                   		    var pathBase = path.length <= 1 ? '' : JSON.stringify(path.slice(-1));
                   		    if (editor._autosuggestPending === true) {
                                 if (editor._autosuggestLastResult && editor._autosuggestLastPath == pathBase) {
-                                    resolve(editor._autosuggestLastResult);
+                                    resolve(editor._autosuggestLastResult.values);
                                 } else {
                                     reject();
                                 }
@@ -475,9 +475,58 @@ switch ($eventName) {
     		body: formData, // body data type must match "Content-Type" header
     	})
     	.then(response => response.json())
-    	.then(json => {resolve(json); return json;})
+    	.then(json => {resolve(json.values); return json;})
     	.catch(response => {reject();}); // parses response to JSON
     }
+
+    function jsonEditorgetNodeFromTarget(target) {
+	   while (target) {
+    	    if (target.node) {
+    	       return target.node;
+    	    }
+    	    target = target.parentNode;
+       }
+    
+	   return undefined;
+    }
+  
+    function jsonEditorfocusFirstChildValue(node) {
+    	var child;
+    	for (var i in node.childs) {
+    		child = node.childs[i];
+    		if (child.type === 'string' || child.type === 'auto') {
+    			child.focus('value');
+    			return;
+    		} else {
+    			jsonEditorfocusFirstChildValue(child);
+    		}
+    	}
+    	return;
+    }
+
+    window.\$j(function() {
+        for (var e in jsonEditors) {
+        	var editor = jsonEditors[e];
+            console.log(e);
+    		window.\$j(document).on('blur', '#jsonEditor'+e+' div.jsoneditor-field[contenteditable="true"]', function() {
+                var node = jsonEditorgetNodeFromTarget(this);
+        		if (node.getValue() !== '') {
+        			return;
+        		}
+        		var path = node.getPath();
+        		var prop = path[path.length-1];
+        		if (editor._autosuggestLastResult && editor._autosuggestLastResult.templates) {
+        			var tpl = editor._autosuggestLastResult.templates[prop];
+        			if (tpl) {
+        				var val = JSON.parse(tpl);
+        				node.setValue(val, (Array.isArray(val) ? 'array' : 'object'));
+        				node.expand(true);
+        				jsonEditorfocusFirstChildValue(node);
+        			}
+        		} 
+        	});
+        }
+    });
 	</script>
 				
 OUT;
