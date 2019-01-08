@@ -1,39 +1,39 @@
 {
-    "name": "exface/ModxCmsConnector",
-    "description": "CMS connector for the MODx CMS 1.x",
-    "type": "library",
-    "license": "GPL-3.0+",
-    "authors": [
-        {
-            "name": "Andrej Kabachnik",
-            "email": "kabachnik@gmail.com",
-            "role": "Creator"
-        }
-    ],
-    "support": {
-        "issues": "https://github.com/exface/ModxCmsConnector/issues"
-    },
-    "require": {
-        "exface/core": "~0.1",
-        "ramsey/uuid": "^3.7",
-        "moontoast/math": "^1.1"
-    },
-    "extra": {
-        "app": {
-            "app_uid": "0x11e680a7f9cdf732a177c0f8dae36b4f",
-            "app_alias": "exface.ModxCmsConnector",
-            "model_md5": "84eec6da74ae279f196a85a2d8dcf564",
-            "model_timestamp": "2018-12-14 00:04:08"
-        }
-    },
-    "autoload": {
-        "psr-4": {
-            "exface\\ModxCmsConnector\\": ""
-        },
-        "exclude-from-classmap": [
-            "/Config/",
-            "/Translations/",
-            "/Model/"
-        ]
-    }
+	"name" : "exface/ModxCmsConnector",
+	"description" : "CMS connector for the MODx CMS 1.x",
+	"type" : "library",
+	"license" : "GPL-3.0+",
+	"authors" : [{
+			"name" : "Andrej Kabachnik",
+			"email" : "kabachnik@gmail.com",
+			"role" : "Creator"
+		}
+	],
+	"support" : {
+		"issues" : "https://github.com/exface/ModxCmsConnector/issues"
+	},
+	"require" : {
+		"exface/core" : "~0.1",
+		"ramsey/uuid" : "^3.7",
+		"moontoast/math" : "^1.1",
+		"npm-asset/jsoneditor" : "^5.26"
+	},
+	"extra" : {
+		"app" : {
+			"app_uid" : "0x11e680a7f9cdf732a177c0f8dae36b4f",
+			"app_alias" : "exface.ModxCmsConnector",
+			"model_md5" : "84eec6da74ae279f196a85a2d8dcf564",
+			"model_timestamp" : "2018-12-14 00:04:08"
+		}
+	},
+	"autoload" : {
+		"psr-4" : {
+			"exface\\ModxCmsConnector\\" : ""
+		},
+		"exclude-from-classmap" : [
+			"/Config/",
+			"/Translations/",
+			"/Model/"
+		]
+	}
 }
