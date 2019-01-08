@@ -93,6 +93,7 @@ if (empty($base_path) || empty($base_url) || $_REQUEST['base_path'] || $_REQUEST
     $base_path = $pth . (substr($pth, - 1) != "/" && substr($pth, - 1) != "\\" ? "/" : "");
 }
 $base_url = str_replace('/exface/', '/', $base_url);
+$base_url = rtrim($base_url, "/") . "/";
 
 if (!defined('MODX_BASE_PATH')) {
     define('MODX_BASE_PATH', $base_path);
