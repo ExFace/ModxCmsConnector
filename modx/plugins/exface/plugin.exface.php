@@ -11,14 +11,14 @@ use exface\Core\Factories\SelectorFactory;
 /**
  * ExFace
  *
- * Default resource alias with app prefix, user sync, etc.
+ * UXON WYSIWYG editor, page alias generation, user-sync, etc.
  *
  * @category    plugin
- * @version     1.1.0
+ * @version     0.28.6
  * @license     http://www.gnu.org/copyleft/gpl.html GNU Public License (GPL)
  * @package     modx
  * @author      Stefan Leupold, Andrej Kabachnik
- * @internal    @properties
+ * @internal    @properties &enable_user_sync=Enable user sync;list;true,false;true &enable_uxon_editor=Make UXON editor the default WYSIWYG editor;list;true,false;true &uxon_editor_height=Height of UXON editor (in px);int;600
  * @internal    @events OnWebDeleteUser,OnWebSaveUser,OnManagerDeleteUser,OnManagerSaveUser,OnDocDuplicate,OnDocFormSave,OnStripAlias,OnBeforeUserFormSave,OnBeforeWUsrFormSave,OnRichTextEditorRegister,OnRichTextEditorInit
  * @internal    @modx_category ExFace
  * @internal    @installset base, sample
@@ -200,6 +200,9 @@ switch ($eventName) {
     // wenn ein Modx Nutzer im Backend gespeichert wird.
     case 'OnBeforeUserFormSave':
     case 'OnBeforeWUsrFormSave':
+        if ($enable_user_sync === "false") {
+            break;
+        }
         // Kontrolle auf existierenden Web/Mgr-Nutzernamen entsprechend den Kontrollen in
         // save_user.processor.php und save_web_user.processor.php auf existierenden
         // Mgr/Web-Nutzernamen.
@@ -225,6 +228,9 @@ switch ($eventName) {
     // Synchronisiert einen Modx-Nutzer mit einem Exface-Nutzer
     case 'OnManagerSaveUser':
     case 'OnWebSaveUser':
+        if ($enable_user_sync === "false") {
+            break;
+        }
         try {
             $modelLoader = $exface->model()->getModelLoader();
             
@@ -298,6 +304,9 @@ switch ($eventName) {
     // Wird ein Modx-Nutzer geloescht wird auch der entsprechende Exface-Nutzer geloescht.
     case 'OnManagerDeleteUser':
     case 'OnWebDeleteUser':
+        if ($enable_user_sync === "false") {
+            break;
+        }
         try {
             $exfUser = UserFactory::createFromModel($exface, $username);
             if ($exfUser->hasModel()) {
@@ -313,15 +322,23 @@ switch ($eventName) {
         
     // UXON Editor WYSIWYG plugin
     case "OnRichTextEditorRegister":
+        if ($enable_uxon_editor === "false") {
+            break;
+        }
+        
         $modx->event->output("UXONeditor");
         break;
         
     case "OnRichTextEditorInit":
+        if ($enable_uxon_editor === "false") {
+            break;
+        }
+        
         if($editor!=='UXONeditor') return;
         $base_path = MODX_BASE_URL;
         $autosuggestUrl = $base_path . 'exface/api/jeasyui';
         
-        $default_height = 400;
+        $default_height = is_int($uxon_editor_height) ? $uxon_editor_height : 600;
         
         $richIds=implode('","',$elements);
         $output .= <<< OUT
