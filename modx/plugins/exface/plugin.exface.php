@@ -8,6 +8,22 @@ use exface\Core\CommonLogic\Selectors\UiPageSelector;
 use exface\Core\Interfaces\Selectors\AliasSelectorInterface;
 use exface\Core\Factories\SelectorFactory;
 
+/**
+ * ExFace
+ *
+ * Default resource alias with app prefix, user sync, etc.
+ *
+ * @category    plugin
+ * @version     1.1.0
+ * @license     http://www.gnu.org/copyleft/gpl.html GNU Public License (GPL)
+ * @package     modx
+ * @author      Stefan Leupold, Andrej Kabachnik
+ * @internal    @properties
+ * @internal    @events OnWebDeleteUser,OnWebSaveUser,OnManagerDeleteUser,OnManagerSaveUser,OnDocDuplicate,OnDocFormSave,OnStripAlias,OnBeforeUserFormSave,OnBeforeWUsrFormSave,OnRichTextEditorRegister,OnRichTextEditorInit
+ * @internal    @modx_category ExFace
+ * @internal    @installset base, sample
+ */
+
 const TV_APP_UID_NAME = 'ExfacePageAppAlias';
 
 const TV_REPLACE_ALIAS_NAME = 'ExfacePageReplaceAlias';
@@ -28,9 +44,10 @@ global $exface;
 if (! isset($exface)) {
     try {
         $exface = new Workbench();
+        // Start the workbench to make the model and CMS accessible
         $exface->start();
     } catch (Throwable $e) {
-        $modx->event->alert('Error instantiating exface;' . $e->getMessage() . ' in ' . $e->getFile() . ' at line ' . $e->getLine());
+        generateError($e, 'Error loading workbench');
         return;
     }
 }
@@ -41,7 +58,7 @@ if (! function_exists('generateError')) {
         if ($e instanceof ExceptionInterface){
             $log_hint = ' (see log ID ' . $e->getId() . ')';
         }
-        $modx->event->alert($message . ';' . $e->getMessage() . ' in ' . $e->getFile() . ' at line ' . $e->getLine() . $log_hint);
+        $modx->event->alert($message . ': ' . $e->getMessage() . ' in ' . $e->getFile() . ' at line ' . $e->getLine() . $log_hint);
         // Unbedingt als letztes Loggen, sonst werden die Modx-Meldungen nicht angezeigt.
         // Zusammenhang mit TODO unten?
         $exface->getLogger()->logException($e);
@@ -49,7 +66,7 @@ if (! function_exists('generateError')) {
 }
 
 // Start: angepasst aus plugin.transalias.php
-require_once $modx->config['base_path'] . 'assets/plugins/transalias/transalias.class.php';
+require_once MODX_BASE_PATH . 'assets/plugins/transalias/transalias.class.php';
 try {
     $trans = new TransAlias($modx);
     $trans->loadTable('common', 'No');
@@ -292,5 +309,165 @@ switch ($eventName) {
             return;
         }
         
+        break;
+        
+    // UXON Editor WYSIWYG plugin
+    case "OnRichTextEditorRegister":
+        $modx->event->output("UXONeditor");
+        break;
+        
+    case "OnRichTextEditorInit":
+        if($editor!=='UXONeditor') return;
+        $base_path = MODX_BASE_URL;
+        $autosuggestUrl = $base_path . 'exface/api/jeasyui';
+        
+        $default_height = 400;
+        
+        $richIds=implode('","',$elements);
+        $output .= <<< OUT
+
+	<!-- JSON editor -->
+	<link rel="stylesheet" type="text/css" href="{$base_path}exface/vendor/npm-asset/jsoneditor/dist/jsoneditor.min.css">
+	<script type="text/javascript" src="{$base_path}exface/vendor/npm-asset/jsoneditor/dist/jsoneditor.min.js"></script>
+	
+    <!-- Style fixes for MODx -->
+	<style>
+		.jsoneditor-contextmenu ul.menu {width: 126px !important}
+	</style>
+	
+	<!-- Plugin initialization --><script type="text/javascript">
+	var richIds = ["{$richIds}"];
+	var jsonEditors = {};
+	for (var richField=0;richField<richIds.length;richField++){
+			var richId = richIds[richField];
+			var el = document.getElementById(richId);
+			var newDiv = document.createElement('div');
+			newDiv.setAttribute('id', 'jsonEditor'+richId);
+			newDiv.style.height = '{$default_height}'+'px';
+			
+			var options = {
+				name: "widget",
+                enableTransform: false,
+            	enableSort: false,
+                autocomplete: {
+                    applyTo: ['value'],
+                    getOptions: function (text, path, input, editor) {
+                        return new Promise(function (resolve, reject) {
+                  		    var pathBase = path.length <= 1 ? '' : JSON.stringify(path.slice(-1));
+                  		    if (editor._autosuggestPending === true) {
+                                if (editor._autosuggestLastResult && editor._autosuggestLastPath == pathBase) {
+                                    resolve(editor._autosuggestLastResult);
+                                } else {
+                                    reject();
+                                }
+                   		   } else {
+                                editor._autosuggestPending = true;
+                                var uxon = JSON.stringify(editor.get());
+                                return jsonEditorFetchAutosuggest('widget', text, path, input, uxon, resolve, reject)
+                       			.then(json => {
+               				         if (json !== undefined) {
+                       					editor._autosuggestPending = false;
+                       					editor._autosuggestLastPath = pathBase;
+                       					editor._autosuggestLastResult = json;
+                       				}
+                   			    });
+           		           }
+                        });
+                    }
+                },
+                onError: function (err) {
+				    alert(err.toString());
+				}
+            };
+			  
+			var editor = new JSONEditor(newDiv, options);
+			editor.setText(el.innerHTML || "{}");
+						editor.expandAll();
+			jsonEditors[richId] = editor;
+
+			el.parentNode.insertBefore(newDiv,el.nextSibling);
+			el.style.display='none';
+
+			var help = document.createElement('div');
+			var helpInner = document.createElement('div');
+			helpInner.style.display='none';
+			help.addEventListener("click", function(){
+                helpInner.style.display=(helpInner.style.display === "block" ? "none" : "block");
+            });
+			helpInner.innerHTML = "<table>"+
+									"<tr><th>Key</th><th>Description</th></tr>"+
+									"<tr><td>Alt+Arrows</td><td>Move the caret up/down/left/right between fields</td></tr>"+
+									"<tr><td>Shift+Alt+Arrows</td><td>Move field up/down/left/right</td></tr>"+
+									"<tr><td>Ctrl+D</td><td>Duplicate field</td></tr>"+
+									"<tr><td>Ctrl+Del</td><td>Remove field</td></tr>"+
+									"<tr><td>Ctrl+Enter</td><td>Open link when on a field containing an url</td></tr>"+
+									"<tr><td>Ctrl+Ins</td><td>Insert a new field with type auto</td></tr>"+
+									"<tr><td>Ctrl+Shift+Ins</td><td>Append a new field with type auto</td></tr>"+
+									"<tr><td>Ctrl+E</td><td>Expand or collapse field</td></tr>"+
+									"<tr><td>Alt+End</td><td>Move the caret to the last field</td></tr>"+
+									"<tr><td>Ctrl+F</td><td>Find</td></tr>"+
+									"<tr><td>F3, Ctrl+G<br></td><td>Find next</td></tr>"+
+									"<tr><td>Shift+F3, Ctrl+Shift+G</td><td>Find previous</td></tr>"+
+									"<tr><td>Alt+Home</td><td>Move the caret to the first field</td></tr>"+
+									"<tr><td>Ctrl+M</td><td>Show actions menu</td></tr>"+
+									"<tr><td>Ctrl+Z</td><td>Undo last action</td></tr>"+
+									"<tr><td>Ctrl+Shift+Z</td><td>Redo</td></tr>"+
+								  "</table>";
+            help.innerHtml = '<a href="javascript:;"><i class="fa fa-question-circle" aria-hidden="true"></i> Keyboard Shortcuts</a>';
+			//help.appendChild(helpInner);
+			newDiv.parentNode.insertBefore(help,newDiv.nextSibling);
+			
+			form = el.form;
+			if (form.attachEvent) {
+				form.attachEvent("submit", jsonEditorSave);
+			} else {
+				form.addEventListener("submit", jsonEditorSave);
+			}
+			
+	}
+	
+	function jsonEditorSave(e){
+		for (key in jsonEditors){
+			var el = document.getElementById(key);
+			if (jsonEditors[key].getText() !== '' && jsonEditors[key].getText() !== '{}' && jsonEditors[key].getText() != '{}'){
+				el.innerHTML = jsonEditors[key].getText();
+			}
+		}
+	}
+
+    function jsonEditorFetchAutosuggest(schema, text, path, input, uxon, resolve, reject) {
+        var formData = new URLSearchParams({
+    		action: 'exface.Core.UxonAutosuggest',
+    		text: text,
+    		path: JSON.stringify(path),
+    		input: input,
+    		schema: schema,
+    		uxon: uxon
+    	});
+    	return fetch('{$autosuggestUrl}', {
+    		method: "POST", // *GET, POST, PUT, DELETE, etc.
+    		mode: "cors", // no-cors, cors, *same-origin
+    		cache: "no-cache", // *default, no-cache, reload, force-cache, only-if-cached
+    		credentials: "same-origin", // include, *same-origin, omit
+    		headers: {
+    			//"Content-Type": "application/json; charset=utf-8",
+    			"Content-Type": "application/x-www-form-urlencoded",
+    		},
+    		redirect: "follow", // manual, *follow, error
+    		referrer: "no-referrer", // no-referrer, *client
+    		body: formData, // body data type must match "Content-Type" header
+    	})
+    	.then(response => response.json())
+    	.then(json => {resolve(json); return json;})
+    	.catch(response => {reject();}); // parses response to JSON
+    }
+	</script>
+				
+OUT;
+        $modx->event->output($output);
+        break;
+        
+    default:
+        return; // stop here - this is very important.
         break;
 }
