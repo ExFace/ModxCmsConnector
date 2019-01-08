@@ -94,6 +94,14 @@ if (empty($base_path) || empty($base_url) || $_REQUEST['base_path'] || $_REQUEST
 }
 $base_url = str_replace('/exface/', '/', $base_url);
 
+if (!defined('MODX_BASE_PATH')) {
+    define('MODX_BASE_PATH', $base_path);
+}
+
+if (!defined('MODX_BASE_URL')) {
+    define('MODX_BASE_URL', $base_url);
+}
+
 // get the required includes
 if ($database_user == "") {
     $rt = @include_once (dirname(__FILE__) . '/' . MGR_DIR . '/includes/config.inc.php');
