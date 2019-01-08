@@ -98,8 +98,8 @@ if (!defined('MODX_BASE_PATH')) {
     define('MODX_BASE_PATH', $base_path);
 }
 
-if (!defined('MODX_BASE_URL')) {
-    define('MODX_BASE_URL', $base_url);
+if (!defined('MODX_SITE_URL')) {
+    define('MODX_SITE_URL', $base_url);
 }
 
 // get the required includes
