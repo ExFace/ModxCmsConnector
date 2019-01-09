@@ -494,21 +494,21 @@ switch ($eventName) {
     	var child;
     	for (var i in node.childs) {
     		child = node.childs[i];
-    		if (child.type === 'string' || child.type === 'auto') {
+    		if (child.type === 'string' || child.type === 'auto' && child.getField()) {
     			child.focus('value');
     			return;
     		} else {
     			jsonEditorfocusFirstChildValue(child);
     		}
     	}
+        node.focus('value');
     	return;
     }
 
     window.\$j(function() {
         for (var e in jsonEditors) {
         	var editor = jsonEditors[e];
-            console.log(e);
-    		window.\$j(document).on('blur', '#jsonEditor'+e+' div.jsoneditor-field[contenteditable="true"]', function() {
+            window.\$j(document).on('blur', '#jsonEditor'+e+' div.jsoneditor-field[contenteditable="true"]', function() {
                 var node = jsonEditorgetNodeFromTarget(this);
         		if (node.getValue() !== '') {
         			return;
