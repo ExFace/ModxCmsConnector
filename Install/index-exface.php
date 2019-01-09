@@ -99,6 +99,10 @@ if (!defined('MODX_BASE_PATH')) {
     define('MODX_BASE_PATH', $base_path);
 }
 
+if (!defined('MODX_BASE_URL')) {
+    define('MODX_BASE_URL', $base_url);
+}
+
 if (!defined('MODX_SITE_URL')) {
     define('MODX_SITE_URL', $base_url);
 }
@@ -108,19 +112,7 @@ if ($database_user == "") {
     $rt = @include_once (dirname(__FILE__) . '/' . MGR_DIR . '/includes/config.inc.php');
     // Be sure config.inc.php is there and that it contains some important values
     if (! $rt || ! $database_type || ! $database_server || ! $database_user || ! $dbase) {
-        echo "
-<style type=\"text/css\">
-*{margin:0;padding:0}
-body{margin:50px;background:#eee;}
-.install{padding:10px;border:5px solid #f22;background:#f99;margin:0 auto;font:120%/1em serif;text-align:center;}
-p{ margin:20px 0; }
-a{font-size:200%;color:#f22;text-decoration:underline;margin-top: 30px;padding: 5px;}
-</style>
-<div class=\"install\">
-<p>MODx is not currently installed or the configuration file cannot be found.</p>
-<p>Do you want to <a href=\"install/index.php\">install now</a>?</p>
-</div>";
-        exit();
+        throw new RuntimeException('Evolution CMS is not currently installed or the configuration file cannot be found.');
     }
 }
 
