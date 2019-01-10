@@ -491,18 +491,20 @@ switch ($eventName) {
     }
   
     function jsonEditorfocusFirstChildValue(node) {
-    	var child;
+    	var child, found;
     	for (var i in node.childs) {
     		child = node.childs[i];
-    		if (child.type === 'string' || child.type === 'auto' && child.getField()) {
-    			child.focus('value');
-    			return;
+    		if (child.type === 'string' || child.type === 'auto') {
+    			child.focus(child.getField() ? 'value' : 'field');
+                return child;
     		} else {
-    			jsonEditorfocusFirstChildValue(child);
+    			found = jsonEditorfocusFirstChildValue(child);
+                if (found) {
+                    return found;
+                }
     		}
     	}
-        node.focus('value');
-    	return;
+    	return false;
     }
 
     window.\$j(function() {
@@ -510,20 +512,19 @@ switch ($eventName) {
         	var editor = jsonEditors[e];
             window.\$j(document).on('blur', '#jsonEditor'+e+' div.jsoneditor-field[contenteditable="true"]', function() {
                 var node = jsonEditorgetNodeFromTarget(this);
-        		if (node.getValue() !== '') {
-        			return;
-        		}
-        		var path = node.getPath();
-        		var prop = path[path.length-1];
-        		if (editor._autosuggestLastResult && editor._autosuggestLastResult.templates) {
-        			var tpl = editor._autosuggestLastResult.templates[prop];
-        			if (tpl) {
-        				var val = JSON.parse(tpl);
-        				node.setValue(val, (Array.isArray(val) ? 'array' : 'object'));
-        				node.expand(true);
-        				jsonEditorfocusFirstChildValue(node);
-        			}
-        		} 
+        		if (node.getValue() === '') {
+            		var path = node.getPath();
+            		var prop = path[path.length-1];
+            		if (editor._autosuggestLastResult && editor._autosuggestLastResult.templates) {
+            			var tpl = editor._autosuggestLastResult.templates[prop];
+            			if (tpl) {
+            				var val = JSON.parse(tpl);
+            				node.setValue(val, (Array.isArray(val) ? 'array' : 'object'));
+            				node.expand(true);
+            				jsonEditorfocusFirstChildValue(node);
+            			}
+            		} 
+                }
         	});
         }
     });
