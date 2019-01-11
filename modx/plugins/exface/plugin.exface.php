@@ -364,6 +364,8 @@ switch ($eventName) {
 			
 			var options = {
 				name: "widget",
+                mode: "tree",
+                modes: ['code', 'tree'],
                 enableTransform: false,
             	enableSort: false,
                 autocomplete: {
