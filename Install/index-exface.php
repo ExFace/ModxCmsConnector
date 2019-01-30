@@ -82,28 +82,21 @@ if (empty($base_path) || empty($base_url) || $_REQUEST['base_path'] || $_REQUEST
     $a = explode("/" . MGR_DIR, str_replace("\\", "/", dirname($script_name)));
     if (count($a) > 1)
         array_pop($a);
-    $url = implode(MGR_DIR, $a);
-    reset($a);
-    $a = explode(MGR_DIR, str_replace("\\", "/", dirname(__FILE__)));
-    if (count($a) > 1)
-        array_pop($a);
-    $pth = implode(MGR_DIR, $a);
-    unset($a);
-    $base_url = $url . (substr($url, - 1) != "/" ? "/" : "");
-    $base_path = $pth . (substr($pth, - 1) != "/" && substr($pth, - 1) != "\\" ? "/" : "");
+        $url = implode(MGR_DIR, $a);
+        reset($a);
+        $a = explode(MGR_DIR, str_replace("\\", "/", dirname(__FILE__)));
+        if (count($a) > 1)
+            array_pop($a);
+            $pth = implode(MGR_DIR, $a);
+            unset($a);
+            $base_url = $url . (substr($url, - 1) != "/" ? "/" : "");
+            $base_path = $pth . (substr($pth, - 1) != "/" && substr($pth, - 1) != "\\" ? "/" : "");
 }
 $base_url = str_replace('/exface/', '/', $base_url);
 
+// Define MODX_BASE_PATH here as it is required in CLI mode (see manager/includes/config.inc.php)
 if (!defined('MODX_BASE_PATH')) {
     define('MODX_BASE_PATH', $base_path);
-}
-
-if (!defined('MODX_BASE_URL')) {
-    define('MODX_BASE_URL', $base_url);
-}
-
-if (!defined('MODX_SITE_URL')) {
-    define('MODX_SITE_URL', $base_url);
 }
 
 // get the required includes
@@ -123,7 +116,7 @@ include_once (MODX_MANAGER_PATH . '/includes/document.parser.class.inc.php');
 $modx = new DocumentParser();
 $modx->getSettings(); // load the settings here because we are not going to execute the parser
 $etomite = &$modx; // for backward compatibility
-                   
+
 // set some parser options
 $modx->minParserPasses = 1; // min number of parser recursive loops or passes
 $modx->maxParserPasses = 10; // max number of parser recursive loops or passes
