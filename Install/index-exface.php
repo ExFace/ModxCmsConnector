@@ -94,9 +94,12 @@ if (empty($base_path) || empty($base_url) || $_REQUEST['base_path'] || $_REQUEST
 }
 $base_url = str_replace('/exface/', '/', $base_url);
 
-// Define MODX_BASE_PATH here as it is required in CLI mode (see manager/includes/config.inc.php)
+// Define MODX_BASE_PATH and MODX_BASE_URL here as it is required in CLI mode (see manager/includes/config.inc.php)
 if (!defined('MODX_BASE_PATH')) {
     define('MODX_BASE_PATH', $base_path);
+}
+if (!defined('MODX_BASE_URL')) {
+    define('MODX_BASE_URL', $base_path);
 }
 
 // get the required includes
