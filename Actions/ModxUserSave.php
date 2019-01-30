@@ -105,9 +105,6 @@ class ModxUserSave extends AbstractAction
                 throw new ActionInputMissingError($this, 'Mandatory username is missing.');
             }
             
-            // Rolle
-            $userRow['role'] = 0;
-            
             // Existieren bereits Web- oder Managernutzer mit dem Nutzernamen, bzw. dem alten
             // Nutzernamen wenn der Nutzer gerade umbenannt wird?
             $oldModxWebUserExists = $userRow['oldusername'] ? $modxCmsConnector->isModxWebUser($userRow['oldusername']) : false;
