@@ -1034,17 +1034,33 @@ SQL;
     
     /**
      * 
-     * @return DocumentParser
+     * @return \DocumentParser
      */
     protected function getModx()
     {
         global $modx;
         
         if (! isset($modx)) {
+            // Starting from 1.4.7 Evo requires MODX_SITE_URL to be set explicitly in CLI mode.
+            if (defined('MODX_SITE_URL') === false && $this->isCli() === true) {
+                define('MODX_SITE_URL', $this->getApp()->getConfig()->getOption('MODX.CLI.SITE_URL'));
+            }
+            
             require_once $this->getApp()->getModxAjaxIndexPath();
         }
         
         return $modx;
+    }
+    
+    /**
+     * Returns TRUE if Evolution CMS is in CLI mode and FALSE otherwise
+     * 
+     * @return bool
+     */
+    private function isCli() : bool
+    {
+        // Taken from Evo manager/includes/config.inc.php
+        return (php_sapi_name() === 'cli' && (is_numeric($_SERVER['argc']) && $_SERVER['argc'] > 0));
     }
     
     /**
