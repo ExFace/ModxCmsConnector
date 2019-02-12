@@ -763,18 +763,6 @@ SQL;
     /**
      * 
      * {@inheritDoc}
-     * @see \exface\Core\Interfaces\CmsConnectorInterface::clearCMSRecycleBin()
-     */
-    public function clearCmsRecycleBin()
-    {
-        require_once ($modx->config['base_path'] . DIRECTORY_SEPARATOR . 'assets' . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR . 'MODxAPI' . DIRECTORY_SEPARATOR . 'modResource.php');
-        $resource = new \modResource($modx);
-        $resource->clearTrash(true);
-    }
-
-    /**
-     * 
-     * {@inheritDoc}
      * @see \exface\Core\Interfaces\CmsConnectorInterface::getPagesForApp()
      */
     public function getPagesForApp(AppInterface $app)
