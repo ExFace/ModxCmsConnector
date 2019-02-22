@@ -37,7 +37,9 @@ class ModxUserSave extends AbstractAction
      */
     protected function init()
     {
+        parent::init();
         $this->localLangMap = $this->getApp('exface.ModxCmsConnector')->getConfig()->getOption('USERS.LOCALE_LANGUAGE_MAPPING')->toArray();
+        $this->setInputObjectAlias('exface.Core.USER');
     }
 
     /**
@@ -48,10 +50,6 @@ class ModxUserSave extends AbstractAction
     protected function perform(TaskInterface $task, DataTransactionInterface $transaction) : ResultInterface
     {
         $input = $this->getInputDataSheet($task);
-        
-        if (! $input->getMetaObject()->isExactly('exface.Core.USER')) {
-            throw new ActionInputInvalidObjectError($this, 'InputDataSheet with "exface.Core.USER" required, "' . $input->getMetaObject()->getAliasWithNamespace() . '" given instead.');
-        }
         
         $modx = $this->getWorkbench()->getApp('exface.ModxCmsConnector')->getModx();
         require_once $modx->getConfig('base_path') . 'assets' . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR . 'MODxAPI' . DIRECTORY_SEPARATOR . 'modUsers.php';
