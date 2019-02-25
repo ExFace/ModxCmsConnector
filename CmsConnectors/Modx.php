@@ -1029,9 +1029,15 @@ SQL;
         global $modx;
         
         if (! isset($modx)) {
-            // Starting from 1.4.7 Evo requires MODX_SITE_URL to be set explicitly in CLI mode.
+            // Starting from 1.4.7 Evo requires MODX_BASE_URL and MODX_SITE_URL to be set explicitly in CLI mode.
+            if (defined('MODX_BASE_PATH' === false && $this->isCli() === true)) {
+                define('MODX_BASE_PATH', $this->getPathToModxFolder());
+            }
             if (defined('MODX_SITE_URL') === false && $this->isCli() === true) {
                 define('MODX_SITE_URL', $this->getApp()->getConfig()->getOption('MODX.CLI.SITE_URL'));
+            }
+            if (defined('MODX_BASE_URL') === false && $this->isCli() === true) {
+                define('MODX_BASE_URL', $this->getApp()->getConfig()->getOption('MODX.CLI.BASE_URL'));
             }
             
             require_once $this->getApp()->getModxAjaxIndexPath();

@@ -30,6 +30,7 @@
 	},
 	
 	"MODX.CLI.SITE_URL": "http://localhost/",
+	"MODX.CLI.BASE_URL": "/",
 	"MODX.PAGES.ROOT_CONTAINER_ID": "0",
 	"MODX.WARNING.ON_SAVE_PAGE_IN_APP": false,
 	"MODX.TEMPLATE_NAME_DEFAULT": "Desktop (jEasyUI)",
