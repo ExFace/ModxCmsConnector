@@ -1031,7 +1031,7 @@ SQL;
         if (! isset($modx)) {
             $params = '';
             // Starting from 1.4.7 Evo requires MODX_BASE_URL and MODX_SITE_URL to be set explicitly in CLI mode.
-            if (defined('MODX_BASE_PATH' === false && $this->isCli() === true)) {
+            if (defined('MODX_BASE_PATH') === false && $this->isCli() === true) {
                 define('MODX_BASE_PATH', (rtrim(Filemanager::pathNormalize($this->getPathToModxFolder()), "/") . "/"));
                 $params .= 'MODX_BASE_PATH = "' . MODX_BASE_PATH . '" ';
             }
@@ -1046,7 +1046,7 @@ SQL;
             try {
                 require_once $this->getApp()->getModxAjaxIndexPath();
             } catch (\Throwable $e) {
-                throw new RuntimeException('Error starting Evolution CMS (parameters: ' . $params . '): ' . $e->getMessage(), null, $e);
+                throw new RuntimeException('Error starting Evolution CMS (' . $params . '): ' . $e->getMessage(), null, $e);
             }
         }
         
