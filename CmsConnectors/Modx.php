@@ -1029,18 +1029,25 @@ SQL;
         global $modx;
         
         if (! isset($modx)) {
+            $params = '';
             // Starting from 1.4.7 Evo requires MODX_BASE_URL and MODX_SITE_URL to be set explicitly in CLI mode.
             if (defined('MODX_BASE_PATH' === false && $this->isCli() === true)) {
-                define('MODX_BASE_PATH', rtrim($this->getPathToModxFolder(), "/") . "/");
+                define('MODX_BASE_PATH', (rtrim(Filemanager::pathNormalize($this->getPathToModxFolder()), "/") . "/"));
+                $params .= 'MODX_BASE_PATH = "' . MODX_BASE_PATH . '" ';
             }
             if (defined('MODX_SITE_URL') === false && $this->isCli() === true) {
                 define('MODX_SITE_URL', $this->getApp()->getConfig()->getOption('MODX.CLI.SITE_URL'));
+                $params .= 'MODX_SITE_URL = "' . MODX_SITE_URL . '" ';
             }
             if (defined('MODX_BASE_URL') === false && $this->isCli() === true) {
                 define('MODX_BASE_URL', $this->getApp()->getConfig()->getOption('MODX.CLI.BASE_URL'));
+                $params .= 'MODX_BASE_URL = "' . MODX_BASE_URL . '" ';
             }
-            
-            require_once $this->getApp()->getModxAjaxIndexPath();
+            try {
+                require_once $this->getApp()->getModxAjaxIndexPath();
+            } catch (\Throwable $e) {
+                throw new RuntimeException('Error starting Evolution CMS (parameters: ' . $params . '): ' . $e->getMessage(), null, $e);
+            }
         }
         
         return $modx;
