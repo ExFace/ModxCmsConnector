@@ -79,7 +79,11 @@
 	        		</ul>
 		        </div>
 		        <div title="Menü" data-options="selected:true" style="">
-		        	[!Wayfinder?startId=`1` &hideSubMenus=`TRUE` &outerClass=`nav_menu`!]       
+		        	[!DLMenu? 
+		        		&parents=`1` 
+		        		&hideSubMenus=`1` 
+		        		&outerClass=`nav_menu`
+	        		!]       
 		        </div>
 		        <div title="Verlauf" data-options="" style="">
 		                     
@@ -94,13 +98,19 @@
 					<p style="padding: 5px; box-sizing:border-box;">[*introtext*]</p>
 				</div>
 				<div title="Sichten" data-options="selected:true, collapsed: false">
-					[!Wayfinder? &startId=`[[if? &is=`[*isfolder*]:=:1` &then=`[*id*]` &else=`[*parent*]`]]` &hideSubMenus=`TRUE` &outerClass=`nav_menu` &ignoreHidden=`1` &outerTpl=`@CODE: <ul[+wf.classes+]><li><a href="[~[*parent*]~]">Default</a></li>[+wf.wrapper+]<li><a href="[(SITE_URL)]manager/index.php?a=4&pid=[[if? &is=`[*isfolder*]:=:1` &then=`[*id*]` &else=`[*parent*]`]]&quickmanager=1" class="colorbox cboxElement">Neue Sicht hinzufügen...</a></li></ul>`!]
+					[!DLMenu? 
+						&parents=`[[if? &is=`[*isfolder*]:=:1` &then=`[*id*]` &else=`[*parent*]`]]` 
+						&hideSubMenus=`1` 
+						&outerClass=`nav_menu` 
+						&ignoreHidden=`1` 
+						&outerTpl=`@CODE:<ul[+classes+]><li><a href="[~[*parent*]~]">Default</a></li>[+wrap+]<li><a href="[(SITE_URL)]manager/index.php?a=4&pid=[[if? &is=`[*isfolder*]:=:1` &then=`[*id*]` &else=`[*parent*]`]]&quickmanager=1" class="colorbox cboxElement">Neue Sicht hinzufügen...</a></li></ul>`
+					!]
 		        </div>
 	        </div>
 		</div>
 		
 		<!-- MAIN -->
-		<div data-options="region:'center',title:'[[singleQuotes? &string=`[[Breadcrumbs? &showHomeCrumb=`1`]]`]]'">
+		<div data-options="region:'center',title:'[[singleQuotes? &string=`[[DLCrumbs? &showCurrent=`1` &ownerTPL=`@CODE:[+crumbs.wrap+]` &tpl=`@CODE:<a href='[+url+]' title='[+title+]'>[+title+]</a>  »&nbsp;` &tplCurrent=`@CODE:[+title+]`]]`]]'">
 			[[ExFace? &template=`exface.JEasyUiTemplate.JEasyUiTemplate` &fallback_field=`content`]] 
 		</div>
 	</body>

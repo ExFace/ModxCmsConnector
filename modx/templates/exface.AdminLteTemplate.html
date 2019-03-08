@@ -221,13 +221,16 @@ folder instead of downloading all of them to reduce the load. -->
 					<ul class="sidebar-menu">
 						<!-- <li class="header">FAVORITES</li> -->
 						<li class="header">MAIN NAVIGATION</li>
-						[!DLMenu? &parents=`1` &depth=`10` &hideSubMenus=`0`
-						&outerTpl=`@CODE: [+wrap+]`
-						&innerTpl=`@CODE: <ul[+classes+]>[+wrap+]</ul>`
-						&OFFparentRowTpl=`<li[+classes+]><a href="[+url+]" title="[+title+]">[+title+]»</a>[+wrap+]</li>`
-						&parentClass=`treeview`
-						&innerClass=`treeview-menu`
-						&hereClass=`active current`!]
+						[!DLMenu? 
+							&parents=`1` 
+							&depth=`5` 
+							&hideSubMenus=`0`
+							&outerTpl=`@CODE: [+wrap+]`
+							&innerTpl=`@CODE: <ul[+classes+]>[+wrap+]</ul>`
+							&parentClass=`treeview`
+							&innerClass=`treeview-menu`
+							&hereClass=`active current`
+						!]
 					</ul>
 				</section>
 				<!-- /.sidebar -->
