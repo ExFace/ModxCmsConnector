@@ -221,10 +221,10 @@ folder instead of downloading all of them to reduce the load. -->
 					<ul class="sidebar-menu">
 						<!-- <li class="header">FAVORITES</li> -->
 						<li class="header">MAIN NAVIGATION</li>
-						[!Wayfinder? &startId=`1` &level=`10` &hideSubMenus=`0`
-						&outerTpl=`@CODE: [+wf.wrapper+]`
-						&innerTpl=`@CODE: <ul[+wf.classes+]>[+wf.wrapper+]</ul>`
-						&OFFparentRowTpl=`<li[+wf.classes+]><a href="[+wf.link+]" title="[+wf.title+]">[+wf.linktext+]»</a>[+wf.wrapper+]</li>`
+						[!DLMenu? &parents=`1` &depth=`10` &hideSubMenus=`0`
+						&outerTpl=`@CODE: [+wrap+]`
+						&innerTpl=`@CODE: <ul[+classes+]>[+wrap+]</ul>`
+						&OFFparentRowTpl=`<li[+classes+]><a href="[+url+]" title="[+title+]">[+title+]»</a>[+wrap+]</li>`
 						&parentClass=`treeview`
 						&innerClass=`treeview-menu`
 						&hereClass=`active current`!]
@@ -241,10 +241,11 @@ folder instead of downloading all of them to reduce the load. -->
 						[*pagetitle*]
 						<small>[*descriptions*]</small>
 					</h1>
-					<ol class="breadcrumb">
-						<li><a href="[(site_url)]"><i class="fa fa-home"></i> Home</a></li>
-						[[Breadcrumbs? &showHomeCrumb=`0` &templateSet=`AdminLTE`]]
-					</ol>
+					[[DLCrumbs? 
+						&ownerTPL=`@CODE:<ol class="breadcrumb">[+crumbs.wrap+]</ol>` 
+						&tplFirst=`@CODE:<li><a href="[+url+]" title="[+longtitle+]"><i class="fa fa-home"></i><span class="hidden-xs">[+pagetitle+]</span></a></li>`
+						&tpl=`@CODE:<li><a href="[+url+]" title="[+longtitle+]">[+pagetitle+]</li>`
+					]]
 				</section>
 				
 				<!-- Main content -->
@@ -255,12 +256,6 @@ folder instead of downloading all of them to reduce the load. -->
 					</div>
 				</section><!-- /.content -->
 			</div><!-- /.content-wrapper -->
-			<footer class="main-footer">
-				<div class="pull-right hidden-xs">
-					<b>Version</b> 2.0
-				</div>
-				<strong>Copyright &copy; 2014-2018 <a href="http://www.salt-solutions.com">SALT Solutions</a>.</strong> All rights reserved.
-			</footer>
 		</div><!-- ./wrapper -->
 		<div id="ajax-dialogs">
 		</div>
