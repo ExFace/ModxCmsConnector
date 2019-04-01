@@ -12,4 +12,5 @@ UPDATE modx_site_templates SET content = REPLACE(content, 'exface.AdminLTEFacade
 UPDATE modx_site_templates SET content = REPLACE(content, 'exface.JEasyUIFacade.html', 'exface.JEasyUITemplate.html');
 UPDATE modx_site_templates SET content = REPLACE(content, 'exface.JQueryMobileFacade.html', 'exface.JQueryMobileTemplate.html');
 UPDATE modx_site_templates SET content = REPLACE(content, 'exface.NativeDroid2Facade.html', 'exface.NativeDroid2Template.html');
-UPDATE modx_site_templates SET content = REPLACE(content, 'exface.UI5FacadeFacade.html', 'exface.UI5FacadeTemplate.html');
+
+UPDATE modx_site_templates SET content = REPLACE(content, 'vendor/exface/OpenUI5Template/Templates/', 'vendor/exface/UI5Facade/Facades/');
