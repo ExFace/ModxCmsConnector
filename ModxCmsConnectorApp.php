@@ -4,8 +4,8 @@ namespace exface\ModxCmsConnector;
 use exface\Core\Interfaces\InstallerInterface;
 use exface\Core\CommonLogic\AppInstallers\SqlSchemaInstaller;
 use exface\Core\CommonLogic\Model\App;
-use exface\Core\Templates\AbstractPWATemplate\ServiceWorkerBuilder;
-use exface\Core\Templates\AbstractPWATemplate\ServiceWorkerInstaller;
+use exface\Core\Facades\AbstractPWAFacade\ServiceWorkerBuilder;
+use exface\Core\Facades\AbstractPWAFacade\ServiceWorkerInstaller;
 
 class ModxCmsConnectorApp extends App
 {

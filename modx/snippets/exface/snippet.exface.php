@@ -1,9 +1,9 @@
 <?php
-use exface\Core\Interfaces\Templates\HttpTemplateInterface;
-use exface\Core\Templates\AbstractAjaxTemplate\AbstractAjaxTemplate;
-use exface\Core\Templates\AbstractHttpTemplate\Middleware\RequestIdNegotiator;
+use exface\Core\Interfaces\Facades\HttpFacadeInterface;
+use exface\Core\Facades\AbstractAjaxFacade\AbstractAjaxFacade;
+use exface\Core\Facades\AbstractHttpFacade\Middleware\RequestIdNegotiator;
 use Psr\Http\Message\ServerRequestInterface;
-use exface\Core\Factories\TemplateFactory;
+use exface\Core\Factories\FacadeFactory;
 
 /**
  * ExFace
@@ -20,28 +20,28 @@ use exface\Core\Factories\TemplateFactory;
 
 /*
  * Parameters:
- * &tempalte - Qualified alias of the ExFace template to be used: e.g. exface.AdminLteTemplate.AdminLteTemplate.
+ * &facade - Qualified alias of the ExFace facade to be used: e.g. exface.AdminLteFacade.AdminLteFacade.
  * &action - Qualified alias of the ExFace action, that is to be performed. Default: exface.Core.ShowWidget
  * &docAlias - MODx document alias to call the action for. Default: the alias of the current document, i.e. [*alias*]
  * &fallback_field - The key of the attribute of $modx->documentObject to be displayed if the content is not valid UXON
  * &file - path to file to use for contents (relative to the exface installation folder)
  */
-if (! function_exists('exf_get_default_template')) {
+if (! function_exists('exf_get_default_facade')) {
 
-    function exf_get_default_template()
+    function exf_get_default_facade()
     {
-        // TODO get the template from the config of the connector app
-        return 'exface.JEasyUiTemplate.JEasyUiTemplate';
+        // TODO get the facade from the config of the connector app
+        return 'exface.JEasyUIFacade.JEasyUIFacade';
     }
 }
 
 if (! function_exists('exf_get_request')) {
     
-    function exf_get_request($modx, HttpTemplateInterface $template, string $docAlias, string $actionAlias = null) : ServerRequestInterface
+    function exf_get_request($modx, HttpFacadeInterface $facade, string $docAlias, string $actionAlias = null) : ServerRequestInterface
     {
         if (is_null($modx->request)) {
             $modx->request = \GuzzleHttp\Psr7\ServerRequest::fromGlobals()
-            ->withAttribute($template->getRequestAttributeForPage(), $docAlias);
+            ->withAttribute($facade->getRequestAttributeForPage(), $docAlias);
             // Remove query parameters specific to MODx
             $queryParams = $modx->request->getQueryParams();
             unset($queryParams['q']);
@@ -56,13 +56,13 @@ if (! function_exists('exf_get_request')) {
                 $modx->request = (new RequestIdNegotiator)->addRequestId($modx->request);
             }
         }
-        return $modx->request->withAttribute($template->getRequestAttributeForAction(), $actionAlias);
+        return $modx->request->withAttribute($facade->getRequestAttributeForAction(), $actionAlias);
     }
 }
 
 global $exface, $modx;
 
-$template = $template ? $template : null;
+$facade = $facade ? $facade : null;
 $action = $action ? $action : 'exface.Core.ShowWidget';
 $docAlias = $docAlias ? $docAlias : $modx->documentObject['alias'];
 $fallback_field = $fallback_field ? $fallback_field : '';
@@ -104,27 +104,27 @@ switch (strtolower($action)) {
         $result = explode('_', $locale)[0];
         break;
     case 'exface.core.showwidget':
-        $template_instance = TemplateFactory::createFromString($template, $exface);
-        $request = exf_get_request($modx, $template_instance, $docAlias, $action);
-        if ($template_instance instanceof AbstractAjaxTemplate) {
-            $response = $template_instance->handle($request->withAttribute($template_instance->getRequestAttributeForRenderingMode(), AbstractAjaxTemplate::MODE_BODY), 'ShowWidget');
+        $facade_instance = FacadeFactory::createFromString($facade, $exface);
+        $request = exf_get_request($modx, $facade_instance, $docAlias, $action);
+        if ($facade_instance instanceof AbstractAjaxFacade) {
+            $response = $facade_instance->handle($request->withAttribute($facade_instance->getRequestAttributeForRenderingMode(), AbstractAjaxFacade::MODE_BODY), 'ShowWidget');
         } else {
-            $response = $template_instance->handle($request);
+            $response = $facade_instance->handle($request);
         }
         break;
     case "exface.core.showheaders":
-        $template_instance = TemplateFactory::createFromString($template, $exface);
-        $request = exf_get_request($modx, $template_instance, $docAlias, $action);
-        if ($template_instance instanceof AbstractAjaxTemplate) {
+        $facade_instance = FacadeFactory::createFromString($facade, $exface);
+        $request = exf_get_request($modx, $facade_instance, $docAlias, $action);
+        if ($facade_instance instanceof AbstractAjaxFacade) {
             $request = $request
-                ->withAttribute($template_instance->getRequestAttributeForRenderingMode(), AbstractAjaxTemplate::MODE_HEAD)
-                ->withAttribute($template_instance->getRequestAttributeForAction(), 'exface.Core.ShowWidget');
-            $response = $template_instance->handle($request, 'ShowWidget');
+                ->withAttribute($facade_instance->getRequestAttributeForRenderingMode(), AbstractAjaxFacade::MODE_HEAD)
+                ->withAttribute($facade_instance->getRequestAttributeForAction(), 'exface.Core.ShowWidget');
+            $response = $facade_instance->handle($request, 'ShowWidget');
         }
         break;
     default:
-        $template_instance = TemplateFactory::createFromString($template, $exface);
-        $response = $template_instance->handle($request);
+        $facade_instance = FacadeFactory::createFromString($facade, $exface);
+        $response = $facade_instance->handle($request);
 }
 
 if (! isset($result) && isset($response)) {

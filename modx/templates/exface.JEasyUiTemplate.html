@@ -14,10 +14,10 @@
 		<title>[*pagetitle*] :: [(site_name)]</title>
 		        
 		<!-- Generated includes -->
-		[[ExFace? &template=`exface.JEasyUiTemplate.JEasyUiTemplate` &action=`exface.Core.ShowHeaders`]]	
+		[[ExFace? &facade=`exface.JEasyUIFacade.JEasyUIFacade` &action=`exface.Core.ShowHeaders`]]	
 		
 		<!-- jQuery-Plugin to run in iOS-WebApp window -->
-		<script type="text/javascript" src="exface/vendor/exface/JEasyUiTemplate/Templates/js/jquery.stayInWebApp.js"></script>
+		<script type="text/javascript" src="exface/vendor/exface/JEasyUIFacade/Facades/js/jquery.stayInWebApp.js"></script>
 		<script type="text/javascript">
 			$(function() {
 				$.stayInWebApp();
@@ -25,7 +25,7 @@
 		</script>
 		
 		<!-- sparklines -->
-		<script type="text/javascript" src="exface/vendor/exface/JEasyUiTemplate/Templates/js/jquery.sparkline.min.js"></script>
+		<script type="text/javascript" src="exface/vendor/exface/JEasyUIFacade/Facades/js/jquery.sparkline.min.js"></script>
 		
 	</head>
 	<body class="easyui-layout">
@@ -111,7 +111,7 @@
 		
 		<!-- MAIN -->
 		<div data-options="region:'center',title:'[[singleQuotes? &string=`[[DLCrumbs? &showCurrent=`1` &ownerTPL=`@CODE:[+crumbs.wrap+]` &tpl=`@CODE:<a href='[+url+]' title='[+title+]'>[+title+]</a>  »&nbsp;` &tplCurrent=`@CODE:[+title+]`]]`]]'">
-			[[ExFace? &template=`exface.JEasyUiTemplate.JEasyUiTemplate` &fallback_field=`content`]] 
+			[[ExFace? &facade=`exface.JEasyUIFacade.JEasyUIFacade` &fallback_field=`content`]] 
 		</div>
 	</body>
 </html>

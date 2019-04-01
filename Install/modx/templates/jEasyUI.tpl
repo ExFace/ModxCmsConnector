@@ -10,4 +10,4 @@
  * @internal 	@modx_category ExFace
  * @internal    @installset base, sample
  */
-[[ExFace? &template=`exface.JEasyUiTemplate` &action=`exface.ModxCmsConnector.ShowTemplate` &file=`vendor/exface/ModxCmsConnector/modx/templates/exface.JEasyUiTemplate.html`]]
+[[ExFace? &facade=`exface.JEasyUIFacade` &action=`exface.ModxCmsConnector.ShowTemplate` &file=`vendor/exface/ModxCmsConnector/modx/templates/exface.JEasyUITemplate.html`]]
