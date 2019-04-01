@@ -11,4 +11,4 @@
  * @internal    @installset base, sample
  * @internal	@save_sql_id_as BOOTSTRAP_SQL_ID
  */
-[[ExFace?  &facade=`exface.AdminLTEFacade` &action=`exface.ModxCmsConnector.ShowTemplate` &file=`vendor/exface/ModxCmsConnector/modx/templates/exface.AdminLTEFacade.html`]]
+[[ExFace?  &facade=`exface.AdminLTEFacade` &action=`exface.ModxCmsConnector.ShowTemplate` &file=`vendor/exface/ModxCmsConnector/modx/templates/exface.AdminLTETemplate.html`]]
