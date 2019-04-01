@@ -1,5 +1,6 @@
 /* Add the template parameter to all current templates */
-UPDATE modx_site_templates SET content = REPLACE(content, 'ExFace?  &facade=', 'ExFace? &facade=');
+UPDATE modx_site_templates SET content = REPLACE(content, 'ExFace?  &template=', 'ExFace? &facade=');
+UPDATE modx_site_templates SET content = REPLACE(content, 'ExFace? &template=', 'ExFace? &facade=');
 
 UPDATE modx_site_templates SET content = REPLACE(content, 'JEasyUiTemplate.JEasyUiTemplate', 'JEasyUIFacade.JEasyUIFacade');
 UPDATE modx_site_templates SET content = REPLACE(content, 'AdminLteTemplate.AdminLteTemplate', 'AdminLTEFacade.AdminLTEFacade');
