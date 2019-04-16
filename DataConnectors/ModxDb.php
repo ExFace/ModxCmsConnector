@@ -13,10 +13,15 @@ use exface\Core\DataConnectors\MySqlConnector;
  */
 class ModxDb extends MySqlConnector
 {
-
-    var $conn;
-
-    var $isConnected;
+    /**
+     * 
+     * @return DocumentParser
+     */
+    protected function getModx()
+    {
+        global $modx;
+        return $modx;
+    }
 
     /**
      *
@@ -26,15 +31,19 @@ class ModxDb extends MySqlConnector
      */
     protected function performConnect()
     {
-        global $modx;
-        
+        $modx = $this->getModx();
         $this->enableErrorExceptions();
         
         if (! $modx->db->isConnected) {
             $modx->db->connect($this->getHost(), $this->getDbase(), $this->getUser(), $this->getPassword(), $this->getConnectionMethod());
         }
         $this->setCurrentConnection($modx->db->conn);
-        $this->setConnected($modx->db->isConnected);
+    }
+    
+    
+    public function isConnected() : bool
+    {
+        return $this->getModx()->db->isConnected === true;
     }
 
     /**
