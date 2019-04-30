@@ -309,9 +309,9 @@ class Modx extends AbstractCmsConnector
      *
      * {@inheritdoc}
      *
-     * @see \exface\Core\Interfaces\CmsConnectorInterface::buildUrlToApi()
+     * @see \exface\Core\Interfaces\CmsConnectorInterface::buildUrlToRouter()
      */
-    public function buildUrlToApi()
+    public function buildUrlToRouter()
     {
         $modx_path = Filemanager::pathNormalize($this->getApp()->getModx()->config['base_path']);
         $installation_path = Filemanager::pathNormalize($this->getWorkbench()->getInstallationPath());
