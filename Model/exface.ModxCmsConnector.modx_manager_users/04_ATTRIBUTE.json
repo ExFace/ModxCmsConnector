@@ -74,8 +74,12 @@
             "attribute_alias": "COMMENTS"
         },
         {
-            "name": "LABEL",
-            "attribute_alias": "LABEL"
+            "name": "NAME",
+            "attribute_alias": "NAME"
+        },
+        {
+            "name": "RELATION_CARDINALITY",
+            "attribute_alias": "RELATION_CARDINALITY"
         },
         {
             "name": "ALIAS",
@@ -178,7 +182,8 @@
             "DELETE_WITH_RELATED_OBJECT": null,
             "DEFAULT_DISPLAY_UXON": null,
             "COMMENTS": "",
-            "LABEL": "Id",
+            "NAME": "Id",
+            "RELATION_CARDINALITY": "",
             "ALIAS": "id",
             "DATATYPE": "0x30000000000000000000000000000000",
             "DATA_ADDRESS": "id",
@@ -219,7 +224,8 @@
             "DELETE_WITH_RELATED_OBJECT": null,
             "DEFAULT_DISPLAY_UXON": null,
             "COMMENTS": "",
-            "LABEL": "Username",
+            "NAME": "Username",
+            "RELATION_CARDINALITY": "",
             "ALIAS": "username",
             "DATATYPE": "0x30000000000000000000000000000000",
             "DATA_ADDRESS": "username",
@@ -260,7 +266,8 @@
             "DELETE_WITH_RELATED_OBJECT": null,
             "DEFAULT_DISPLAY_UXON": null,
             "COMMENTS": "",
-            "LABEL": "Password",
+            "NAME": "Password",
+            "RELATION_CARDINALITY": "",
             "ALIAS": "password",
             "DATATYPE": "0x30000000000000000000000000000000",
             "DATA_ADDRESS": "password",

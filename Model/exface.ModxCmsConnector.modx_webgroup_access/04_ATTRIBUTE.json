@@ -74,8 +74,12 @@
             "attribute_alias": "COMMENTS"
         },
         {
-            "name": "LABEL",
-            "attribute_alias": "LABEL"
+            "name": "NAME",
+            "attribute_alias": "NAME"
+        },
+        {
+            "name": "RELATION_CARDINALITY",
+            "attribute_alias": "RELATION_CARDINALITY"
         },
         {
             "name": "ALIAS",
@@ -178,7 +182,8 @@
             "DELETE_WITH_RELATED_OBJECT": null,
             "DEFAULT_DISPLAY_UXON": null,
             "COMMENTS": "",
-            "LABEL": "Id",
+            "NAME": "Id",
+            "RELATION_CARDINALITY": "",
             "ALIAS": "id",
             "DATATYPE": "0x30000000000000000000000000000000",
             "DATA_ADDRESS": "id",
@@ -219,7 +224,8 @@
             "DELETE_WITH_RELATED_OBJECT": "1",
             "DEFAULT_DISPLAY_UXON": null,
             "COMMENTS": "",
-            "LABEL": "Webgroup",
+            "NAME": "Webgroup",
+            "RELATION_CARDINALITY": "",
             "ALIAS": "webgroup",
             "DATATYPE": "0x11e7b0277435425e98350205857feb80",
             "DATA_ADDRESS": "webgroup",
@@ -260,7 +266,8 @@
             "DELETE_WITH_RELATED_OBJECT": "1",
             "DEFAULT_DISPLAY_UXON": null,
             "COMMENTS": "",
-            "LABEL": "Documentgroup",
+            "NAME": "Documentgroup",
+            "RELATION_CARDINALITY": "",
             "ALIAS": "documentgroup",
             "DATATYPE": "0x11e7b0277435425e98350205857feb80",
             "DATA_ADDRESS": "documentgroup",
@@ -301,7 +308,8 @@
             "DELETE_WITH_RELATED_OBJECT": null,
             "DEFAULT_DISPLAY_UXON": null,
             "COMMENTS": "",
-            "LABEL": "Label",
+            "NAME": "Label",
+            "RELATION_CARDINALITY": "",
             "ALIAS": "LABEL",
             "DATATYPE": "0x30000000000000000000000000000000",
             "DATA_ADDRESS": "([#~alias#].webgroup || ' ' || [#~alias#].documentgroup)",

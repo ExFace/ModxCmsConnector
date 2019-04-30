@@ -74,8 +74,12 @@
             "attribute_alias": "COMMENTS"
         },
         {
-            "name": "LABEL",
-            "attribute_alias": "LABEL"
+            "name": "NAME",
+            "attribute_alias": "NAME"
+        },
+        {
+            "name": "RELATION_CARDINALITY",
+            "attribute_alias": "RELATION_CARDINALITY"
         },
         {
             "name": "ALIAS",
@@ -178,7 +182,8 @@
             "DELETE_WITH_RELATED_OBJECT": null,
             "DEFAULT_DISPLAY_UXON": null,
             "COMMENTS": "",
-            "LABEL": "Id",
+            "NAME": "Id",
+            "RELATION_CARDINALITY": "",
             "ALIAS": "id",
             "DATATYPE": "0x30000000000000000000000000000000",
             "DATA_ADDRESS": "id",
@@ -219,7 +224,8 @@
             "DELETE_WITH_RELATED_OBJECT": null,
             "DEFAULT_DISPLAY_UXON": null,
             "COMMENTS": "",
-            "LABEL": "Name",
+            "NAME": "Name",
+            "RELATION_CARDINALITY": "",
             "ALIAS": "name",
             "DATATYPE": "0x30000000000000000000000000000000",
             "DATA_ADDRESS": "name",
@@ -260,7 +266,8 @@
             "DELETE_WITH_RELATED_OBJECT": null,
             "DEFAULT_DISPLAY_UXON": null,
             "COMMENTS": "",
-            "LABEL": "Private memgroup",
+            "NAME": "Private memgroup",
+            "RELATION_CARDINALITY": "",
             "ALIAS": "private_memgroup",
             "DATATYPE": "0x37000000000000000000000000000000",
             "DATA_ADDRESS": "private_memgroup",
@@ -301,7 +308,8 @@
             "DELETE_WITH_RELATED_OBJECT": null,
             "DEFAULT_DISPLAY_UXON": null,
             "COMMENTS": "",
-            "LABEL": "Private webgroup",
+            "NAME": "Private webgroup",
+            "RELATION_CARDINALITY": "",
             "ALIAS": "private_webgroup",
             "DATATYPE": "0x37000000000000000000000000000000",
             "DATA_ADDRESS": "private_webgroup",

@@ -74,8 +74,12 @@
             "attribute_alias": "COMMENTS"
         },
         {
-            "name": "LABEL",
-            "attribute_alias": "LABEL"
+            "name": "NAME",
+            "attribute_alias": "NAME"
+        },
+        {
+            "name": "RELATION_CARDINALITY",
+            "attribute_alias": "RELATION_CARDINALITY"
         },
         {
             "name": "ALIAS",
@@ -178,7 +182,8 @@
             "DELETE_WITH_RELATED_OBJECT": "1",
             "DEFAULT_DISPLAY_UXON": null,
             "COMMENTS": "",
-            "LABEL": "Webuser",
+            "NAME": "Webuser",
+            "RELATION_CARDINALITY": "",
             "ALIAS": "webuser",
             "DATATYPE": "0x11e7b0277435425e98350205857feb80",
             "DATA_ADDRESS": "webuser",
@@ -219,7 +224,8 @@
             "DELETE_WITH_RELATED_OBJECT": null,
             "DEFAULT_DISPLAY_UXON": null,
             "COMMENTS": "",
-            "LABEL": "Setting name",
+            "NAME": "Setting name",
+            "RELATION_CARDINALITY": "",
             "ALIAS": "setting_name",
             "DATATYPE": "0x30000000000000000000000000000000",
             "DATA_ADDRESS": "setting_name",
@@ -260,7 +266,8 @@
             "DELETE_WITH_RELATED_OBJECT": null,
             "DEFAULT_DISPLAY_UXON": null,
             "COMMENTS": "",
-            "LABEL": "Setting value",
+            "NAME": "Setting value",
+            "RELATION_CARDINALITY": "",
             "ALIAS": "setting_value",
             "DATATYPE": "0x31310000000000000000000000000000",
             "DATA_ADDRESS": "setting_value",

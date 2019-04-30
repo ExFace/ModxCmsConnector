@@ -60,7 +60,7 @@
             "APP": "0x11e680a7f9cdf732a177c0f8dae36b4f",
             "LABEL": "Current MODx DB",
             "CONNECTOR": "exface\/ModxCmsConnector\/DataConnectors\/ModxDb.php",
-            "CONFIG": "{}",
+            "CONFIG": null,
             "READONLY": "0",
             "ALIAS": "MODX_DB",
             "FILTER_CONTEXT": ""
