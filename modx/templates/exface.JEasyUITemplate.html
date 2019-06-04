@@ -48,7 +48,7 @@
 					[!if &is=`[!UserManagerInfo!]:not_empty` &then=`
 					<div class="toolbar-element user-info"> 
 						[!if? &is=`[!UserManagerInfo? &field=`photo`!]:not_empty` &then=`<img src="[!UserManagerInfo? &field=`photo`!]" height="30" class="user-image" /> ` &else=``!]
-						<span class="user-display">[!UserManagerInfo? &field=`fullname`!]</span>
+						<span class="user-display">[!UserManagerInfo? &field=`username`!]</span>
 					</div>
 					<div class="toolbar-element login-logout">
 						<div class="toolbar-button">
