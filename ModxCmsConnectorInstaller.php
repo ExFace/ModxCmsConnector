@@ -2,6 +2,8 @@
 namespace exface\ModxCmsConnector;
 
 use exface\Core\CommonLogic\AppInstallers\AbstractAppInstaller;
+use exface\Core\Factories\DataSheetFactory;
+use exface\Core\DataTypes\StringDataType;
 
 /**
  *
@@ -29,7 +31,7 @@ class ModxCmsConnectorInstaller extends AbstractAppInstaller
         }
         
         try {
-            $modx = $this->getWorkbench()->getApp('exface.ModxCmsConnector')->getModx();
+            $modx = $this->getModx();
         } catch (\Throwable $e) {
             $result .= "\nError getting MODx";
             return $result;
@@ -55,7 +57,67 @@ class ModxCmsConnectorInstaller extends AbstractAppInstaller
             $result .= "\nError updating MODx settings;" . $e->getMessage();
         }
         
+        // Sync users
+        $result .= $this->importUsers($modx);
+        
         return $result;
+    }
+    
+    protected function getModx()
+    {
+        return $this->getWorkbench()->getApp('exface.ModxCmsConnector')->getModx();
+    }
+    
+    /**
+     * Imports manager users from the CMS if there are no users registered in ExFace yet.
+     * 
+     * @param \DocumentParser $modx
+     * @return string
+     */
+    protected function importUsers(\DocumentParser $modx) : string
+    {
+        $ds = DataSheetFactory::createFromObjectIdOrAlias($this->getWorkbench(), 'exface.Core.USER');
+        if ($ds->countRowsInDataSource() > 0) {
+            return '';
+        }
+        
+        $tblManagerUsers = $modx->getFullTableName('manager_users');
+        $tblUserAttributes = $modx->getFullTableName('user_attributes');
+        $tblUserSettings = $modx->getFullTableName('user_settings');
+        $sql = <<<SQL
+SELECT 
+    ma.username, 
+    ua.fullname, 
+    ua.email,
+    sl.setting_value AS manager_language
+FROM {$tblManagerUsers} ma 
+    INNER JOIN {$tblUserAttributes} ua ON ma.id = ua.internalKey
+    LEFT JOIN {$tblUserSettings} sl ON ma.id = sl.user AND sl.setting_name = "manager_language"
+SQL;
+        $result = $modx->db->query($sql);
+        while ($row = $modx->db->getRow($result)) {
+            $langLocalMap = $this->getWorkbench()->getApp('exface.ModxCmsConnector')->getConfig()->getOption('USERS.LANGUAGE_LOCALE_MAPPING')->toArray();
+            if (($lang = $row['manager_language']) && array_key_exists($lang, $langLocalMap)) {
+                $locale = $langLocalMap[$lang];
+            } else {
+                $locale = $this->getWorkbench()->getCoreApp()->getConfig()->getOption('LOCALE.DEFAULT');
+            }
+            $ds->addRow([
+                'USERNAME' => $row['username'],
+                'EMAIL' => $row['email'],
+                'FIRST_NAME' => StringDataType::substringBefore($row['fullname'], ' '),
+                'LAST_NAME' => StringDataType::substringAfter($row['fullname'], ' '),
+                'LOCALE' => $locale,
+                'CREATED_BY_USER' => '0x00000000000000000000000000000000',
+                'MODIFIED_BY_USER' => '0x00000000000000000000000000000000'
+            ]);
+        }
+        
+        if ($ds->countRows() > 0) {
+            $ds->dataCreate();
+        }
+        
+        return "\nImported {$ds->countRows()} manager users from CMS.";
     }
 
     /**
