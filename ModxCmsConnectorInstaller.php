@@ -114,6 +114,12 @@ SQL;
         }
         
         if ($ds->countRows() > 0) {
+            // IMPORTANT: disable fixed values for modified-by-column because otherwise it will
+            // try to fetch the current user UID and cause errors since there are no users there 
+            // right now - we are trying to create them!
+            if ($user_col = $ds->getColumns()->getByExpression('MODIFIED_BY_USER')) {
+                $user_col->setIgnoreFixedValues(true);
+            }
             $ds->dataCreate();
         }
         
