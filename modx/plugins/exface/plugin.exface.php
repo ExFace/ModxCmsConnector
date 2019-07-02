@@ -413,7 +413,6 @@ switch ($eventName) {
                                     
                                     // If there are values for the autosuggest, call resolve()
                                     if (json.values !== undefined ){
-                                        json.values.sort();
                                         resolve(json.values);
                                     }
                                     
