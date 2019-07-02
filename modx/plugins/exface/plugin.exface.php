@@ -397,23 +397,48 @@ switch ($eventName) {
                                 } else {
                                     reject();
                                 }
-                   		   } else {
+                            } else {
                                 editor._autosuggestPending = true;
                                 var uxon = JSON.stringify(editor.get());
-                                return jsonEditorFetchAutosuggest('widget', text, path, input, uxon, resolve, reject)
-                       			.then(json => {
-               				         if (json !== undefined) {
-                       					editor._autosuggestPending = false;
-                       					editor._autosuggestLastPath = pathBase;
-                       					editor._autosuggestLastResult = json;
-                       				}
-                   			    });
+                                return jsonEditorFetchAutosuggest('widget', text, path, input, uxon)
+                                .then(json => {                                          
+                                    editor._autosuggestPending = false;
+                                    if (json === undefined) {
+                                        reject();
+                                    }
+                                        
+                                    // Cache response data
+                                    editor._autosuggestLastPath = pathBase;
+                                    editor._autosuggestLastResult = json;
+                                    
+                                    // If there are values for the autosuggest, call resolve()
+                                    if (json.values !== undefined ){
+                                        json.values.sort();
+                                        resolve(json.values);
+                                    }
+                                    
+                                    // return response data for further processing
+                                    return json;
+                                })
+                               .catch((err) => { 
+                                    editor._autosuggestPending = false;
+                                    console.warn('Autosuggest failed. ', err);
+                               });
            		           }
+                        })
+                        .catch((err) => {
+                            editor._autosuggestPending = false;
+                            console.warn("Autosuggest failed while getting options - ignored.", err);
+                            return Promise.resolve([]);
                         });
                     }
                 },
                 onError: function (err) {
-				    alert(err.toString());
+                    try{
+				        alert(err.toString());
+                    } catch{
+                        console.error('Alert from UXON editor: ', err);
+                    }
 				}
             };
 			  
@@ -472,7 +497,7 @@ switch ($eventName) {
 		}
 	}
 
-    function jsonEditorFetchAutosuggest(schema, text, path, input, uxon, resolve, reject) {
+    function jsonEditorFetchAutosuggest(schema, text, path, input, uxon) {
         var formData = new URLSearchParams({
     		action: 'exface.Core.UxonAutosuggest',
     		text: text,
@@ -494,9 +519,19 @@ switch ($eventName) {
     		referrer: "no-referrer", // no-referrer, *client
     		body: formData, // body data type must match "Content-Type" header
     	})
-    	.then(response => response.json())
-    	.then(json => {resolve(json.values); return json;})
-    	.catch(response => {reject();}); // parses response to JSON
+    	.then(response => {
+            if (
+                response
+                && response.ok 
+                && response.status === 200 
+                && response.headers 
+                && ((response.headers.get('content-type') || '') === "application/json")
+            ) {
+                return response.json();
+            } else {
+                return Promise.reject({message: "Failed read JSON from fetch: Malformed response!", response: response});
+            }
+        });
     }
 
     function jsonEditorgetNodeFromTarget(target) {
