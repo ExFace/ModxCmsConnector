@@ -7,6 +7,7 @@ use exface\Core\Interfaces\Exceptions\ExceptionInterface;
 use exface\Core\CommonLogic\Selectors\UiPageSelector;
 use exface\Core\Interfaces\Selectors\AliasSelectorInterface;
 use exface\Core\Factories\SelectorFactory;
+use exface\Core\Facades\AbstractAjaxFacade\Elements\JsonEditorTrait;
 
 /**
  * ExFace
@@ -340,6 +341,15 @@ switch ($eventName) {
         
         $default_height = is_int($uxon_editor_height) ? $uxon_editor_height : 600;
         
+        $uxonEditorOptions = JsonEditorTrait::buildJsUxonEditorOptions('widget', 'jsonEditorFetchAutosuggest');
+        $uxonEditorAutosuggest = JsonEditorTrait::buildJsUxonAutosuggestFunctions(
+            'jsonEditorFetchAutosuggest', 
+            'widget', 
+            'undefined', 
+            'undefined', 
+            $autosuggestUrl
+        );
+        
         $richIds=implode('","',$elements);
         $output .= <<< OUT
 
@@ -363,82 +373,16 @@ switch ($eventName) {
 			newDiv.style.height = '{$default_height}'+'px';
 			
 			var options = {
-				name: "widget",
-                mode: "tree",
-                modes: ['code', 'tree'],
-                enableTransform: false,
-            	enableSort: false,
-                autocomplete: {
-                    applyTo: ['value'],
-                    filter: function (token, match, config) {
-                        // remove leading space in token if not the only character
-                        if (  token.length > 1 
-                            && ( token.search(/^\s[^\s]/i) > -1 )
-                        ) {
-                            token = token.substr(1, token.length - 1);
-                        }
-	
-                        // remove spaces in token if preceeded by double underscores
-                        if (  token.length > 3  && token.search(/\_\_\s/i) ) {
-                            token = token.substr(0, token.length - 1);
-
-                        // return true if token consists of whitespace characters only
-                        } else if (!token.replace(/\s/g, '').length) {
-                            return true;
-                        } 
-                        return match.indexOf(token) > -1;
-                    },
-                    getOptions: function (text, path, input, editor) {
-                        return new Promise(function (resolve, reject) {
-                  		    var pathBase = path.length <= 1 ? '' : JSON.stringify(path.slice(-1));
-                  		    if (editor._autosuggestPending === true) {
-                                if (editor._autosuggestLastResult && editor._autosuggestLastPath == pathBase) {
-                                    resolve(editor._autosuggestLastResult.values);
-                                } else {
-                                    reject();
-                                }
-                            } else {
-                                editor._autosuggestPending = true;
-                                var uxon = JSON.stringify(editor.get());
-                                return jsonEditorFetchAutosuggest('widget', text, path, input, uxon)
-                                .then(json => {                                          
-                                    editor._autosuggestPending = false;
-                                    if (json === undefined) {
-                                        reject();
-                                    }
-                                        
-                                    // Cache response data
-                                    editor._autosuggestLastPath = pathBase;
-                                    editor._autosuggestLastResult = json;
-                                    
-                                    // If there are values for the autosuggest, call resolve()
-                                    if (json.values !== undefined ){
-                                        resolve(json.values);
-                                    }
-                                    
-                                    // return response data for further processing
-                                    return json;
-                                })
-                               .catch((err) => { 
-                                    editor._autosuggestPending = false;
-                                    console.warn('Autosuggest failed. ', err);
-                               });
-           		           }
-                        })
-                        .catch((err) => {
-                            editor._autosuggestPending = false;
-                            console.warn("Autosuggest failed while getting options - ignored.", err);
-                            return Promise.resolve([]);
-                        });
-                    }
-                },
-                onError: function (err) {
+				onError: function (err) {
                     try{
 				        alert(err.toString());
                     } catch{
                         console.error('Alert from UXON editor: ', err);
                     }
-				}
+				},
+                mode: "tree",
+                modes: ['code', 'tree'],
+                {$uxonEditorOptions}
             };
 			  
 			var editor = new JSONEditor(newDiv, options);
@@ -448,35 +392,6 @@ switch ($eventName) {
 
 			el.parentNode.insertBefore(newDiv,el.nextSibling);
 			el.style.display='none';
-
-			var help = document.createElement('div');
-			var helpInner = document.createElement('div');
-			helpInner.style.display='none';
-			help.addEventListener("click", function(){
-                helpInner.style.display=(helpInner.style.display === "block" ? "none" : "block");
-            });
-			helpInner.innerHTML = "<table>"+
-									"<tr><th>Key</th><th>Description</th></tr>"+
-									"<tr><td>Alt+Arrows</td><td>Move the caret up/down/left/right between fields</td></tr>"+
-									"<tr><td>Shift+Alt+Arrows</td><td>Move field up/down/left/right</td></tr>"+
-									"<tr><td>Ctrl+D</td><td>Duplicate field</td></tr>"+
-									"<tr><td>Ctrl+Del</td><td>Remove field</td></tr>"+
-									"<tr><td>Ctrl+Enter</td><td>Open link when on a field containing an url</td></tr>"+
-									"<tr><td>Ctrl+Ins</td><td>Insert a new field with type auto</td></tr>"+
-									"<tr><td>Ctrl+Shift+Ins</td><td>Append a new field with type auto</td></tr>"+
-									"<tr><td>Ctrl+E</td><td>Expand or collapse field</td></tr>"+
-									"<tr><td>Alt+End</td><td>Move the caret to the last field</td></tr>"+
-									"<tr><td>Ctrl+F</td><td>Find</td></tr>"+
-									"<tr><td>F3, Ctrl+G<br></td><td>Find next</td></tr>"+
-									"<tr><td>Shift+F3, Ctrl+Shift+G</td><td>Find previous</td></tr>"+
-									"<tr><td>Alt+Home</td><td>Move the caret to the first field</td></tr>"+
-									"<tr><td>Ctrl+M</td><td>Show actions menu</td></tr>"+
-									"<tr><td>Ctrl+Z</td><td>Undo last action</td></tr>"+
-									"<tr><td>Ctrl+Shift+Z</td><td>Redo</td></tr>"+
-								  "</table>";
-            help.innerHtml = '<a href="javascript:;"><i class="fa fa-question-circle" aria-hidden="true"></i> Keyboard Shortcuts</a>';
-			//help.appendChild(helpInner);
-			newDiv.parentNode.insertBefore(help,newDiv.nextSibling);
 			
 			form = el.form;
 			if (form.attachEvent) {
@@ -496,90 +411,12 @@ switch ($eventName) {
 		}
 	}
 
-    function jsonEditorFetchAutosuggest(schema, text, path, input, uxon) {
-        var formData = new URLSearchParams({
-    		action: 'exface.Core.UxonAutosuggest',
-    		text: text,
-    		path: JSON.stringify(path),
-    		input: input,
-    		schema: schema,
-    		uxon: uxon
-    	});
-    	return fetch('{$autosuggestUrl}', {
-    		method: "POST", // *GET, POST, PUT, DELETE, etc.
-    		mode: "cors", // no-cors, cors, *same-origin
-    		cache: "no-cache", // *default, no-cache, reload, force-cache, only-if-cached
-    		credentials: "same-origin", // include, *same-origin, omit
-    		headers: {
-    			//"Content-Type": "application/json; charset=utf-8",
-    			"Content-Type": "application/x-www-form-urlencoded",
-    		},
-    		redirect: "follow", // manual, *follow, error
-    		referrer: "no-referrer", // no-referrer, *client
-    		body: formData, // body data type must match "Content-Type" header
-    	})
-    	.then(response => {
-            if (
-                response
-                && response.ok 
-                && response.status === 200 
-                && response.headers 
-                && ((response.headers.get('content-type') || '') === "application/json")
-            ) {
-                return response.json();
-            } else {
-                return Promise.reject({message: "Failed read JSON from fetch: Malformed response!", response: response});
-            }
-        });
-    }
-
-    function jsonEditorgetNodeFromTarget(target) {
-	   while (target) {
-    	    if (target.node) {
-    	       return target.node;
-    	    }
-    	    target = target.parentNode;
-       }
-    
-	   return undefined;
-    }
-  
-    function jsonEditorfocusFirstChildValue(node) {
-    	var child, found;
-    	for (var i in node.childs) {
-    		child = node.childs[i];
-    		if (child.type === 'string' || child.type === 'auto') {
-    			child.focus(child.getField() ? 'value' : 'field');
-                return child;
-    		} else {
-    			found = jsonEditorfocusFirstChildValue(child);
-                if (found) {
-                    return found;
-                }
-    		}
-    	}
-    	return false;
-    }
+    {$uxonEditorAutosuggest}
 
     window.\$j(function() {
         for (var e in jsonEditors) {
         	var editor = jsonEditors[e];
-            window.\$j(document).on('blur', '#jsonEditor'+e+' div.jsoneditor-field[contenteditable="true"]', function() {
-                var node = jsonEditorgetNodeFromTarget(this);
-        		if (node.getValue() === '') {
-            		var path = node.getPath();
-            		var prop = path[path.length-1];
-            		if (editor._autosuggestLastResult && editor._autosuggestLastResult.templates) {
-            			var tpl = editor._autosuggestLastResult.templates[prop];
-            			if (tpl) {
-            				var val = JSON.parse(tpl);
-            				node.setValue(val, (Array.isArray(val) ? 'array' : 'object'));
-            				node.expand(true);
-            				jsonEditorfocusFirstChildValue(node);
-            			}
-            		} 
-                }
-        	});
+            window.\$j(document).on('blur', '#jsonEditor'+e+' div.jsoneditor-field[contenteditable="true"]', {jsonEditor: editor}, jsonEditorFetchAutosuggest_onBlur);
         }
     });
 	</script>
