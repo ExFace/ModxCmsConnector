@@ -8,6 +8,8 @@ use exface\Core\CommonLogic\Selectors\UiPageSelector;
 use exface\Core\Interfaces\Selectors\AliasSelectorInterface;
 use exface\Core\Factories\SelectorFactory;
 use exface\Core\Facades\AbstractAjaxFacade\Elements\JsonEditorTrait;
+use exface\Core\Factories\FacadeFactory;
+use exface\Core\Facades\DocsFacade;
 
 /**
  * ExFace
@@ -338,12 +340,24 @@ switch ($eventName) {
         if($editor!=='UXONeditor') return;
         $base_path = MODX_BASE_URL;
         $autosuggestUrl = $base_path . 'exface/api/jeasyui';
+
+        $workbench = $exface->getCMS()->getWorkbench();
+      
+        /* @var \exface\Core\Facades\DocsFacade $docsFacadeClass */
+        $docsFacade = FacadeFactory::createFromAnything(DocsFacade::class, $workbench);
+        $uxonEditorHelpUrl = $docsFacade->buildUrlToFacade() . '/exface/Core/Docs/Creating_UIs/UXON/Introduction_to_the_UXON_editor.md';
         
         $default_height = is_int($uxon_editor_height) ? $uxon_editor_height : 600;
+        
+        $uxonEditorFuncPrefix = 'jsonEditor';
+        $addHelpButtonFunction = JsonEditorTrait::buildJsFunctionNameAddHelpButton($uxonEditorFuncPrefix);
+        $onBlurFunction = JsonEditorTrait::buildJsFunctionNameOnBlur($uxonEditorFuncPrefix);
+        $fetchAutosuggestFunction = JsonEditorTrait::buildJsFunctionNameFetchAutosuggest($uxonEditorFuncPrefix);
+        
         $uxonEditorCss = JsonEditorTrait::buildCssModalStyles();
-        $uxonEditorOptions = JsonEditorTrait::buildJsUxonEditorOptions('widget', 'jsonEditorFetchAutosuggest');
+        $uxonEditorOptions = JsonEditorTrait::buildJsUxonEditorOptions('widget', $fetchAutosuggestFunction);
         $uxonEditorAutosuggest = JsonEditorTrait::buildJsUxonAutosuggestFunctions(
-            'jsonEditorFetchAutosuggest', 
+            $uxonEditorFuncPrefix, 
             'widget', 
             'undefined', 
             'undefined', 
@@ -364,6 +378,8 @@ switch ($eventName) {
 		.jsoneditor-contextmenu ul.menu {width: 126px !important}
         .jsoneditor-modal > label {display: block; width: 100%; height: 100%; margin: 0;}
         .jsoneditor-modal.jsoneditor-modal-nopadding iframe {width: 100% !important; }
+        .jsoneditor-modal.uxoneditor-modal {position: fixed !important;}
+        .jsoneditor-modal-overlay.pico-overlay {position: fixed !important;}
 	</style>
 	
 	<!-- Plugin initialization --><script type="text/javascript">
@@ -392,10 +408,10 @@ switch ($eventName) {
 			editor.setText(el.innerHTML || "{}");
 		    editor.expandAll();
             setTimeout(function() {
-                jsonEditorFetchAutosuggest_addHelpButton(
+                {$addHelpButtonFunction}(
                     window.\$j,
                     'jsonEditor'+richId,
-                    "{$base_path}/exface/api/docs/exface/Core/Docs/Creating_UIs/UXON/Introduction_to_the_UXON_editor.md",
+                    "{$uxonEditorHelpUrl}",
                     "Help" 
                 );
             }, 0);
@@ -415,6 +431,7 @@ switch ($eventName) {
 			
 	}
 	
+
 	function jsonEditorSave(e){
 		for (key in jsonEditors){
 			var el = document.getElementById(key);
@@ -429,7 +446,7 @@ switch ($eventName) {
     window.\$j(function() {
         for (var e in jsonEditors) {
         	var editor = jsonEditors[e];
-            window.\$j(document).on('blur', '#jsonEditor'+e+' div.jsoneditor-field[contenteditable="true"]', {jsonEditor: editor}, jsonEditorFetchAutosuggest_onBlur);
+            window.\$j(document).on('blur', '#jsonEditor'+e+' div.jsoneditor-field[contenteditable="true"]', {jsonEditor: editor}, {$onBlurFunction});
         }
     });
 	</script>
