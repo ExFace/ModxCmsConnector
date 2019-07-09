@@ -340,7 +340,7 @@ switch ($eventName) {
         $autosuggestUrl = $base_path . 'exface/api/jeasyui';
         
         $default_height = is_int($uxon_editor_height) ? $uxon_editor_height : 600;
-        
+        $uxonEditorCss = JsonEditorTrait::buildCssModalStyles();
         $uxonEditorOptions = JsonEditorTrait::buildJsUxonEditorOptions('widget', 'jsonEditorFetchAutosuggest');
         $uxonEditorAutosuggest = JsonEditorTrait::buildJsUxonAutosuggestFunctions(
             'jsonEditorFetchAutosuggest', 
@@ -356,10 +356,14 @@ switch ($eventName) {
 	<!-- JSON editor -->
 	<link rel="stylesheet" type="text/css" href="{$base_path}exface/vendor/npm-asset/jsoneditor/dist/jsoneditor.min.css">
 	<script type="text/javascript" src="{$base_path}exface/vendor/npm-asset/jsoneditor/dist/jsoneditor.min.js"></script>
+    <script type="text/javascript" src="{$base_path}exface/vendor/npm-asset/picomodal/src/picoModal.js"></script>
+    <style type="text/css">{$uxonEditorCss}</style>
 	
     <!-- Style fixes for MODx -->
 	<style>
 		.jsoneditor-contextmenu ul.menu {width: 126px !important}
+        .jsoneditor-modal > label {display: block; width: 100%; height: 100%; margin: 0;}
+        .jsoneditor-modal.jsoneditor-modal-nopadding iframe {width: 100% !important; }
 	</style>
 	
 	<!-- Plugin initialization --><script type="text/javascript">
@@ -384,10 +388,18 @@ switch ($eventName) {
                 modes: ['code', 'tree'],
                 {$uxonEditorOptions}
             };
-			  
 			var editor = new JSONEditor(newDiv, options);
 			editor.setText(el.innerHTML || "{}");
-						editor.expandAll();
+		    editor.expandAll();
+            setTimeout(function() {
+                jsonEditorFetchAutosuggest_addHelpButton(
+                    window.\$j,
+                    'jsonEditor'+richId,
+                    "{$base_path}/exface/api/docs/exface/Core/Docs/Creating_UIs/UXON/Introduction_to_the_UXON_editor.md",
+                    "Help" 
+                );
+            }, 0);
+
 			jsonEditors[richId] = editor;
 
 			el.parentNode.insertBefore(newDiv,el.nextSibling);
@@ -399,6 +411,7 @@ switch ($eventName) {
 			} else {
 				form.addEventListener("submit", jsonEditorSave);
 			}
+
 			
 	}
 	
