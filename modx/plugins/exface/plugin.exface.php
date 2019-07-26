@@ -352,10 +352,9 @@ switch ($eventName) {
         $uxonEditorFuncPrefix = 'jsonEditor';
         $addHelpButtonFunction = JsonEditorTrait::buildJsFunctionNameAddHelpButton($uxonEditorFuncPrefix);
         $onBlurFunction = JsonEditorTrait::buildJsFunctionNameOnBlur($uxonEditorFuncPrefix);
-        $fetchAutosuggestFunction = JsonEditorTrait::buildJsFunctionNameFetchAutosuggest($uxonEditorFuncPrefix);
         
         $uxonEditorCss = JsonEditorTrait::buildCssModalStyles();
-        $uxonEditorOptions = JsonEditorTrait::buildJsUxonEditorOptions('widget', $fetchAutosuggestFunction);
+        $uxonEditorOptions = JsonEditorTrait::buildJsUxonEditorOptions('widget', $uxonEditorFuncPrefix);
         $uxonEditorAutosuggest = JsonEditorTrait::buildJsUxonAutosuggestFunctions(
             $uxonEditorFuncPrefix, 
             'widget', 
