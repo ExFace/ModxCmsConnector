@@ -358,8 +358,8 @@ switch ($eventName) {
         $uxonEditorAutosuggest = JsonEditorTrait::buildJsUxonAutosuggestFunctions(
             $uxonEditorFuncPrefix, 
             'widget', 
-            'undefined', 
-            'undefined', 
+            'null', 
+            'null', 
             $autosuggestUrl
         );
         
