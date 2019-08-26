@@ -339,6 +339,7 @@ switch ($eventName) {
         
         if($editor!=='UXONeditor') return;
         $base_path = MODX_BASE_URL;
+       
         $autosuggestUrl = $base_path . 'exface/api/jeasyui';
 
         $workbench = $exface->getCMS()->getWorkbench();
@@ -350,17 +351,21 @@ switch ($eventName) {
         $default_height = is_int($uxon_editor_height) ? $uxon_editor_height : 600;
         
         $uxonEditorFuncPrefix = 'jsonEditor';
+        $uxonEditorId = 'UXONeditor';
         $addHelpButtonFunction = JsonEditorTrait::buildJsFunctionNameAddHelpButton($uxonEditorFuncPrefix);
+        $addPresetHint = JsonEditorTrait::buildJsFunctionNameAddPresetHint($uxonEditorFuncPrefix);
         $onBlurFunction = JsonEditorTrait::buildJsFunctionNameOnBlur($uxonEditorFuncPrefix);
         
-        $uxonEditorCss = JsonEditorTrait::buildCssModalStyles();
-        $uxonEditorOptions = JsonEditorTrait::buildJsUxonEditorOptions('widget', $uxonEditorFuncPrefix);
-        $uxonEditorAutosuggest = JsonEditorTrait::buildJsUxonAutosuggestFunctions(
+        $uxonEditorCss = JsonEditorTrait::buildCssModalStyles($uxonEditorId);
+        $uxonEditorOptions = JsonEditorTrait::buildJsUxonEditorOptions('widget', $uxonEditorFuncPrefix, $workbench);
+        $uxonEditorAutosuggest = JsonEditorTrait::buildJsUxonEditorFunctions(
             $uxonEditorFuncPrefix, 
             'widget', 
             'undefined', 
             'undefined', 
-            $autosuggestUrl
+            $autosuggestUrl,
+            $workbench,
+            $uxonEditorId
         );
         
         $richIds=implode('","',$elements);
@@ -368,19 +373,21 @@ switch ($eventName) {
 
 	<!-- JSON editor -->
 	<link rel="stylesheet" type="text/css" href="{$base_path}exface/vendor/npm-asset/jsoneditor/dist/jsoneditor.min.css">
-	<script type="text/javascript" src="{$base_path}exface/vendor/npm-asset/jsoneditor/dist/jsoneditor.min.js"></script>
+    <script type="text/javascript" src="{$base_path}exface/vendor/npm-asset/jsoneditor/dist/jsoneditor.min.js"></script>
     <script type="text/javascript" src="{$base_path}exface/vendor/npm-asset/picomodal/src/picoModal.js"></script>
+    <link rel="stylesheet" type= "text/css" href="$base_path}exface/vendor/npm-asset/mobius1-selectr/src/selectr.css">
+    <script type="text/javascript" src="{$base_path}exface/vendor/npm-asset/mobius1-selectr/src/selectr.js"></script>
     <style type="text/css">{$uxonEditorCss}</style>
-	
     <!-- Style fixes for MODx -->
 	<style>
-		.jsoneditor-contextmenu ul.menu {width: 126px !important}
+	    .jsoneditor-contextmenu ul.menu {width: 126px !important}
         .jsoneditor-modal > label {display: block; width: 100%; height: 100%; margin: 0;}
         .jsoneditor-modal.jsoneditor-modal-nopadding iframe {width: 100% !important; }
         .jsoneditor-modal.uxoneditor-modal {position: fixed !important;}
         .jsoneditor-modal-overlay.pico-overlay {position: fixed !important;}
-	</style>
+</style>
 	
+ 
 	<!-- Plugin initialization --><script type="text/javascript">
 	var richIds = ["{$richIds}"];
 	var jsonEditors = {};
@@ -414,7 +421,8 @@ switch ($eventName) {
                     "Help" 
                 );
             }, 0);
-
+            {$addPresetHint}();
+            
 			jsonEditors[richId] = editor;
 
 			el.parentNode.insertBefore(newDiv,el.nextSibling);
@@ -426,6 +434,7 @@ switch ($eventName) {
 			} else {
 				form.addEventListener("submit", jsonEditorSave);
 			}
+
 
 			
 	}
