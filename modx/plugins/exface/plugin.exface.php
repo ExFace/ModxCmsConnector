@@ -358,7 +358,7 @@ switch ($eventName) {
         
         $uxonEditorCss = JsonEditorTrait::buildCssModalStyles($uxonEditorId);
         $uxonEditorOptions = JsonEditorTrait::buildJsUxonEditorOptions('widget', $uxonEditorFuncPrefix, $workbench);
-        $uxonEditorAutosuggest = JsonEditorTrait::buildJsUxonEditorFunctions(
+        $uxonEditorFunctions = JsonEditorTrait::buildJsUxonEditorFunctions(
             $uxonEditorFuncPrefix, 
             'widget', 
             'null', 
@@ -388,75 +388,79 @@ switch ($eventName) {
 </style>
 	
  
-	<!-- Plugin initialization --><script type="text/javascript">
-	var richIds = ["{$richIds}"];
-	var jsonEditors = {};
-	for (var richField=0;richField<richIds.length;richField++){
-			var richId = richIds[richField];
-			var el = document.getElementById(richId);
-			var newDiv = document.createElement('div');
-			newDiv.setAttribute('id', 'jsonEditor'+richId);
-			newDiv.style.height = '{$default_height}'+'px';
-			
-			var options = {
-				onError: function (err) {
-                    try{
-				        alert(err.toString());
-                    } catch{
-                        console.error('Alert from UXON editor: ', err);
-                    }
-				},
-                mode: "tree",
-                modes: ['code', 'tree'],
-                {$uxonEditorOptions}
-            };
-			var editor = new JSONEditor(newDiv, options);
-			editor.setText(el.innerHTML || "{}");
-		    editor.expandAll();
-            setTimeout(function() {
-                {$addHelpButtonFunction}(
-                    window.\$j,
-                    'jsonEditor'+richId,
-                    "{$uxonEditorHelpUrl}",
-                    "Help" 
-                );
-            }, 0);
-            {$addPresetHint}();
-            
-			jsonEditors[richId] = editor;
+	<!-- Plugin initialization -->
+    <script type="text/javascript">
+        (function(){
+            var $ = window.\$j;
+        	var richIds = ["{$richIds}"];
+        	var jsonEditors = {};
+        	for (var richField=0;richField<richIds.length;richField++){
+        			var richId = richIds[richField];
+        			var el = document.getElementById(richId);
+        			var newDiv = document.createElement('div');
+        			newDiv.setAttribute('id', 'jsonEditor'+richId);
+        			newDiv.style.height = '{$default_height}'+'px';
+        			
+        			var options = {
+        				onError: function (err) {
+                            try{
+        				        alert(err.toString());
+                            } catch{
+                                console.error('Alert from UXON editor: ', err);
+                            }
+        				},
+                        mode: "tree",
+                        modes: ['code', 'tree'],
+                        {$uxonEditorOptions}
+                    };
+        			var editor = new JSONEditor(newDiv, options);
+        			editor.setText(el.innerHTML || "{}");
+        		    editor.expandAll();
+                    setTimeout(function() {
+                        {$addHelpButtonFunction}(
+                            window.\$j,
+                            'jsonEditor'+richId,
+                            "{$uxonEditorHelpUrl}",
+                            "Help" 
+                        );
+                    }, 0);
+                    {$addPresetHint}();
+                    
+        			jsonEditors[richId] = editor;
+        
+        			el.parentNode.insertBefore(newDiv,el.nextSibling);
+        			el.style.display='none';
+        			
+        			form = el.form;
+        			if (form.attachEvent) {
+        				form.attachEvent("submit", jsonEditorSave);
+        			} else {
+        				form.addEventListener("submit", jsonEditorSave);
+        			}
+        
+        
+        			
+        	}
 
-			el.parentNode.insertBefore(newDiv,el.nextSibling);
-			el.style.display='none';
-			
-			form = el.form;
-			if (form.attachEvent) {
-				form.attachEvent("submit", jsonEditorSave);
-			} else {
-				form.addEventListener("submit", jsonEditorSave);
-			}
+            function jsonEditorSave(e){
+        		for (key in jsonEditors){
+        			var el = document.getElementById(key);
+        			if (jsonEditors[key].getText() !== '' && jsonEditors[key].getText() !== '{}' && jsonEditors[key].getText() != '{}'){
+        				el.innerHTML = jsonEditors[key].getText();
+        			}
+        		}
+        	}
+        
+            {$uxonEditorFunctions}
+        
+            window.\$j(function() {
+                for (var e in jsonEditors) {
+                	var editor = jsonEditors[e];
+                    window.\$j(document).on('blur', '#jsonEditor'+e+' div.jsoneditor-field[contenteditable="true"]', {jsonEditor: editor}, {$onBlurFunction});
+                }
+            });
 
-
-			
-	}
-	
-
-	function jsonEditorSave(e){
-		for (key in jsonEditors){
-			var el = document.getElementById(key);
-			if (jsonEditors[key].getText() !== '' && jsonEditors[key].getText() !== '{}' && jsonEditors[key].getText() != '{}'){
-				el.innerHTML = jsonEditors[key].getText();
-			}
-		}
-	}
-
-    {$uxonEditorAutosuggest}
-
-    window.\$j(function() {
-        for (var e in jsonEditors) {
-        	var editor = jsonEditors[e];
-            window.\$j(document).on('blur', '#jsonEditor'+e+' div.jsoneditor-field[contenteditable="true"]', {jsonEditor: editor}, {$onBlurFunction});
-        }
-    });
+        })();
 	</script>
 				
 OUT;
