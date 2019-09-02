@@ -357,10 +357,10 @@ switch ($eventName) {
         $onBlurFunction = JsonEditorTrait::buildJsFunctionNameOnBlur($uxonEditorFuncPrefix);
         
         $uxonEditorCss = JsonEditorTrait::buildCssModalStyles($uxonEditorId);
-        $uxonEditorOptions = JsonEditorTrait::buildJsUxonEditorOptions('widget', $uxonEditorFuncPrefix, $workbench);
+        $uxonEditorOptions = JsonEditorTrait::buildJsUxonEditorOptions('"widget"', $uxonEditorFuncPrefix, $workbench);
         $uxonEditorFunctions = JsonEditorTrait::buildJsUxonEditorFunctions(
             $uxonEditorFuncPrefix, 
-            'widget', 
+            '"widget"', 
             'null', 
             'null', 
             $autosuggestUrl,
@@ -375,7 +375,7 @@ switch ($eventName) {
 	<link rel="stylesheet" type="text/css" href="{$base_path}exface/vendor/npm-asset/jsoneditor/dist/jsoneditor.min.css">
     <script type="text/javascript" src="{$base_path}exface/vendor/npm-asset/jsoneditor/dist/jsoneditor.min.js"></script>
     <script type="text/javascript" src="{$base_path}exface/vendor/npm-asset/picomodal/src/picoModal.js"></script>
-    <link rel="stylesheet" type= "text/css" href="$base_path}exface/vendor/npm-asset/mobius1-selectr/src/selectr.css">
+    <link rel="stylesheet" type= "text/css" href="{$base_path}exface/vendor/npm-asset/mobius1-selectr/src/selectr.css">
     <script type="text/javascript" src="{$base_path}exface/vendor/npm-asset/mobius1-selectr/src/selectr.js"></script>
     <style type="text/css">{$uxonEditorCss}</style>
     <!-- Style fixes for MODx -->
