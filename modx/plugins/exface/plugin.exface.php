@@ -365,7 +365,7 @@ switch ($eventName) {
             'null', 
             $autosuggestUrl,
             $workbench,
-            $uxonEditorId
+            "'jsonEditor'+richId"
         );
         
         $richIds=implode('","',$elements);
@@ -385,7 +385,9 @@ switch ($eventName) {
         .jsoneditor-modal.jsoneditor-modal-nopadding iframe {width: 100% !important; }
         .jsoneditor-modal.uxoneditor-modal {position: fixed !important;}
         .jsoneditor-modal-overlay.pico-overlay {position: fixed !important;}
-</style>
+        .selectr-clear, .selectr-input-clear {border: none !important; padding: 0 !important;}
+        .selectr-input {width: calc(100% - 30px) !important; position: static;}
+    </style>
 	
  
 	<!-- Plugin initialization -->
@@ -423,8 +425,8 @@ switch ($eventName) {
                             "{$uxonEditorHelpUrl}",
                             "Help" 
                         );
+                        {$addPresetHint}('jsonEditor'+richId);
                     }, 0);
-                    {$addPresetHint}();
                     
         			jsonEditors[richId] = editor;
         
