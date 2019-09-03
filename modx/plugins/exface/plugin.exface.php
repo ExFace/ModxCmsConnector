@@ -358,7 +358,7 @@ switch ($eventName) {
         $onBlurFunction = JsonEditorTrait::buildJsFunctionNameOnBlur($uxonEditorFuncPrefix);
         
         $uxonEditorCss = JsonEditorTrait::buildCssModalStyles($uxonEditorId);
-        $uxonEditorOptions = JsonEditorTrait::buildJsUxonEditorOptions('"widget"', $uxonEditorFuncPrefix, $workbench);
+        $uxonEditorOptions = JsonEditorTrait::buildJsUxonEditorOptions("'jsonEditor'+richId", '"widget"', $uxonEditorFuncPrefix, $workbench);
         $uxonEditorFunctions = JsonEditorTrait::buildJsUxonEditorFunctions(
             $uxonEditorFuncPrefix, 
             '"widget"', 
