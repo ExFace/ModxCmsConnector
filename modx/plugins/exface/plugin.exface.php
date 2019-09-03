@@ -354,6 +354,7 @@ switch ($eventName) {
         $uxonEditorId = 'UXONeditor';
         $addHelpButtonFunction = JsonEditorTrait::buildJsFunctionNameAddHelpButton($uxonEditorFuncPrefix);
         $addPresetHint = JsonEditorTrait::buildJsFunctionNameAddPresetHint($uxonEditorFuncPrefix);
+        $presetHintTrigger = JsonEditorTrait::buildJsPresetHintTrigger("'jsonEditor'+richId", 'json');
         $onBlurFunction = JsonEditorTrait::buildJsFunctionNameOnBlur($uxonEditorFuncPrefix);
         
         $uxonEditorCss = JsonEditorTrait::buildCssModalStyles($uxonEditorId);
@@ -426,6 +427,9 @@ switch ($eventName) {
                             "Help" 
                         );
                         {$addPresetHint}('jsonEditor'+richId);
+
+                        var json = editor.get();
+                        {$presetHintTrigger}
                     }, 0);
                     
         			jsonEditors[richId] = editor;
