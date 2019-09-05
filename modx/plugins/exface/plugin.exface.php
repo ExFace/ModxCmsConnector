@@ -381,6 +381,7 @@ switch ($eventName) {
     <style type="text/css">{$uxonEditorCss}</style>
     <!-- Style fixes for MODx -->
 	<style>
+        .jsoneditor-search input {width: 120px !important; border: none !important; line-height: 20px !important; padding: 0 !important;}
 	    .jsoneditor-contextmenu ul.menu {width: 126px !important}
         .jsoneditor-modal > label {display: block; width: 100%; height: 100%; margin: 0;}
         .jsoneditor-modal.jsoneditor-modal-nopadding iframe {width: 100% !important; }
