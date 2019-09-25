@@ -313,10 +313,7 @@ class Modx extends AbstractCmsConnector
      */
     public function buildUrlToRouter()
     {
-        $modx_path = Filemanager::pathNormalize($this->getApp()->getModx()->config['base_path']);
-        $installation_path = Filemanager::pathNormalize($this->getWorkbench()->getInstallationPath());
-        $subfolder = str_replace($modx_path, '', $installation_path);
-        return $this->buildUrlToSiteRoot() . '/' . trim($subfolder, "/");
+        return $this->buildUrlToSiteRoot() . '/' . trim($this->getApp()->getConfig()->getOption('URL_FROM_MODX'), "/");
     }
 
     /**
