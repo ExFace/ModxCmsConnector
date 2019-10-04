@@ -6,6 +6,8 @@ use exface\Core\CommonLogic\AppInstallers\SqlSchemaInstaller;
 use exface\Core\CommonLogic\Model\App;
 use exface\Core\Facades\AbstractPWAFacade\ServiceWorkerBuilder;
 use exface\Core\Facades\AbstractPWAFacade\ServiceWorkerInstaller;
+use exface\Core\CommonLogic\AppInstallers\MySqlDatabaseInstaller;
+use exface\ModxCmsConnector\CommonLogic\Installers\ModxCmsConnectorInstaller;
 
 class ModxCmsConnectorApp extends App
 {
@@ -33,16 +35,34 @@ class ModxCmsConnectorApp extends App
     public function getInstaller(InstallerInterface $injected_installer = null)
     {
         // Add the custom MODx installer
-        $installer = parent::getInstaller($injected_installer);
-        $installer->addInstaller(new ModxCmsConnectorInstaller($this->getSelector()));
+        $installerContainer = parent::getInstaller($injected_installer);
+        $installerContainer->addInstaller(new ModxCmsConnectorInstaller($this->getSelector()));
         
         // Add the SQL schema installer for DB fixes
-        $schema_installer = new SqlSchemaInstaller($this->getSelector());
-        $schema_installer->setLastUpdateIdConfigOption('LAST_PERFORMED_MODEL_SOURCE_UPDATE_ID');
         // FIXME how to get to the MODx data connection without knowing, that is used for the model loader. The model loader could
         // theoretically use another connection?
-        $schema_installer->setDataConnection($this->getWorkbench()->model()->getModelLoader()->getDataConnection());
-        $installer->addInstaller($schema_installer);
+        
+        // Init the SQL installer
+        $dbInstaller = new MySqlDatabaseInstaller($this->getSelector());
+        $dbInstaller
+            ->setFoldersWithMigrations(['Migrations'])
+            ->setMigrationsTableName($dbInstaller->getMigrationsTableName() . '_evocms')
+            ->setDataConnection($this->getWorkbench()->model()->getModelLoader()->getDataConnection());
+        
+        // Also add the old SqlSchemInstaller, so that in can update existing installations
+        // upto it's last update script. After this, this installer will not do anything.
+        // DON'T USE this one in future, only the first one!
+        $legacySchemaInstaller = new SqlSchemaInstaller($this->getSelector());
+        $legacySchemaInstaller
+            ->setLastUpdateIdConfigOption('LAST_PERFORMED_MODEL_SOURCE_UPDATE_ID')
+            ->setDataConnection($this->getWorkbench()->model()->getModelLoader()->getDataConnection())
+            ->setSqlFolderName($dbInstaller->getSqlFolderName())
+            ->setSqlUpdatesFolderName('LegacyInstallerUpdates');
+        
+        // First add the legacy installer to make sure, it's actions are performed first!
+        $installerContainer->addInstaller($legacySchemaInstaller);
+        $installerContainer->addInstaller($dbInstaller);
+        
         
         // Add an installer for the service worker routing
         $serviceWorkerBuilder = new ServiceWorkerBuilder();
@@ -59,9 +79,9 @@ class ModxCmsConnectorApp extends App
             );
         }
         $serviceWorkerInstaller = new ServiceWorkerInstaller($this->getSelector(), $serviceWorkerBuilder);
-        $installer->addInstaller($serviceWorkerInstaller);
+        $installerContainer->addInstaller($serviceWorkerInstaller);
         
-        return $installer;
+        return $installerContainer;
     }
 
     public function getModx()

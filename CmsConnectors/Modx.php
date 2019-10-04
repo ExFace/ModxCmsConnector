@@ -1021,7 +1021,7 @@ SQL;
      * 
      * @return \DocumentParser
      */
-    protected function getModx()
+    public function getModx()
     {
         global $modx;
         

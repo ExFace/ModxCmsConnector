@@ -1,9 +1,10 @@
 <?php
-namespace exface\ModxCmsConnector;
+namespace exface\ModxCmsConnector\CommonLogic\Installers;
 
 use exface\Core\CommonLogic\AppInstallers\AbstractAppInstaller;
 use exface\Core\Factories\DataSheetFactory;
 use exface\Core\DataTypes\StringDataType;
+use exface\ModxCmsConnector\ModxCmsConnectorApp;
 
 /**
  *

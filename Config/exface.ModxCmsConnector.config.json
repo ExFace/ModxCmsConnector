@@ -1,7 +1,7 @@
 {
 	"PATH_TO_MODX": "../index-exface.php",
 	"URL_FROM_MODX": "exface",
-	"LAST_PERFORMED_MODEL_SOURCE_UPDATE_ID": 1,
+	"LAST_PERFORMED_MODEL_SOURCE_UPDATE_ID": 16,
 	"EMAIL_SCHEMA_DEFAULT": "[#username#]@mydomain.com",
 	
 	"MODX.CLI.SITE_URL": "http://localhost/",
