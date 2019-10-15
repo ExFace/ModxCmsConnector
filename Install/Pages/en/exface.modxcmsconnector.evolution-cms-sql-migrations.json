@@ -1,0 +1,15 @@
+{
+    "id": "0xc5d0c296ef3f11e9a22c0205857feb80",
+    "alias_with_namespace": "exface.modxcmsconnector.evolution-cms-sql-migrations",
+    "menu_parent_page_alias": "exface.core.logs",
+    "menu_index": "1",
+    "menu_visible": true,
+    "name": "Evolution CMS SQL Migrations",
+    "description": "",
+    "intro": "",
+    "replaces_page_alias": null,
+    "contents": {
+        "extend_widget": "[exface.core.core-sql-migrations]",
+        "object_alias": "exface.ModxCmsConnector.migrations_evocms"
+    }
+}
