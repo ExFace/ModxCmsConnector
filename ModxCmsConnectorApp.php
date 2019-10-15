@@ -46,6 +46,7 @@ class ModxCmsConnectorApp extends App
         $dbInstaller = new MySqlDatabaseInstaller($this->getSelector());
         $dbInstaller
             ->setFoldersWithMigrations(['Migrations'])
+            ->setFoldersWithStaticSql(['CmsSettings'])
             ->setMigrationsTableName($dbInstaller->getMigrationsTableName() . '_evocms')
             ->setDataConnection($this->getWorkbench()->model()->getModelLoader()->getDataConnection());
         
