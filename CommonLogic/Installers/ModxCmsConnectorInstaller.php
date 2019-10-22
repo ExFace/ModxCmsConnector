@@ -21,21 +21,21 @@ class ModxCmsConnectorInstaller extends AbstractAppInstaller
      * {@inheritDoc}
      * @see \exface\Core\Interfaces\InstallerInterface::install()
      */
-    public function install($source_absolute_path)
+    public function install(string $source_absolute_path) : \Iterator
     {
         // Copy index-exface.php to the root of the MODx installation
+        $idt = $this->getOutputIndentation();
         try {
             $this->getWorkbench()->filemanager()->copy($this->getApp()->getDirectoryAbsolutePath() . DIRECTORY_SEPARATOR . 'Install' . DIRECTORY_SEPARATOR . 'index-exface.php', $this->getApp()->getModxAjaxIndexPath(), true);
-            $result .= "\nUpdated index-exface.php in MODx";
+            yield $idt . "Updated index-exface.php in MODx" . PHP_EOL;
         } catch (\Exception $e) {
-            $result .= "\nFailed to update index-exface.php in MODx" . $e->getMessage();
+            yield $idt . "ERROR: Failed to update index-exface.php in MODx: " . $e->getMessage() . " in " . $e->getFile() . ' on line ' . $e->getLine() . PHP_EOL;
         }
         
         try {
             $modx = $this->getModx();
         } catch (\Throwable $e) {
-            $result .= "\nError getting MODx";
-            return $result;
+            yield $idt . "ERROR getting MODx: " . $e->getMessage() . " in " . $e->getFile() . ' on line ' . $e->getLine() . PHP_EOL;
         }
         
         // Update important Modx settings.
@@ -53,15 +53,13 @@ class ModxCmsConnectorInstaller extends AbstractAppInstaller
             $modx->db->update(['disabled' => 1], $sitePlugins, 'name = "TransAlias"');
             $modx->db->update(['disabled' => 0], $sitePlugins, 'name = "ExFace"');
             
-            $result .= "\nUpdated MODx settings";
+            yield $idt . "Updated MODx settings" . PHP_EOL;
         } catch (\Throwable $e) {
-            $result .= "\nError updating MODx settings;" . $e->getMessage();
+            yield $idt . "Error updating MODx settings: " . $e->getMessage() . " in " . $e->getFile() . ' on line ' . $e->getLine() . PHP_EOL;
         }
         
         // Sync users
-        $result .= $this->importUsers($modx);
-        
-        return $result;
+        yield $idt . $this->importUsers($modx);
     }
     
     protected function getModx()
@@ -144,11 +142,11 @@ SQL;
      *
      * @see \exface\Core\Interfaces\InstallerInterface::uninstall()
      */
-    public function uninstall()
+    public function uninstall() : \Iterator
     {
         // Remove index-exface.php to the root of the MODx installation
         $this->getWorkbench()->filemanager()->remove($this->getApp()->getModxAjaxIndexPath());
-        return "\nRemoved " . $this->getApp()->getModxAjaxIndexPath() . '.';
+        yield $this->getOutputIndentation() . "Removed " . $this->getApp()->getModxAjaxIndexPath() . '.' . PHP_EOL;
     }
 
     /**
@@ -157,7 +155,7 @@ SQL;
      *
      * @see \exface\Core\Interfaces\InstallerInterface::backup()
      */
-    public function backup($destination_absolute_path)
+    public function backup(string $destination_absolute_path) : \Iterator
     {
         return 'Backup not implemented for installer "' . $this->getSelectorInstalling()->getAliasWithNamespace() . '"!';
     }

@@ -37,17 +37,20 @@ class ModxCmsTemplateInstaller extends AbstractAppInstaller
      * {@inheritDoc}
      * @see \exface\Core\Interfaces\InstallerInterface::install()
      */
-    public function install($source_absolute_path)
+    public function install(string $source_absolute_path) : \Iterator
     {
+        $idt = $this->getOutputIndentation();
         $modx = $this->getModx();
         $db = $modx->db;
         $tplName = $this->getTemplateName();
         $tplTableName = $modx->getFullTableName('site_templates');
-        $result = 'Installing CMS template "' . $tplName . '"... ';
+        
+        yield $idt . 'CMS template "' . $tplName . '"... ';
         
         $checkExists = $modx->db->query("SELECT id FROM $tplTableName WHERE content LIKE ('% &file=`{$this->getTemplateFilePath()}`%')");
         if ($db->getRecordCount($checkExists) > 0) {
-            return $result . 'already exists.';
+            yield 'already exists.' . PHP_EOL;
+            return;
         }
         
         $resTpl = $db->query("INSERT INTO $tplTableName (`templatename`, `description`, `content`) VALUES ('{$db->escape($tplName)}', '{$db->escape($this->getTemplateDescription())}', '{$db->escape($this->getTemplateBody())}')");
@@ -68,10 +71,8 @@ class ModxCmsTemplateInstaller extends AbstractAppInstaller
                 throw new InstallerRuntimeError($this, 'Could not add template variables to "' . $tplName . '": ' . $db->getLastError() . '!');
             }
             
-            $result = $result . 'done.';
+            yield 'done.' . PHP_EOL;
         }
-        
-        return $result;
     }
 
     /**
@@ -80,7 +81,7 @@ class ModxCmsTemplateInstaller extends AbstractAppInstaller
      *
      * @see \exface\Core\Interfaces\InstallerInterface::uninstall()
      */
-    public function uninstall()
+    public function uninstall() : \Iterator
     {
         return 'Uninstall not implemented for installer "' . $this->getSelectorInstalling()->getAliasWithNamespace() . '"!';
     }
@@ -91,7 +92,7 @@ class ModxCmsTemplateInstaller extends AbstractAppInstaller
      *
      * @see \exface\Core\Interfaces\InstallerInterface::backup()
      */
-    public function backup($destination_absolute_path)
+    public function backup(string $destination_absolute_path) : \Iterator
     {
         return 'Backup not implemented for' . $this->getSelectorInstalling()->getAliasWithNamespace() . '!';
     }
