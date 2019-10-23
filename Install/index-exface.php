@@ -39,10 +39,7 @@ $tstart = $mtime;
 @ini_set('session.use_trans_sid', 0);
 @ini_set('session.use_only_cookies', 1);
 session_cache_limiter('');
-header('P3P: CP="NOI NID ADMa OUR IND UNI COM NAV"'); // header for weird cookie stuff. Blame IE.
-header('Cache-Control: private, must-revalidate');
 ob_start();
-error_reporting(E_ALL & ~ E_NOTICE);
 
 /**
  * Filename: index.php
