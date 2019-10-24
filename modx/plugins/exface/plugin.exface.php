@@ -407,11 +407,7 @@ switch ($eventName) {
         			
         			var options = {
         				onError: function (err) {
-                            try{
-        				        alert(err.toString());
-                            } catch{
-                                console.error('Alert from UXON editor: ', err);
-                            }
+                            alert(err.toString());
         				},
                         mode: "tree",
                         modes: ['code', 'tree'],
