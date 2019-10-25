@@ -240,10 +240,7 @@ class ModxCmsTemplateInstaller extends AbstractAppInstaller
         
     protected function getTemplateBody() : string
     {
-        return <<<PHP
-{$this->getTemplateSnippetCall()}
-
-PHP;
+        return $this->getTemplateSnippetCall();
     }
         
     protected function getTemplateSnippetCall() : string
