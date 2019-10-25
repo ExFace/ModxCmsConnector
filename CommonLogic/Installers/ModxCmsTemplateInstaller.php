@@ -241,19 +241,6 @@ class ModxCmsTemplateInstaller extends AbstractAppInstaller
     protected function getTemplateBody() : string
     {
         return <<<PHP
-/**
- * {$this->getTemplateName()}
- *
- * {$this->getTemplateDescription()}
- *
- * @category	template
- * @version 	{$this->getTemplateVersion()}
- * @license 	{$this->getTemplateLicense()}
- * @internal	@lock_template 0
- * @internal 	@modx_category {$this->getTemplateCategory()}
- * @internal    @installset base, sample
- */
-
 {$this->getTemplateSnippetCall()}
 
 PHP;
