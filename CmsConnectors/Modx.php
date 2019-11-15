@@ -484,7 +484,7 @@ SQL;
             if (count($replacingIds) > 1) {
                 throw new UiPageLoadingError('Page "' . $page->getAliasWithNamespace() . '" is replaced by multiple pages with the respective CMS-Ids ' . $replacingIdsConcatString . ': only one replacement per page allowed!');
             }
-            $replacingPage = $this->getPageFromDb($replacingIds[0]);
+            $replacingPage = $this->getPageFromDb(SelectorFactory::createPageSelector($this->getWorkbench(), $replacingIds[0]));
             $this->replacePageInCache($page, $replacingIds[0], $replacingPage);
             return $replacingPage;
         }
