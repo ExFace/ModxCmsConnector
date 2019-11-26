@@ -1,0 +1,103 @@
+{
+    "object_alias": "exface.Core.OBJECT_ACTION",
+    "columns": [
+        {
+            "name": "CREATED_ON",
+            "attribute_alias": "CREATED_ON"
+        },
+        {
+            "name": "MODIFIED_ON",
+            "attribute_alias": "MODIFIED_ON"
+        },
+        {
+            "name": "CREATED_BY_USER",
+            "attribute_alias": "CREATED_BY_USER"
+        },
+        {
+            "name": "MODIFIED_BY_USER",
+            "attribute_alias": "MODIFIED_BY_USER"
+        },
+        {
+            "name": "UID",
+            "attribute_alias": "UID"
+        },
+        {
+            "name": "OBJECT",
+            "attribute_alias": "OBJECT"
+        },
+        {
+            "name": "ACTION_PROTOTYPE",
+            "attribute_alias": "ACTION_PROTOTYPE"
+        },
+        {
+            "name": "ALIAS",
+            "attribute_alias": "ALIAS"
+        },
+        {
+            "name": "NAME",
+            "attribute_alias": "NAME"
+        },
+        {
+            "name": "SHORT_DESCRIPTION",
+            "attribute_alias": "SHORT_DESCRIPTION"
+        },
+        {
+            "name": "CONFIG_UXON",
+            "attribute_alias": "CONFIG_UXON"
+        },
+        {
+            "name": "APP",
+            "attribute_alias": "APP"
+        },
+        {
+            "name": "USE_IN_OBJECT_BASKET_FLAG",
+            "attribute_alias": "USE_IN_OBJECT_BASKET_FLAG"
+        },
+        {
+            "name": "DOCS",
+            "attribute_alias": "DOCS"
+        }
+    ],
+    "rows": [
+        {
+            "CREATED_ON": "2019-11-26 11:41:38",
+            "MODIFIED_ON": "2019-11-26 11:58:11",
+            "CREATED_BY_USER": "0x31000000000000000000000000000000",
+            "MODIFIED_BY_USER": "0x31000000000000000000000000000000",
+            "UID": "0x11ea1041a23aad0f9a560205857feb80",
+            "OBJECT": "0x11e7a446c6c9df2484f174e5434dc47d",
+            "ACTION_PROTOTYPE": "exface\/Core\/Actions\/CustomDataSourceQuery.php",
+            "ALIAS": "update_private_web_flags",
+            "NAME": "Update private flags",
+            "SHORT_DESCRIPTION": "Updates private flags for (web) users on document groups and documents",
+            "CONFIG_UXON": "{\"queries\":[\"UPDATE modx_documentgroup_names AS dgn LEFT JOIN modx_webgroup_access AS wga ON wga.documentgroup = dgn.id SET dgn.private_webgroup = (wga.webgroup IS NOT NULL)\",\"UPDATE modx_site_content SET privateweb = 0 WHERE privateweb = 1\",\"UPDATE modx_site_content SET privateweb = 1 WHERE id IN (SELECT DISTINCT dg.document FROM modx_document_groups dg LEFT JOIN modx_webgroup_access wga ON wga.documentgroup = dg.document_group WHERE wga.id > 0)\"],\"data_source\":\"MODX_DB\"}",
+            "APP": "0x11e680a7f9cdf732a177c0f8dae36b4f",
+            "USE_IN_OBJECT_BASKET_FLAG": "0",
+            "DOCS": ""
+        }
+    ],
+    "totals_rows": [],
+    "filters": {
+        "operator": "AND",
+        "conditions": [
+            {
+                "expression": "APP",
+                "comparator": "=",
+                "value": "0x11e680a7f9cdf732a177c0f8dae36b4f",
+                "object_alias": "exface.Core.OBJECT_ACTION"
+            }
+        ]
+    },
+    "rows_limit": null,
+    "rows_offset": 0,
+    "sorters": [
+        {
+            "attribute_alias": "CREATED_ON",
+            "direction": "ASC"
+        },
+        {
+            "attribute_alias": "UID",
+            "direction": "ASC"
+        }
+    ]
+}

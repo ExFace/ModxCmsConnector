@@ -1,0 +1,101 @@
+{
+    "object_alias": "exface.Core.OBJECT_BEHAVIORS",
+    "columns": [
+        {
+            "name": "CREATED_ON",
+            "attribute_alias": "CREATED_ON"
+        },
+        {
+            "name": "MODIFIED_ON",
+            "attribute_alias": "MODIFIED_ON"
+        },
+        {
+            "name": "CREATED_BY_USER",
+            "attribute_alias": "CREATED_BY_USER"
+        },
+        {
+            "name": "MODIFIED_BY_USER",
+            "attribute_alias": "MODIFIED_BY_USER"
+        },
+        {
+            "name": "UID",
+            "attribute_alias": "UID"
+        },
+        {
+            "name": "BEHAVIOR",
+            "attribute_alias": "BEHAVIOR"
+        },
+        {
+            "name": "CONFIG_UXON",
+            "attribute_alias": "CONFIG_UXON"
+        },
+        {
+            "name": "OBJECT",
+            "attribute_alias": "OBJECT"
+        },
+        {
+            "name": "APP",
+            "attribute_alias": "APP"
+        },
+        {
+            "name": "NAME",
+            "attribute_alias": "NAME"
+        },
+        {
+            "name": "DESCRIPTION",
+            "attribute_alias": "DESCRIPTION"
+        }
+    ],
+    "rows": [
+        {
+            "CREATED_ON": "2019-11-26 12:05:20",
+            "MODIFIED_ON": "2019-11-26 12:08:35",
+            "CREATED_BY_USER": "0x31000000000000000000000000000000",
+            "MODIFIED_BY_USER": "0x31000000000000000000000000000000",
+            "UID": "0x11ea1044f216c86d9a560205857feb80",
+            "BEHAVIOR": "exface\/Core\/Behaviors\/CallActionBehavior.php",
+            "CONFIG_UXON": "{\"event_alias\":\"exface.Core.DataSheet.OnCreateDataEvent\",\"action\":{\"alias\":\"exface.ModxCmsConnector.update_private_web_flags\"}}",
+            "OBJECT": "0x11e7a447de04bbc584f174e5434dc47d",
+            "APP": "0x11e680a7f9cdf732a177c0f8dae36b4f",
+            "NAME": "Set private flags on CREATE",
+            "DESCRIPTION": ""
+        },
+        {
+            "CREATED_ON": "2019-11-26 12:05:43",
+            "MODIFIED_ON": "2019-11-26 12:08:49",
+            "CREATED_BY_USER": "0x31000000000000000000000000000000",
+            "MODIFIED_BY_USER": "0x31000000000000000000000000000000",
+            "UID": "0x11ea1044ff6186e39a560205857feb80",
+            "BEHAVIOR": "exface\/Core\/Behaviors\/CallActionBehavior.php",
+            "CONFIG_UXON": "{\"event_alias\":\"exface.Core.DataSheet.OnDeleteDataEvent\",\"action\":{\"alias\":\"exface.ModxCmsConnector.update_private_web_flags\"}}",
+            "OBJECT": "0x11e7a447de04bbc584f174e5434dc47d",
+            "APP": "0x11e680a7f9cdf732a177c0f8dae36b4f",
+            "NAME": "Set private flags on DELETE",
+            "DESCRIPTION": ""
+        }
+    ],
+    "totals_rows": [],
+    "filters": {
+        "operator": "AND",
+        "conditions": [
+            {
+                "expression": "APP",
+                "comparator": "=",
+                "value": "0x11e680a7f9cdf732a177c0f8dae36b4f",
+                "object_alias": "exface.Core.OBJECT_BEHAVIORS"
+            }
+        ]
+    },
+    "rows_limit": null,
+    "rows_offset": 0,
+    "sorters": [
+        {
+            "attribute_alias": "CREATED_ON",
+            "direction": "ASC"
+        },
+        {
+            "attribute_alias": "UID",
+            "direction": "ASC"
+        }
+    ]
+}

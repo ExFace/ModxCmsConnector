@@ -1,0 +1,69 @@
+{
+    "id": "0xc4590900103211eab6ae0205857feb80",
+    "alias_with_namespace": "exface.modxcmsconnector.cms-pages",
+    "menu_parent_page_alias": "exface.modxcmsconnector.cms-pages",
+    "menu_index": "0",
+    "menu_visible": false,
+    "name": "CMS Pages",
+    "description": "",
+    "intro": "",
+    "replaces_page_alias": "exface.core.pages",
+    "contents": {
+        "widget_type": "DataTable",
+        "object_alias": "exface.ModxCmsConnector.modx_site_content",
+        "filters": [
+            {
+                "attribute_alias": "pagetitle"
+            },
+            {
+                "attribute_alias": "alias"
+            },
+            {
+                "attribute_alias": "parent"
+            },
+            {
+                "attribute_alias": "content",
+                "widget_type": "Input"
+            },
+            {
+                "attribute_alias": "pagemodel__APP"
+            },
+            {
+                "attribute_alias": "privatemgr"
+            },
+            {
+                "attribute_alias": "privateweb"
+            }
+        ],
+        "columns": [
+            {
+                "attribute_alias": "pagetitle"
+            },
+            {
+                "attribute_alias": "alias"
+            },
+            {
+                "attribute_alias": "parent__LABEL"
+            },
+            {
+                "attribute_alias": "pagemodel__APP__ALIAS"
+            },
+            {
+                "attribute_alias": "privatemgr"
+            },
+            {
+                "attribute_alias": "privateweb"
+            }
+        ],
+        "sorters": [
+            {
+                "attribute_alias": "parent",
+                "direction": "asc"
+            },
+            {
+                "attribute_alias": "menuindex",
+                "direction": "asc"
+            }
+        ]
+    }
+}

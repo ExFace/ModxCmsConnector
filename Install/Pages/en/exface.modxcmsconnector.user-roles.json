@@ -11,6 +11,7 @@
     "contents": {
         "widget_type": "DataTable",
         "object_alias": "exface.ModxCmsConnector.modx_webgroup_names",
+        "nowrap": false,
         "filters": [
             {
                 "attribute_alias": "name"
