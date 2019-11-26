@@ -15,6 +15,7 @@ use exface\Core\Interfaces\DataSources\DataTransactionInterface;
 use exface\Core\Interfaces\Tasks\ResultInterface;
 use exface\Core\Factories\ResultFactory;
 use exface\Core\Factories\UserFactory;
+use exface\Core\DataTypes\PasswordHashDataType;
 
 /**
  * Creates or Updates a modx web-user or Updates a modx mgr-user.
@@ -88,6 +89,11 @@ class ModxUserSave extends AbstractAction
                     // Nein.
                     $userRow['oldusername'] = $exfUserSheet->getCellValue('USERNAME', 0);
                 }
+            }
+            
+            // Passwort            
+            if (($password = $row['PASSWORD']) && PasswordHashDataType::isHash($password) === false) {
+                $userRow['password'] = $password;
             }
             
             // Name, Locale, Email bestimmen.
