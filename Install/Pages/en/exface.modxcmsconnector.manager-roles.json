@@ -1,0 +1,59 @@
+{
+    "id": "0x5aac4d92070311eab55be4b318306b9a",
+    "alias_with_namespace": "exface.modxcmsconnector.manager-roles",
+    "menu_parent_page_alias": "exface.modxcmsconnector.users",
+    "menu_index": "1",
+    "menu_visible": true,
+    "name": "Manager Roles",
+    "description": "",
+    "intro": "",
+    "replaces_page_alias": null,
+    "contents": {
+        "widget_type": "DataTable",
+        "object_alias": "exface.ModxCmsConnector.modx_membergroup_names",
+        "nowrap": false,
+        "filters": [
+            {
+                "attribute_alias": "name"
+            },
+            {
+                "attribute_alias": "modx_member_groups__member"
+            },
+            {
+                "attribute_alias": "modx_membergroup_access__documentgroup"
+            }
+        ],
+        "columns": [
+            {
+                "attribute_alias": "name"
+            },
+            {
+                "attribute_alias": "modx_member_groups__member__username:LIST_DISTINCT",
+                "caption": "Managers"
+            },
+            {
+                "attribute_alias": "modx_membergroup_access__documentgroup__name:LIST_DISTINCT",
+                "caption": "Page Groups"
+            }
+        ],
+        "sorters": [
+            {
+                "attribute_alias": "name",
+                "direction": "asc"
+            }
+        ],
+        "buttons": [
+            {
+                "action_alias": "exface.Core.ShowObjectCreateDialog"
+            },
+            {
+                "action_alias": "exface.Core.ShowObjectEditDialog",
+                "bind_to_double_click": true
+            },
+            {
+                "action_alias": "exface.Core.DeleteObject",
+                "visibility": "optional"
+            }
+        ]
+    }
+}

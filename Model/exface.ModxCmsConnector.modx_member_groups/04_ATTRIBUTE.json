@@ -165,7 +165,7 @@
     "rows": [
         {
             "CREATED_ON": "2018-12-13 23:52:59",
-            "MODIFIED_ON": "2018-12-14 00:04:08",
+            "MODIFIED_ON": "2019-11-14 17:46:41",
             "CREATED_BY_USER": "0x31000000000000000000000000000000",
             "MODIFIED_BY_USER": "0x31000000000000000000000000000000",
             "UID": "0x11e8ff32356176639add0205857feb80",
@@ -207,7 +207,7 @@
         },
         {
             "CREATED_ON": "2018-12-13 23:52:59",
-            "MODIFIED_ON": "2018-12-13 23:57:42",
+            "MODIFIED_ON": "2019-11-14 17:46:41",
             "CREATED_BY_USER": "0x31000000000000000000000000000000",
             "MODIFIED_BY_USER": "0x31000000000000000000000000000000",
             "UID": "0x11e8ff323561fada9add0205857feb80",
@@ -249,7 +249,7 @@
         },
         {
             "CREATED_ON": "2018-12-13 23:52:59",
-            "MODIFIED_ON": "2018-12-13 23:54:06",
+            "MODIFIED_ON": "2019-11-14 17:46:41",
             "CREATED_BY_USER": "0x31000000000000000000000000000000",
             "MODIFIED_BY_USER": "0x31000000000000000000000000000000",
             "UID": "0x11e8ff323562244a9add0205857feb80",
@@ -266,7 +266,7 @@
             "DELETE_WITH_RELATED_OBJECT": "0",
             "DEFAULT_DISPLAY_UXON": null,
             "COMMENTS": "",
-            "NAME": "Member",
+            "NAME": "Manager",
             "RELATION_CARDINALITY": "",
             "ALIAS": "member",
             "DATATYPE": "0x31000000000000000000000000000000",

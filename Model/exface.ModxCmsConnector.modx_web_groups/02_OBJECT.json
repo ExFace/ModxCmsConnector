@@ -81,7 +81,7 @@
     "rows": [
         {
             "CREATED_ON": "2017-09-28 12:14:31",
-            "MODIFIED_ON": "2018-12-13 09:34:02",
+            "MODIFIED_ON": "2019-11-26 08:02:50",
             "CREATED_BY_USER": "0x11e7a1cdce842573b8e974e5434dc47d",
             "MODIFIED_BY_USER": "0x31000000000000000000000000000000",
             "UID": "0x11e7a4469440553b84f174e5434dc47d",
@@ -89,14 +89,14 @@
             "WRITABLE_FLAG": "1",
             "COMMENTS": "",
             "DOCS": "",
-            "NAME": "Webgroup",
+            "NAME": "User Group Member",
             "INHERIT_DATA_SOURCE_BASE_OBJECT": "1",
             "DATA_SOURCE": "0x11e7109eb7d53d24beb2e4b318306b9a",
             "APP": "0x11e680a7f9cdf732a177c0f8dae36b4f",
             "SHORT_DESCRIPTION": "",
             "PARENT_OBJECT": "",
             "DATA_ADDRESS_PROPS": null,
-            "DEFAULT_EDITOR_UXON": null,
+            "DEFAULT_EDITOR_UXON": "{\"widget_type\":\"Dialog\",\"width\":1,\"columns_in_grid\":1,\"height\":\"auto\",\"maximized\":false,\"widgets\":[{\"attribute_alias\":\"webgroup\"},{\"attribute_alias\":\"webuser\"}]}",
             "ALIAS": "modx_web_groups",
             "DATA_ADDRESS": "modx_web_groups"
         }

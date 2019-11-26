@@ -207,7 +207,7 @@
         },
         {
             "CREATED_ON": "2018-12-13 23:51:59",
-            "MODIFIED_ON": "2018-12-13 23:57:14",
+            "MODIFIED_ON": "2019-11-14 16:55:25",
             "CREATED_BY_USER": "0x31000000000000000000000000000000",
             "MODIFIED_BY_USER": "0x31000000000000000000000000000000",
             "UID": "0x11e8ff3211dc60009add0205857feb80",
@@ -224,7 +224,7 @@
             "DELETE_WITH_RELATED_OBJECT": "0",
             "DEFAULT_DISPLAY_UXON": null,
             "COMMENTS": "",
-            "NAME": "Name",
+            "NAME": "Manager Group",
             "RELATION_CARDINALITY": "",
             "ALIAS": "name",
             "DATATYPE": "0x30000000000000000000000000000000",

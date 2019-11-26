@@ -63,7 +63,7 @@
             "CONFIG": null,
             "READONLY": "0",
             "ALIAS": "MODX_DB",
-            "FILTER_CONTEXT": ""
+            "FILTER_CONTEXT": null
         }
     ],
     "totals_rows": [],

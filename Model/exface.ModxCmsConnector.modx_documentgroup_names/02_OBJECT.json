@@ -81,7 +81,7 @@
     "rows": [
         {
             "CREATED_ON": "2017-09-28 12:26:48",
-            "MODIFIED_ON": "2018-12-13 09:33:31",
+            "MODIFIED_ON": "2019-11-14 17:35:21",
             "CREATED_BY_USER": "0x11e7a1cdce842573b8e974e5434dc47d",
             "MODIFIED_BY_USER": "0x31000000000000000000000000000000",
             "UID": "0x11e7a4484b9bb4a684f174e5434dc47d",
@@ -89,7 +89,7 @@
             "WRITABLE_FLAG": "1",
             "COMMENTS": "",
             "DOCS": "",
-            "NAME": "Documentgroup Name",
+            "NAME": "Document Group",
             "INHERIT_DATA_SOURCE_BASE_OBJECT": "1",
             "DATA_SOURCE": "0x11e7109eb7d53d24beb2e4b318306b9a",
             "APP": "0x11e680a7f9cdf732a177c0f8dae36b4f",

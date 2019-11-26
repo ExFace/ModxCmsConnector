@@ -1,0 +1,151 @@
+{
+    "id": "0x2d296e0206fb11ea9901e4b318306b9a",
+    "alias_with_namespace": "exface.modxcmsconnector.users",
+    "menu_parent_page_alias": "exface.modxcmsconnector.users",
+    "menu_index": "0",
+    "menu_visible": false,
+    "name": "CMS Permissions",
+    "description": "",
+    "intro": "",
+    "replaces_page_alias": "exface.core.users",
+    "contents": {
+        "widget_type": "DataTable",
+        "object_alias": "exface.Core.USER",
+        "multi_select": true,
+        "filters": [
+            {
+                "attribute_alias": "USERNAME"
+            },
+            {
+                "attribute_alias": "LAST_NAME"
+            },
+            {
+                "attribute_alias": "FIRST_NAME"
+            }
+        ],
+        "columns": [
+            {
+                "attribute_alias": "USERNAME"
+            },
+            {
+                "attribute_alias": "LAST_NAME"
+            },
+            {
+                "attribute_alias": "FIRST_NAME"
+            },
+            {
+                "attribute_alias": "modx_users_view__ismanager:MIN",
+                "caption": "Manager",
+                "sortable": false
+            },
+            {
+                "attribute_alias": "USER_CREDENTIALS__UID:COUNT",
+                "caption": "=TRANSLATE('exface.Core', 'PAGE.USERS.CREDENTIALS')"
+            },
+            {
+                "attribute_alias": "USER_CREDENTIALS__NAME:LIST_DISTINCT"
+            },
+            {
+                "attribute_alias": "modx_users_view__webuser__modx_web_groups__webgroup__name:LIST_DISTINCT",
+                "sortable": false
+            },
+            {
+                "attribute_alias": "modx_users_view__manager__modx_member_groups__user_group__name:LIST_DISTINCT",
+                "sortable": false
+            },
+            {
+                "attribute_alias": "EMAIL"
+            },
+            {
+                "attribute_alias": "LOCALE"
+            },
+            {
+                "attribute_alias": "modx_users_view__manager:LIST",
+                "hidden": true
+            },
+            {
+                "attribute_alias": "modx_users_view__webuser:LIST",
+                "hidden": true
+            }
+        ],
+        "buttons": [
+            {
+                "action_alias": "exface.Core.ShowObjectCreateDialog"
+            },
+            {
+                "action_alias": "exface.Core.ShowObjectEditDialog",
+                "bind_to_double_click": true
+            },
+            {
+                "action_alias": "exface.Core.DeleteObject",
+                "visibility": "optional"
+            },
+            {
+                "action": {
+                    "alias": "exface.Core.ShowObjectCreateDialog",
+                    "object_alias": "exface.ModxCmsConnector.modx_web_groups",
+                    "prefill_with_input_data": true,
+                    "widget": {
+                        "widget_type": "Dialog",
+                        "object_alias": "exface.ModxCmsConnector.modx_web_groups",
+                        "width": 1,
+                        "height": "auto",
+                        "widgets": [
+                            {
+                                "attribute_alias": "webuser",
+                                "widget_type": "InputSelect",
+                                "multi_select": true,
+                                "disabled": true,
+                                "height": 3
+                            },
+                            {
+                                "attribute_alias": "webgroup"
+                            }
+                        ],
+                        "buttons": [
+                            {
+                                "action_alias": "exface.Core.CreateData",
+                                "align": "opposite",
+                                "visibility": "promoted"
+                            }
+                        ]
+                    }
+                },
+                "caption": "Nutzer-Gruppe zuordnen"
+            },
+            {
+                "action": {
+                    "alias": "exface.Core.ShowObjectCreateDialog",
+                    "object_alias": "exface.ModxCmsConnector.modx_member_groups",
+                    "prefill_with_input_data": true,
+                    "widget": {
+                        "widget_type": "Dialog",
+                        "object_alias": "exface.ModxCmsConnector.modx_member_groups",
+                        "width": 1,
+                        "height": "auto",
+                        "widgets": [
+                            {
+                                "attribute_alias": "member",
+                                "widget_type": "InputSelect",
+                                "multi_select": true,
+                                "disabled": true,
+                                "height": 3
+                            },
+                            {
+                                "attribute_alias": "user_group"
+                            }
+                        ],
+                        "buttons": [
+                            {
+                                "action_alias": "exface.Core.CreateData",
+                                "align": "opposite",
+                                "visibility": "promoted"
+                            }
+                        ]
+                    }
+                },
+                "caption": "Manager-Gruppe zuordnen"
+            }
+        ]
+    }
+}
