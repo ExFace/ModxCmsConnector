@@ -99,10 +99,16 @@
         ],
         "buttons": [
             {
-                "action_alias": "exface.Core.ShowObjectCreateDialog"
+                "action": {
+                    "alias": "exface.Core.ShowObjectCreateDialog",
+                    "object_alias": "exface.ModxCmsConnector.modx_users_view"
+                }
             },
             {
-                "action_alias": "exface.Core.ShowObjectEditDialog",
+                "action": {
+                    "alias": "exface.Core.ShowObjectEditDialog",
+                    "object_alias": "exface.ModxCmsConnector.modx_users_view"
+                },
                 "bind_to_double_click": true
             },
             {
