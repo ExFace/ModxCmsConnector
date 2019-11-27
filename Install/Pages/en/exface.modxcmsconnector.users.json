@@ -1,7 +1,7 @@
 {
     "id": "0x2d296e0206fb11ea9901e4b318306b9a",
     "alias_with_namespace": "exface.modxcmsconnector.users",
-    "menu_parent_page_alias": "exface.modxcmsconnector.users",
+    "menu_parent_page_alias": "exface.core.users",
     "menu_index": "0",
     "menu_visible": false,
     "name": "CMS Permissions",
@@ -12,6 +12,7 @@
         "widget_type": "DataTable",
         "object_alias": "exface.Core.USER",
         "multi_select": true,
+        "id": "user_table",
         "filters": [
             {
                 "attribute_alias": "USERNAME"
@@ -21,6 +22,34 @@
             },
             {
                 "attribute_alias": "FIRST_NAME"
+            },
+            {
+                "caption": "Permission \/ Page Group",
+                "widget_type": "InputComboTable",
+                "table": {
+                    "object_alias": "exface.ModxCmsConnector.modx_documentgroup_names"
+                },
+                "condition_group": {
+                    "operator": "OR",
+                    "conditions": [
+                        {
+                            "expression": "modx_users_view__webuser__modx_web_groups__webgroup__modx_webgroup_access__documentgroup",
+                            "value": "[#value#]",
+                            "comparator": "=="
+                        },
+                        {
+                            "expression": "modx_users_view__manager__modx_member_groups__user_group__modx_membergroup_access__documentgroup",
+                            "value": "[#value#]",
+                            "comparator": "=="
+                        }
+                    ]
+                }
+            },
+            {
+                "attribute_alias": "modx_users_view__webuser__modx_web_groups__webgroup"
+            },
+            {
+                "attribute_alias": "modx_users_view__manager__modx_member_groups__user_group"
             }
         ],
         "columns": [
@@ -60,11 +89,11 @@
                 "attribute_alias": "LOCALE"
             },
             {
-                "attribute_alias": "modx_users_view__manager:LIST",
+                "attribute_alias": "modx_users_view__manager:LIST_DISTINCT",
                 "hidden": true
             },
             {
-                "attribute_alias": "modx_users_view__webuser:LIST",
+                "attribute_alias": "modx_users_view__webuser:LIST_DISTINCT",
                 "hidden": true
             }
         ],
@@ -81,10 +110,24 @@
                 "visibility": "optional"
             },
             {
+                "caption": "Add User Role",
+                "disable_condition": {
+                    "widget_link": "user_table!modx_users_view__ismanager:MIN",
+                    "comparator": "!==",
+                    "value": 0
+                },
                 "action": {
                     "alias": "exface.Core.ShowObjectCreateDialog",
                     "object_alias": "exface.ModxCmsConnector.modx_web_groups",
                     "prefill_with_input_data": true,
+                    "input_mapper": {
+                        "column_to_column_mappings": [
+                            {
+                                "from": "modx_users_view__webuser:LIST_DISTINCT",
+                                "to": "webuser"
+                            }
+                        ]
+                    },
                     "widget": {
                         "widget_type": "Dialog",
                         "object_alias": "exface.ModxCmsConnector.modx_web_groups",
@@ -110,14 +153,27 @@
                             }
                         ]
                     }
-                },
-                "caption": "Nutzer-Gruppe zuordnen"
+                }
             },
             {
+                "caption": "Add Manager Role",
+                "disable_condition": {
+                    "widget_link": "user_table!modx_users_view__ismanager:MIN",
+                    "comparator": "!==",
+                    "value": 1
+                },
                 "action": {
                     "alias": "exface.Core.ShowObjectCreateDialog",
                     "object_alias": "exface.ModxCmsConnector.modx_member_groups",
                     "prefill_with_input_data": true,
+                    "input_mapper": {
+                        "column_to_column_mappings": [
+                            {
+                                "from": "modx_users_view__manager:LIST_DISTINCT",
+                                "to": "member"
+                            }
+                        ]
+                    },
                     "widget": {
                         "widget_type": "Dialog",
                         "object_alias": "exface.ModxCmsConnector.modx_member_groups",
@@ -143,8 +199,7 @@
                             }
                         ]
                     }
-                },
-                "caption": "Manager-Gruppe zuordnen"
+                }
             }
         ]
     }

@@ -1,7 +1,7 @@
 {
     "id": "0xc4590900103211eab6ae0205857feb80",
     "alias_with_namespace": "exface.modxcmsconnector.cms-pages",
-    "menu_parent_page_alias": "exface.modxcmsconnector.cms-pages",
+    "menu_parent_page_alias": "exface.core.pages",
     "menu_index": "0",
     "menu_visible": false,
     "name": "CMS Pages",

@@ -1,7 +1,7 @@
 {
     "id": "0x5aac4d92070311eab55be4b318306b9a",
     "alias_with_namespace": "exface.modxcmsconnector.manager-roles",
-    "menu_parent_page_alias": "exface.modxcmsconnector.users",
+    "menu_parent_page_alias": "exface.core.users",
     "menu_index": "1",
     "menu_visible": true,
     "name": "Manager Roles",
