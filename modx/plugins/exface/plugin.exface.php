@@ -40,8 +40,14 @@ const TV_DEFAULT_MENU_POSITION_NAME = 'ExfacePageDefaultParentAlias';
 $eventName = $modx->event->name;
 
 $vendorPath = MODX_BASE_PATH . 'exface' . DIRECTORY_SEPARATOR . 'vendor' . DIRECTORY_SEPARATOR;
-require_once $vendorPath . 'exface' . DIRECTORY_SEPARATOR . 'Core' . DIRECTORY_SEPARATOR . 'CommonLogic' . DIRECTORY_SEPARATOR . 'Workbench.php';
-require_once $vendorPath . 'autoload.php';
+
+// require the autoloader if Workbench class not there yet.
+// NOTE: the class-exists-check is important because on symlink-based installations require_once may
+// not work properly due to different path notations!
+if (class_exists("\\exface\\Core\\CommonLogic\\Workbench") === false){
+    require_once $vendorPath . 'exface' . DIRECTORY_SEPARATOR . 'Core' . DIRECTORY_SEPARATOR . 'CommonLogic' . DIRECTORY_SEPARATOR . 'Workbench.php';
+    require_once $vendorPath . 'autoload.php';
+}
 
 global $exface;
 if (! isset($exface)) {
