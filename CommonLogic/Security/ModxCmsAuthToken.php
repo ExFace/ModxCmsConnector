@@ -30,6 +30,9 @@ class ModxCmsAuthToken implements AuthenticationTokenInterface
     
     public function getUser() : UserInterface
     {
+        if ($this->isAnonymous() === true) {
+            return UserFactory::createAnonymous($this->modxConnector->getWorkbench());
+        }
         return UserFactory::createFromModel($this->modxConnector->getWorkbench(), $this->getUsername());
     }
     
