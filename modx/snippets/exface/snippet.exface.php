@@ -4,6 +4,8 @@ use exface\Core\Facades\AbstractAjaxFacade\AbstractAjaxFacade;
 use exface\Core\Facades\AbstractHttpFacade\Middleware\RequestIdNegotiator;
 use Psr\Http\Message\ServerRequestInterface;
 use exface\Core\Factories\FacadeFactory;
+use exface\ModxCmsConnector\CommonLogic\Security\ModxCmsAuthToken;
+use exface\Core\Exceptions\Security\AuthenticationFailedError;
 
 /**
  * ExFace
@@ -91,6 +93,17 @@ if (! $exface) {
     $exface->start();
 }
 
+// Authenticate the user in the workbench
+$cmsConn = $exface->getCMS();
+if ($cmsConn->getUserName() !== $exface->getSecurity()->getAuthenticatedToken()->getUsername()) {
+    $authToken = new ModxCmsAuthToken($cmsConn, $cmsConn->getUserName());
+    try {
+        $exface->getSecurity()->authenticate($authToken);
+    } catch (AuthenticationFailedError $e) {
+        $exface->getLogger()->logException($e, LoggerInterface::INFO);
+    }
+}
+    
 switch (strtolower($action)) {
     case "exface.modxcmsconnector.showtemplate":
         $path = $exface->filemanager()->getPathToBaseFolder() . DIRECTORY_SEPARATOR . $file;
