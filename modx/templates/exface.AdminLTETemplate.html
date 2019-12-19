@@ -129,48 +129,7 @@ folder instead of downloading all of them to reduce the load. -->
 						    <li class="dropdown context-menu context-bar-spinner"><a href="#"><i class="fa fa-refresh fa-spin"></i></a></li>
 							<!-- Here come the context icons -->
 			
-							<!-- User Account: style can be found in dropdown.less -->
-							<li class="dropdown user user-menu">
-								
-								[!if &is=`[!UserManagerInfo!]:not_empty` &then=`
-								<a href="#" class="dropdown-toggle" data-toggle="dropdown">
-									[!if? &is=`[!UserManagerInfo? &field=`photo`!]:not_empty` &then=`
-									<img src="[!UserManagerInfo? &field=`photo`!]" class="user-image" />
-									` &else=`
-									<span class="user-image">
-										<i class="fa fa-user-circle-o"></i>
-									</span>
-									`!]
-									<span class="hidden-xs">[!UserManagerInfo? &field=`username`!]</span>
-								</a>
-								<ul class="dropdown-menu">
-									<!-- User image -->
-									<li class="user-header">
-										[!if? &is=`[!UserManagerInfo? &field=`photo`!]:not_empty` &then=`
-										<img src="[!UserManagerInfo? &field=`photo`!]" class="img-circle" />
-										` &else=`
-										<i class="fa fa-user-circle-o"></i>
-										`!]
-										<p>
-											[!UserManagerInfo? &field=`username`!]
-										</p>
-									</li>
-									<!-- Menu Footer-->
-									<li class="user-footer">
-										<div class="pull-right">
-											<a href="[~[(unauthorized_page)]~]?webloginmode=lo" class="btn btn-default btn-flat"><i class="fa fa-sign-out"></i></a>
-										</div>
-									</li>
-								</ul>
-								` &else=`
-								<a href="[~[(unauthorized_page)]~]">
-									<span class="user-image">
-										<i class="fa fa-user-circle-o"></i>
-									</span>
-									<span class="hidden-xs">Log in</span>
-								</a>
-								`!]
-							</li>
+							
 						</ul>
 					</div>
 				</nav>
