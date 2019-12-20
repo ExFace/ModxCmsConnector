@@ -15,14 +15,15 @@ INSERT INTO exf_page (
 	modified_on,
 	created_by_user_oid,
 	modified_by_user_oid,
-	parent_oid
+	parent_oid,
+	page_template_oid
 ) SELECT
      UNHEX(
      	SUBSTR(
      		(SELECT
  				mstc.value
-     		FROM `alexa5`.`modx_site_tmplvar_contentvalues` mstc
- 				LEFT JOIN `alexa5`.`modx_site_tmplvars` mst ON mstc.tmplvarid = mst.id
+     		FROM `modx_site_tmplvar_contentvalues` mstc
+ 				LEFT JOIN `modx_site_tmplvars` mst ON mstc.tmplvarid = mst.id
      		WHERE msc.id = mstc.contentid
  				AND mst.name = "ExfacePageUID"
 			)
@@ -39,8 +40,8 @@ INSERT INTO exf_page (
     	SUBSTR(
     		(SELECT
  				mstc.value
- 			FROM `alexa5`.`modx_site_tmplvar_contentvalues` mstc
-				LEFT JOIN `alexa5`.`modx_site_tmplvars` mst ON mstc.tmplvarid = mst.id
+ 			FROM `modx_site_tmplvar_contentvalues` mstc
+				LEFT JOIN `modx_site_tmplvars` mst ON mstc.tmplvarid = mst.id
      		WHERE msc.id = mstc.contentid
  				AND mst.name = "ExfacePageAppAlias"
 			)
@@ -48,23 +49,23 @@ INSERT INTO exf_page (
 	) as app_uid,
  	(SELECT
  		mstc.value
-     FROM `alexa5`.`modx_site_tmplvar_contentvalues` mstc
- 		LEFT JOIN `alexa5`.`modx_site_tmplvars` mst ON mstc.tmplvarid = mst.id
+     FROM `modx_site_tmplvar_contentvalues` mstc
+ 		LEFT JOIN `modx_site_tmplvars` mst ON mstc.tmplvarid = mst.id
      WHERE msc.id = mstc.contentid
  		AND mst.name = "ExfacePageDefaultParentAlias"
 	) as default_menu_position,
   	(SELECT
 		mstc.value
-     FROM `alexa5`.`modx_site_tmplvar_contentvalues` mstc
- 		LEFT JOIN `alexa5`.`modx_site_tmplvars` mst ON mstc.tmplvarid = mst.id
+     FROM `modx_site_tmplvar_contentvalues` mstc
+ 		LEFT JOIN `modx_site_tmplvars` mst ON mstc.tmplvarid = mst.id
      WHERE msc.id = mstc.contentid
  		AND mst.name = "ExfacePageReplaceAlias"
 	) as replace_alias,
     IFNULL(
     	(SELECT
  			mstc.value
-		FROM `alexa5`.`modx_site_tmplvar_contentvalues` mstc
- 			LEFT JOIN `alexa5`.`modx_site_tmplvars` mst ON mstc.tmplvarid = mst.id
+		FROM `modx_site_tmplvar_contentvalues` mstc
+ 			LEFT JOIN `modx_site_tmplvars` mst ON mstc.tmplvarid = mst.id
      	WHERE msc.id = mstc.contentid
  			AND mst.name = "ExfacePageDoUpdate"
 		)
@@ -79,8 +80,8 @@ INSERT INTO exf_page (
 	  		SUBSTR(
 	  			(SELECT
 					mstc.value
-	 			FROM `alexa5`.`modx_site_tmplvar_contentvalues` mstc
-					LEFT JOIN `alexa5`.`modx_site_tmplvars` mst ON mstc.tmplvarid = mst.id
+	 			FROM `modx_site_tmplvar_contentvalues` mstc
+					LEFT JOIN `modx_site_tmplvars` mst ON mstc.tmplvarid = mst.id
 	 			WHERE msc.parent = mstc.contentid
 					AND mst.name = "ExfacePageUID"
 				)
@@ -96,12 +97,13 @@ INSERT INTO exf_page (
 	    WHEN mst.content LIKE '%alexa.RMS.JEasyUiEmbeddedTemplate.html%' THEN 0x11EA2033058CB4B2AA030205857FEB80
  		ELSE NULL
 	END AS template_oid
-FROM `alexa5`.`modx_site_content` msc
+FROM `modx_site_content` msc
+	LEFT JOIN modx_site_content mst ON mst.id = msc.template
 WHERE
 (SELECT
  mstc.value
-     FROM `alexa5`.`modx_site_tmplvar_contentvalues` mstc
- LEFT JOIN `alexa5`.`modx_site_tmplvars` mst ON mstc.tmplvarid = mst.id
+     FROM `modx_site_tmplvar_contentvalues` mstc
+ LEFT JOIN `modx_site_tmplvars` mst ON mstc.tmplvarid = mst.id
      WHERE msc.id = mstc.contentid
  AND mst.name = "ExfacePageUID") IS NOT NULL
 ORDER BY msc.id;
