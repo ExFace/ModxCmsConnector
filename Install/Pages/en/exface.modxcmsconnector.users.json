@@ -72,7 +72,7 @@
                 "caption": "=TRANSLATE('exface.Core', 'PAGE.USERS.CREDENTIALS')"
             },
             {
-                "attribute_alias": "USER_CREDENTIALS__NAME:LIST_DISTINCT"
+                "attribute_alias": "USER_CREDENTIALS__DATA_CONNECTION_CREDENTIALS__NAME:LIST_DISTINCT"
             },
             {
                 "attribute_alias": "modx_users_view__webuser__modx_web_groups__webgroup__name:LIST_DISTINCT",
