@@ -76,7 +76,7 @@ class ModxUserSave extends AbstractAction
             // ein Nutzer umbenannt wird. Wird daher aus der Datenbank eingelesen.
             $exfUserSheet->removeRows();
             $exfUserSheet->getFilters()->removeAll();
-            $exfUserSheet->getFilters()->addConditionsFromString($exfUserObj, $exfUserObj->getUidAttributeAlias(), $row[$exfUserObj->getUidAttributeAlias()], EXF_COMPARATOR_EQUALS);
+            $exfUserSheet->getFilters()->addConditionFromString($exfUserObj->getUidAttributeAlias(), $row[$exfUserObj->getUidAttributeAlias()], EXF_COMPARATOR_EQUALS);
             $exfUserSheet->dataRead();
             if ($exfUserSheet->countRows() == 1 && $exfUserSheet->getCellValue('USERNAME', 0) !== $row['USERNAME']) {
                 // Der Nutzer wird umbenannt. Existiert bereits ein Exface-Nutzer mit dem
