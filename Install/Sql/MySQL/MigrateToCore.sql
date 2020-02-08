@@ -1,3 +1,4 @@
+DELETE FROM exf_page;
 INSERT INTO exf_page (
 	oid,
 	`name`,
@@ -8,17 +9,20 @@ INSERT INTO exf_page (
 	menu_visible,
 	content,
 	app_oid,
-	default_menu_position,
-	replace_page_alias,
-	auto_update_disabled,
+	replace_page_oid,
+	auto_update_with_app,
 	created_on,
 	modified_on,
 	created_by_user_oid,
 	modified_by_user_oid,
 	parent_oid,
-	page_template_oid
+	page_template_oid,
+	published,
+	default_menu_parent_alias,
+	default_menu_index
 ) SELECT
-     UNHEX(
+-- OID
+   UNHEX(
      	SUBSTR(
      		(SELECT
  				mstc.value
@@ -29,14 +33,22 @@ INSERT INTO exf_page (
 			)
 		, 3)
 	) as uid,
-	msc.pagetitle as name,
-    msc.description,
-    msc.introtext as intro,
-    msc.alias as alias,
-    msc.menuindex as menuIndex,
-    IF(msc.hidemenu = 1, 0, 1) as menu_visible,
-    msc.content as contents,
-    UNHEX(
+-- name
+	msc.pagetitle as NAME,
+-- description
+   msc.description,
+-- intro
+   msc.introtext as intro,
+-- alias
+   msc.alias as alias,
+-- menu_index
+   msc.menuindex as menu_index,
+-- menu_visible
+   IF(msc.hidemenu = 1, 0, 1) as menu_visible,
+-- content
+   msc.content as contents,
+-- app_oid
+   UNHEX(
     	SUBSTR(
     		(SELECT
  				mstc.value
@@ -47,20 +59,32 @@ INSERT INTO exf_page (
 			)
 		, 3)
 	) as app_uid,
- 	(SELECT
- 		mstc.value
-     FROM `modx_site_tmplvar_contentvalues` mstc
- 		LEFT JOIN `modx_site_tmplvars` mst ON mstc.tmplvarid = mst.id
-     WHERE msc.id = mstc.contentid
- 		AND mst.name = "ExfacePageDefaultParentAlias"
-	) as default_menu_position,
-  	(SELECT
-		mstc.value
-     FROM `modx_site_tmplvar_contentvalues` mstc
- 		LEFT JOIN `modx_site_tmplvars` mst ON mstc.tmplvarid = mst.id
-     WHERE msc.id = mstc.contentid
- 		AND mst.name = "ExfacePageReplaceAlias"
-	) as replace_alias,
+-- replace_page_oid
+	UNHEX(
+     	SUBSTR(
+     		(SELECT
+ 				mstc.value
+     		FROM `modx_site_tmplvar_contentvalues` mstc
+ 				LEFT JOIN `modx_site_tmplvars` mst ON mstc.tmplvarid = mst.id
+     		WHERE
+			  mstc.contentid = (
+     				SELECT 
+					  mscrp.id 
+					FROM modx_site_content mscrp
+					WHERE 
+						mscrp.alias = (SELECT
+							mstcrp.value
+					     FROM `modx_site_tmplvar_contentvalues` mstcrp
+					 		LEFT JOIN `modx_site_tmplvars` mstrp ON mstcrp.tmplvarid = mstrp.id
+					     WHERE msc.id = mstcrp.contentid
+					 		AND mstrp.name = "ExfacePageReplaceAlias"
+						)
+     			)
+ 				AND mst.name = "ExfacePageUID"
+			)
+		, 3)
+	),
+-- auto_update_with_app
     IFNULL(
     	(SELECT
  			mstc.value
@@ -69,11 +93,16 @@ INSERT INTO exf_page (
      	WHERE msc.id = mstc.contentid
  			AND mst.name = "ExfacePageDoUpdate"
 		)
-	, 1) as do_update,
+	, 0) as do_update,
+-- created_on
   	from_unixtime(msc.createdon),
+-- modified_on
   	from_unixtime(msc.editedon),
+-- created_by_user_oid
   	(SELECT u.oid FROM exf_user u INNER JOIN modx_manager_users mu ON mu.username = u.username WHERE mu.id = msc.createdby), 
+-- modified_by_user_oid
   	(SELECT u.oid FROM exf_user u INNER JOIN modx_manager_users mu ON mu.username = u.username WHERE mu.id = msc.editedby),
+-- parent_oid
   	IF(
 	  	msc.parent > 0, 
 	  	UNHEX(
@@ -88,6 +117,7 @@ INSERT INTO exf_page (
 			, 3)
 		)
 	, NULL) AS parent_oid,
+-- page_template_oid
 	CASE
 	    WHEN mst.content LIKE '%exface.OpenUI5Template.modx.html%' THEN 0x11EA2033058CB468AA030205857FEB80
 	    WHEN mst.content LIKE '%exface.OpenUI5TemplateMobile.modx.html%' THEN 0x11EA2033058CB54EAA030205857FEB80
@@ -96,9 +126,27 @@ INSERT INTO exf_page (
 	    WHEN mst.content LIKE '%exface.NativeDroidTemplate.html%' THEN 0x11EA2033058CB3CCAA030205857FEB80
 	    WHEN mst.content LIKE '%alexa.RMS.JEasyUiEmbeddedTemplate.html%' THEN 0x11EA2033058CB4B2AA030205857FEB80
  		ELSE NULL
-	END AS template_oid
+	END AS template_oid,
+-- published
+	msc.published,
+-- default_menu_parent_alias
+ 	(SELECT 
+	 	if (INSTR(mstc.value, ':'), LEFT(mstc.value,LOCATE(':',mstc.value) - 1), mstc.value)
+     FROM `modx_site_tmplvar_contentvalues` mstc
+ 		LEFT JOIN `modx_site_tmplvars` mst ON mstc.tmplvarid = mst.id
+     WHERE msc.id = mstc.contentid
+ 		AND mst.name = "ExfacePageDefaultParentAlias"
+	),
+-- default_menu_index
+ 	(SELECT 
+	 	if (INSTR(mstc.value, ':'), SUBSTRING_INDEX(mstc.value,':',-1), NULL)
+     FROM `modx_site_tmplvar_contentvalues` mstc
+ 		LEFT JOIN `modx_site_tmplvars` mst ON mstc.tmplvarid = mst.id
+     WHERE msc.id = mstc.contentid
+ 		AND mst.name = "ExfacePageDefaultParentAlias"
+	)
 FROM `modx_site_content` msc
-	LEFT JOIN modx_site_content mst ON mst.id = msc.template
+	LEFT JOIN modx_site_templates mst ON mst.id = msc.template
 WHERE
 (SELECT
  mstc.value
