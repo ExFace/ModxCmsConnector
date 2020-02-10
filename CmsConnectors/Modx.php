@@ -19,6 +19,7 @@ use exface\Core\Interfaces\Selectors\UiPageSelectorInterface;
 use exface\Core\Interfaces\Selectors\CmsConnectorSelectorInterface;
 use exface\Core\Factories\SelectorFactory;
 use exface\Core\Interfaces\CmsConnectorInterface;
+use exface\Core\DataTypes\StringDataType;
 
 /**
  *  
@@ -561,8 +562,19 @@ SQL;
             $uiPage->setMenuParentPageSelector($modx->documentObject['parent']);
         }
         $uiPage->setUpdateable(array_key_exists($this::TV_DO_UPDATE_NAME, $modx->documentObject) ? $modx->documentObject[$this::TV_DO_UPDATE_NAME][1] : $this::TV_DO_UPDATE_DEFAULT);
-        $uiPage->setReplacesPageAlias($modx->documentObject[$this::TV_REPLACE_ALIAS_NAME] ? $modx->documentObject[$this::TV_REPLACE_ALIAS_NAME][1] : $this::TV_REPLACE_ALIAS_DEFAULT);
-        $uiPage->setMenuDefaultPosition($modx->documentObject[$this::TV_DEFAULT_MENU_POSITION_NAME] ? $modx->documentObject[$this::TV_DEFAULT_MENU_POSITION_NAME][1] : $this::TV_DEFAULT_MENU_POSITION_DEFAULT);
+        
+        if ($modx->documentObject[$this::TV_REPLACE_ALIAS_NAME]) {
+            $uiPage->setReplacesPageSelector($modx->documentObject[$this::TV_REPLACE_ALIAS_NAME]);
+        }
+        
+        if ($modx->documentObject[$this::TV_DEFAULT_MENU_POSITION_NAME]) {
+            $defPosition = $modx->documentObject[$this::TV_DEFAULT_MENU_POSITION_NAME];
+            $defPositionSelector = StringDataType::substringBefore($defPosition, ':', $defPosition);
+            $defPositionIndex = StringDataType::substringAfter($defPosition, ':', 0);
+            $uiPage->setMenuParentPageSelectorDefault($defPositionSelector);
+            $uiPage->setMenuIndexDefault($defPositionIndex);
+        }
+        
         $uiPage->setContents($modx->documentObject['content']);
         
         return $uiPage;
@@ -596,9 +608,19 @@ SQL;
             $uiPage->setMenuParentPageSelector($row['menuParentIdCms']);
         }
         $uiPage->setUpdateable($row['do_update']);
-        $uiPage->setReplacesPageAlias($row['replace_alias']);
-        $uiPage->setMenuDefaultPosition($row['default_menu_position']);
         $uiPage->setContents($row['contents']);
+        
+        if ($row[$this::TV_REPLACE_ALIAS_NAME]) {
+            $uiPage->setReplacesPageSelector($row[$this::TV_REPLACE_ALIAS_NAME]);
+        }
+        
+        if ($row[$this::TV_DEFAULT_MENU_POSITION_NAME]) {
+            $defPosition = $row[$this::TV_DEFAULT_MENU_POSITION_NAME];
+            $defPositionSelector = StringDataType::substringBefore($defPosition, ':', $defPosition);
+            $defPositionIndex = StringDataType::substringAfter($defPosition, ':', 0);
+            $uiPage->setMenuParentPageSelectorDefault($defPositionSelector);
+            $uiPage->setMenuIndexDefault($defPositionIndex);
+        }
         
         return $uiPage;
     }
@@ -622,8 +644,7 @@ SQL;
         
         // Page IDs bestimmen.
         try {
-            $parentAlias = $page->getMenuParentPageAlias();
-            $parentPage = $this->getPage(SelectorFactory::createPageSelector($this->getWorkbench(), $parentAlias));
+            $parentPage = $this->getPage($page->getMenuParentPageSelector());
             $parentIdCms = $this->getPageIdInCms($parentPage);
         } catch (UiPageNotFoundError $upnfe) {
             $this->getWorkbench()->getLogger()->logException($upnfe, LoggerInterface::INFO);
@@ -655,8 +676,8 @@ SQL;
         $resource->set($this::TV_UID_NAME, $page->getId());
         $resource->set($this::TV_APP_UID_NAME, $page->getApp()->getUid());
         $resource->set($this::TV_DO_UPDATE_NAME, $page->isUpdateable() ? '1' : '0');
-        $resource->set($this::TV_REPLACE_ALIAS_NAME, $page->getReplacesPageAlias() ? $page->getReplacesPageAlias(): ''); // wird null uebergeben, wird es ignoriert
-        $resource->set($this::TV_DEFAULT_MENU_POSITION_NAME, $page->getMenuDefaultPosition());
+        $resource->set($this::TV_REPLACE_ALIAS_NAME, $page->getReplacesPageSelector() !== null ? $this->getPage($page->getReplacesPageSelector(), true)->getAliasWithNamespace() : ''); // wird null uebergeben, wird es ignoriert
+        $resource->set($this::TV_DEFAULT_MENU_POSITION_NAME, $page->getMenuParentPageSelectorDefault()->toString() . ':' . $page->getMenuIndexDefault());
         $resource->setDocumentGroups(0, $docGroups);
         $idCms = $resource->save(true, true);
         
@@ -700,8 +721,7 @@ SQL;
         $idCms = $this->getPageIdInCms($page);
         
         try {
-            $parentAlias = $page->getMenuParentPageAlias();
-            $parentPage = $this->getPage(SelectorFactory::createPageSelector($this->getWorkbench(), $parentAlias));
+            $parentPage = $this->getPage($page->getMenuParentPageSelector());
             $parentIdCms = $this->getPageIdInCms($parentPage);
         } catch (UiPageNotFoundError $upnfe) {
             $this->getWorkbench()->getLogger()->logException($upnfe, LoggerInterface::INFO);
@@ -724,8 +744,8 @@ SQL;
         $resource->set($this::TV_UID_NAME, $page->getId());
         $resource->set($this::TV_APP_UID_NAME, $page->getApp()->getUid());
         $resource->set($this::TV_DO_UPDATE_NAME, $page->isUpdateable() ? '1' : '0');
-        $resource->set($this::TV_REPLACE_ALIAS_NAME, $page->getReplacesPageAlias() ? $page->getReplacesPageAlias(): ''); // wird null uebergeben, wird es ignoriert
-        $resource->set($this::TV_DEFAULT_MENU_POSITION_NAME, $page->getMenuDefaultPosition());
+        $resource->set($this::TV_REPLACE_ALIAS_NAME, $page->getReplacesPageSelector() !== null ? $this->getPage($page->getReplacesPageSelector(), true)->getAliasWithNamespace() : ''); // wird null uebergeben, wird es ignoriert
+        $resource->set($this::TV_DEFAULT_MENU_POSITION_NAME, $page->getMenuParentPageSelectorDefault()->toString() . ':' . $page->getMenuIndexDefault());
         $updateResult = $resource->save(true, true);
         
         if ($updateResult === false) {

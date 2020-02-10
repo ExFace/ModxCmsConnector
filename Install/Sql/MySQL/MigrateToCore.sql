@@ -18,7 +18,7 @@ INSERT INTO exf_page (
 	parent_oid,
 	page_template_oid,
 	published,
-	default_menu_parent_alias,
+	default_menu_parent_oid,
 	default_menu_index
 ) SELECT
 -- OID
@@ -93,7 +93,7 @@ INSERT INTO exf_page (
      	WHERE msc.id = mstc.contentid
  			AND mst.name = "ExfacePageDoUpdate"
 		)
-	, 0) as do_update,
+	, 1) as do_update,
 -- created_on
   	from_unixtime(msc.createdon),
 -- modified_on
@@ -129,13 +129,31 @@ INSERT INTO exf_page (
 	END AS template_oid,
 -- published
 	msc.published,
--- default_menu_parent_alias
- 	(SELECT 
-	 	if (INSTR(mstc.value, ':'), LEFT(mstc.value,LOCATE(':',mstc.value) - 1), mstc.value)
-     FROM `modx_site_tmplvar_contentvalues` mstc
- 		LEFT JOIN `modx_site_tmplvars` mst ON mstc.tmplvarid = mst.id
-     WHERE msc.id = mstc.contentid
- 		AND mst.name = "ExfacePageDefaultParentAlias"
+-- default_menu_parent_oid
+	UNHEX(
+     	SUBSTR(
+     		(SELECT
+ 				mstc.value
+     		FROM `modx_site_tmplvar_contentvalues` mstc
+ 				LEFT JOIN `modx_site_tmplvars` mst ON mstc.tmplvarid = mst.id
+     		WHERE
+			  mstc.contentid = (
+     				SELECT 
+					  mscdmp.id 
+					FROM modx_site_content mscdmp
+					WHERE 
+						mscdmp.alias = (SELECT 
+						 		if (INSTR(mstcdmp.value, ':'), LEFT(mstcdmp.value,LOCATE(':',mstcdmp.value) - 1), mstcdmp.value)
+					 		FROM `modx_site_tmplvar_contentvalues` mstcdmp
+					 			LEFT JOIN `modx_site_tmplvars` mstdmp ON mstcdmp.tmplvarid = mstdmp.id
+					     	WHERE msc.id = mstcdmp.contentid
+					 			AND mstdmp.name = "ExfacePageDefaultParentAlias"
+						)
+					LIMIT 1
+     			)
+ 				AND mst.name = "ExfacePageUID"
+			)
+		, 3)
 	),
 -- default_menu_index
  	(SELECT 
