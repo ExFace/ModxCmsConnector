@@ -10,6 +10,9 @@ use exface\Core\Factories\SelectorFactory;
 use exface\Core\Facades\AbstractAjaxFacade\Elements\JsonEditorTrait;
 use exface\Core\Factories\FacadeFactory;
 use exface\Core\Facades\DocsFacade;
+use exface\ModxCmsConnector\CommonLogic\Security\ModxCmsAuthToken;
+use exface\Core\Exceptions\Security\AuthenticationFailedError;
+use exface\Core\Interfaces\Log\LoggerInterface;
 
 /**
  * ExFace
@@ -55,6 +58,18 @@ if (! isset($exface)) {
         $exface = new Workbench();
         // Start the workbench to make the model and CMS accessible
         $exface->start();
+        
+        // Authenticate the user in the workbench
+        $cmsConn = $exface->getCMS();
+        if ($cmsConn->getUserName() !== $exface->getSecurity()->getAuthenticatedToken()->getUsername()) {
+            $authToken = new ModxCmsAuthToken($cmsConn, $cmsConn->getUserName());
+            try {
+                $exface->getSecurity()->authenticate($authToken);
+            } catch (AuthenticationFailedError $e) {
+                $exface->getLogger()->logException($e, LoggerInterface::INFO);
+            }
+        }
+        
     } catch (Throwable $e) {
         generateError($e, 'Error loading workbench');
         return;
