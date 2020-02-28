@@ -4,11 +4,10 @@ namespace exface\ModxCmsConnector\CommonLogic\Security;
 use exface\ModxCmsConnector\CmsConnectors\Modx;
 use exface\Core\Interfaces\Security\AuthenticatorInterface;
 use exface\Core\Interfaces\Security\AuthenticationTokenInterface;
-use exface\Core\Interfaces\Facades\FacadeInterface;
-use exface\Core\Factories\UserFactory;
 use exface\Core\Interfaces\WorkbenchInterface;
 use exface\Core\Events\Security\OnBeforeAuthenticationEvent;
 use exface\Core\Exceptions\Security\AuthenticationFailedError;
+use exface\Core\CommonLogic\Security\Authenticators\AbstractAuthenticator;
 
 /**
  * Tries to authenticates the CMS user in the Workbench on every OnBeforeAuthenticationEvent.
@@ -22,13 +21,11 @@ use exface\Core\Exceptions\Security\AuthenticationFailedError;
  * @author Andrej Kabachnik
  *
  */
-class ModxCmsAuthenticator implements AuthenticatorInterface
-{
-    private $workbench;
-    
+class ModxCmsAuthenticator extends AbstractAuthenticator
+{    
     public function __construct(WorkbenchInterface $workbench)
     {
-        $this->workbench = $workbench;
+        parent::__construct($workbench);
         
         $workbench->eventManager()->addListener(OnBeforeAuthenticationEvent::getEventName(), function(OnBeforeAuthenticationEvent $event) {
             $token = new ModxCmsAuthToken($this->getCmsConnector(), $this->getCmsConnector()->getUserName(), $event->getFacade());
@@ -77,23 +74,19 @@ class ModxCmsAuthenticator implements AuthenticatorInterface
         return $token instanceof ModxCmsAuthToken;
     }
     
+    
     /**
-     *
+     * 
      * {@inheritDoc}
-     * @see \exface\Core\Interfaces\Security\AuthenticatorInterface::getName()
+     * @see \exface\Core\CommonLogic\Security\Authenticators\AbstractAuthenticator::getNameDefault()
      */
-    public function getName() : string
+    protected function getNameDefault() : string
     {
         return 'Authentication via Evolution CMS (ex. MODx v1)';
     }
     
     protected function getCmsConnector() : Modx
     {
-        return $this->workbench->getCMS();
-    }
-    
-    public function getWorkbench()
-    {
-        return $this->workbench();
+        return $this->getWorkbench()->getCMS();
     }
 }
