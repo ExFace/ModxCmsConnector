@@ -9,6 +9,7 @@ use exface\Core\Factories\UserFactory;
 use exface\Core\Interfaces\WorkbenchInterface;
 use exface\Core\Events\Security\OnBeforeAuthenticationEvent;
 use exface\Core\Exceptions\Security\AuthenticationFailedError;
+use exface\Core\Interfaces\Widgets\iContainOtherWidgets;
 
 /**
  * Tries to authenticates the CMS user in the Workbench on every OnBeforeAuthenticationEvent.
@@ -95,5 +96,15 @@ class ModxCmsAuthenticator implements AuthenticatorInterface
     public function getWorkbench()
     {
         return $this->workbench();
+    }
+    
+    /**
+     *
+     * {@inheritDoc}
+     * @see \exface\Core\Interfaces\Security\AuthenticatorInterface::createLoginWidget()
+     */
+    public function createLoginWidget(iContainOtherWidgets $container) : iContainOtherWidgets
+    {
+        return $container;
     }
 }
