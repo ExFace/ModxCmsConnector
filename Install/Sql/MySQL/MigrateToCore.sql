@@ -1,3 +1,4 @@
+/* Move Pages to exf_page */
 DELETE FROM exf_page;
 INSERT INTO exf_page (
 	oid,
@@ -46,7 +47,11 @@ INSERT INTO exf_page (
 -- menu_visible
    IF(msc.hidemenu = 1, 0, 1) as menu_visible,
 -- content
-   msc.content as contents,
+   CASE
+		WHEN msc.alias = 'login' THEN '{"widget_type":"LoginPrompt","object_alias":"exface.Core.LOGIN_DATA"}'
+		WHEN msc.alias = 'not-found' THEN NULL
+ 		ELSE msc.content
+	END AS contents,
 -- app_oid
    UNHEX(
     	SUBSTR(
@@ -166,10 +171,22 @@ INSERT INTO exf_page (
 FROM `modx_site_content` msc
 	LEFT JOIN modx_site_templates mst ON mst.id = msc.template
 WHERE
-(SELECT
- mstc.value
+	(SELECT
+ 		mstc.value
      FROM `modx_site_tmplvar_contentvalues` mstc
- LEFT JOIN `modx_site_tmplvars` mst ON mstc.tmplvarid = mst.id
-     WHERE msc.id = mstc.contentid
- AND mst.name = "ExfacePageUID") IS NOT NULL
+ 		LEFT JOIN `modx_site_tmplvars` mst ON mstc.tmplvarid = mst.id
+     WHERE 
+     	msc.id = mstc.contentid
+ 		AND mst.name = "ExfacePageUID"
+ 	) IS NOT NULL
 ORDER BY msc.id;
+
+/* Set default password for user models without a password */
+UPDATE exf_user u SET 
+	u.password = '$2y$10$yu4DmatXeGBHPqBCcvDTteq8bj8kkfBYeRCa8zDcVMAb4mvO9Y3du' 
+WHERE 
+	u.password IS NULL 
+	AND (
+		EXISTS (SELECT 1 FROM modx_manager_users mmu WHERE mmu.username = u.username)
+		OR EXISTS (SELECT 1 FROM modx_web_users mwu WHERE mwu.username = u.username)
+	);
