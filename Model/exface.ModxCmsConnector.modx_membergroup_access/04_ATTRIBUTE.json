@@ -82,6 +82,10 @@
             "attribute_alias": "RELATION_CARDINALITY"
         },
         {
+            "name": "TYPE",
+            "attribute_alias": "TYPE"
+        },
+        {
             "name": "ALIAS",
             "attribute_alias": "ALIAS"
         },
@@ -165,7 +169,7 @@
     "rows": [
         {
             "CREATED_ON": "2019-11-14 17:37:40",
-            "MODIFIED_ON": "2019-11-14 17:48:19",
+            "MODIFIED_ON": "2020-03-20 20:20:17",
             "CREATED_BY_USER": "0x31000000000000000000000000000000",
             "MODIFIED_BY_USER": "0x31000000000000000000000000000000",
             "UID": "0x11ea070501383532b7580205857feb80",
@@ -184,8 +188,9 @@
             "COMMENTS": "",
             "NAME": "Id",
             "RELATION_CARDINALITY": "",
+            "TYPE": "D",
             "ALIAS": "id",
-            "DATATYPE": "0x11e7b0277435425e98350205857feb80",
+            "DATATYPE": "0x11e7be1769277c6a9c0f0205857feb80",
             "DATA_ADDRESS": "id",
             "OBJECT": "0x11ea0704fce96a20b7580205857feb80",
             "FORMATTER": "",
@@ -226,6 +231,7 @@
             "COMMENTS": "",
             "NAME": "Manager Role",
             "RELATION_CARDINALITY": "",
+            "TYPE": "D",
             "ALIAS": "membergroup",
             "DATATYPE": "0x11e7b0277435425e98350205857feb80",
             "DATA_ADDRESS": "membergroup",
@@ -268,6 +274,7 @@
             "COMMENTS": "",
             "NAME": "Page Group \/ Permission",
             "RELATION_CARDINALITY": "",
+            "TYPE": "D",
             "ALIAS": "documentgroup",
             "DATATYPE": "0x11e7b0277435425e98350205857feb80",
             "DATA_ADDRESS": "documentgroup",
@@ -293,6 +300,7 @@
     "totals_rows": [],
     "filters": {
         "operator": "AND",
+        "base_object_alias": "exface.Core.ATTRIBUTE",
         "conditions": [
             {
                 "expression": "OBJECT__APP",

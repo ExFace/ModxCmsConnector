@@ -82,6 +82,10 @@
             "attribute_alias": "RELATION_CARDINALITY"
         },
         {
+            "name": "TYPE",
+            "attribute_alias": "TYPE"
+        },
+        {
             "name": "ALIAS",
             "attribute_alias": "ALIAS"
         },
@@ -165,7 +169,7 @@
     "rows": [
         {
             "CREATED_ON": "2018-12-13 23:51:59",
-            "MODIFIED_ON": "2018-12-13 23:57:07",
+            "MODIFIED_ON": "2020-03-20 20:18:11",
             "CREATED_BY_USER": "0x31000000000000000000000000000000",
             "MODIFIED_BY_USER": "0x31000000000000000000000000000000",
             "UID": "0x11e8ff3211dbd9839add0205857feb80",
@@ -184,8 +188,9 @@
             "COMMENTS": "",
             "NAME": "Id",
             "RELATION_CARDINALITY": "",
+            "TYPE": "D",
             "ALIAS": "id",
-            "DATATYPE": "0x31000000000000000000000000000000",
+            "DATATYPE": "0x11e7be1769277c6a9c0f0205857feb80",
             "DATA_ADDRESS": "id",
             "OBJECT": "0x11e8ff31fa6b49bf9add0205857feb80",
             "FORMATTER": "",
@@ -193,8 +198,8 @@
             "LABELFLAG": "0",
             "UIDFLAG": "1",
             "HIDDENFLAG": "0",
-            "EDITABLEFLAG": "1",
-            "REQUIREDFLAG": "1",
+            "EDITABLEFLAG": "0",
+            "REQUIREDFLAG": "0",
             "RELATED_OBJ": "",
             "SORTERPOS": null,
             "SORTERDIR": "",
@@ -226,6 +231,7 @@
             "COMMENTS": "",
             "NAME": "Manager Group",
             "RELATION_CARDINALITY": "",
+            "TYPE": "D",
             "ALIAS": "name",
             "DATATYPE": "0x30000000000000000000000000000000",
             "DATA_ADDRESS": "name",
@@ -251,6 +257,7 @@
     "totals_rows": [],
     "filters": {
         "operator": "AND",
+        "base_object_alias": "exface.Core.ATTRIBUTE",
         "conditions": [
             {
                 "expression": "OBJECT__APP",

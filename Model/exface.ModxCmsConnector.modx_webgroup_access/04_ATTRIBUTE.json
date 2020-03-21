@@ -82,6 +82,10 @@
             "attribute_alias": "RELATION_CARDINALITY"
         },
         {
+            "name": "TYPE",
+            "attribute_alias": "TYPE"
+        },
+        {
             "name": "ALIAS",
             "attribute_alias": "ALIAS"
         },
@@ -165,9 +169,9 @@
     "rows": [
         {
             "CREATED_ON": "2017-09-28 12:23:48",
-            "MODIFIED_ON": "2017-09-28 12:24:26",
+            "MODIFIED_ON": "2020-03-20 20:17:12",
             "CREATED_BY_USER": "0x11e7a1cdce842573b8e974e5434dc47d",
-            "MODIFIED_BY_USER": "0x11e7a1cdce842573b8e974e5434dc47d",
+            "MODIFIED_BY_USER": "0x31000000000000000000000000000000",
             "UID": "0x11e7a447e0a65a5184f174e5434dc47d",
             "SORTABLEFLAG": "1",
             "FILTERABLEFLAG": "1",
@@ -178,14 +182,15 @@
             "WRITABLEFLAG": "1",
             "SYSTEMFLAG": "0",
             "DEFAULT_EDITOR_UXON": null,
-            "COPY_WITH_RELATED_OBJECT": null,
-            "DELETE_WITH_RELATED_OBJECT": null,
+            "COPY_WITH_RELATED_OBJECT": "0",
+            "DELETE_WITH_RELATED_OBJECT": "0",
             "DEFAULT_DISPLAY_UXON": null,
             "COMMENTS": "",
             "NAME": "Id",
             "RELATION_CARDINALITY": "",
+            "TYPE": "D",
             "ALIAS": "id",
-            "DATATYPE": "0x30000000000000000000000000000000",
+            "DATATYPE": "0x11e7be1769277c6a9c0f0205857feb80",
             "DATA_ADDRESS": "id",
             "OBJECT": "0x11e7a447de04bbc584f174e5434dc47d",
             "FORMATTER": "",
@@ -226,6 +231,7 @@
             "COMMENTS": "",
             "NAME": "User Group",
             "RELATION_CARDINALITY": "",
+            "TYPE": "D",
             "ALIAS": "webgroup",
             "DATATYPE": "0x11e7b0277435425e98350205857feb80",
             "DATA_ADDRESS": "webgroup",
@@ -268,6 +274,7 @@
             "COMMENTS": "",
             "NAME": "Page Group \/ Permission",
             "RELATION_CARDINALITY": "",
+            "TYPE": "D",
             "ALIAS": "documentgroup",
             "DATATYPE": "0x11e7b0277435425e98350205857feb80",
             "DATA_ADDRESS": "documentgroup",
@@ -310,6 +317,7 @@
             "COMMENTS": "",
             "NAME": "Label",
             "RELATION_CARDINALITY": "",
+            "TYPE": "D",
             "ALIAS": "LABEL",
             "DATATYPE": "0x30000000000000000000000000000000",
             "DATA_ADDRESS": "([#~alias#].webgroup || ' ' || [#~alias#].documentgroup)",
@@ -335,6 +343,7 @@
     "totals_rows": [],
     "filters": {
         "operator": "AND",
+        "base_object_alias": "exface.Core.ATTRIBUTE",
         "conditions": [
             {
                 "expression": "OBJECT__APP",

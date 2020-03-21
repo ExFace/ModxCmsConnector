@@ -82,6 +82,10 @@
             "attribute_alias": "RELATION_CARDINALITY"
         },
         {
+            "name": "TYPE",
+            "attribute_alias": "TYPE"
+        },
+        {
             "name": "ALIAS",
             "attribute_alias": "ALIAS"
         },
@@ -165,9 +169,9 @@
     "rows": [
         {
             "CREATED_ON": "2017-09-25 15:34:24",
-            "MODIFIED_ON": "2017-09-28 11:56:32",
+            "MODIFIED_ON": "2020-03-20 20:15:54",
             "CREATED_BY_USER": "0x11e7a1cdce842573b8e974e5434dc47d",
-            "MODIFIED_BY_USER": "0x11e7a1cdce842573b8e974e5434dc47d",
+            "MODIFIED_BY_USER": "0x31000000000000000000000000000000",
             "UID": "0x11e7a207044db5d5b8e974e5434dc47d",
             "SORTABLEFLAG": "1",
             "FILTERABLEFLAG": "1",
@@ -178,14 +182,15 @@
             "WRITABLEFLAG": "1",
             "SYSTEMFLAG": "0",
             "DEFAULT_EDITOR_UXON": null,
-            "COPY_WITH_RELATED_OBJECT": null,
-            "DELETE_WITH_RELATED_OBJECT": null,
+            "COPY_WITH_RELATED_OBJECT": "0",
+            "DELETE_WITH_RELATED_OBJECT": "0",
             "DEFAULT_DISPLAY_UXON": null,
             "COMMENTS": "",
             "NAME": "Id",
             "RELATION_CARDINALITY": "",
+            "TYPE": "D",
             "ALIAS": "id",
-            "DATATYPE": "0x30000000000000000000000000000000",
+            "DATATYPE": "0x11e7be1769277c6a9c0f0205857feb80",
             "DATA_ADDRESS": "id",
             "OBJECT": "0x11e7a206ef6c58a9b8e974e5434dc47d",
             "FORMATTER": "",
@@ -226,6 +231,7 @@
             "COMMENTS": "",
             "NAME": "Username",
             "RELATION_CARDINALITY": "",
+            "TYPE": "D",
             "ALIAS": "username",
             "DATATYPE": "0x30000000000000000000000000000000",
             "DATA_ADDRESS": "username",
@@ -268,6 +274,7 @@
             "COMMENTS": "",
             "NAME": "Password",
             "RELATION_CARDINALITY": "",
+            "TYPE": "D",
             "ALIAS": "password",
             "DATATYPE": "0x30000000000000000000000000000000",
             "DATA_ADDRESS": "password",
@@ -310,6 +317,7 @@
             "COMMENTS": "",
             "NAME": "Cachepwd",
             "RELATION_CARDINALITY": "",
+            "TYPE": "D",
             "ALIAS": "cachepwd",
             "DATATYPE": "0x30000000000000000000000000000000",
             "DATA_ADDRESS": "cachepwd",
@@ -335,6 +343,7 @@
     "totals_rows": [],
     "filters": {
         "operator": "AND",
+        "base_object_alias": "exface.Core.ATTRIBUTE",
         "conditions": [
             {
                 "expression": "OBJECT__APP",
