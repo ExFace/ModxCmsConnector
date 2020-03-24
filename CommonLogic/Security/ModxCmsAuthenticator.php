@@ -46,10 +46,10 @@ class ModxCmsAuthenticator extends AbstractAuthenticator
     {
         $cms = $this->getCmsConnector();
         if ($cms !== $token->getCmsConnector()) {
-            throw new AuthenticationFailedError('CMS authentication token was created for a different instance of the MODx CMS connector!');
+            throw new AuthenticationFailedError($this, 'CMS authentication token was created for a different instance of the MODx CMS connector!');
         }
         if ($cms->getUserName() !== $token->getUsername()) {
-            throw new AuthenticationFailedError('User mismatch: the token was created for different user, than the on authenticated in the CMS!');
+            throw new AuthenticationFailedError($this, 'User mismatch: the token was created for different user, than the on authenticated in the CMS!');
         }
         return $token;
     }
