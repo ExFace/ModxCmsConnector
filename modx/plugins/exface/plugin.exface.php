@@ -285,13 +285,13 @@ switch ($eventName) {
                     // alten Namen. Es existiert ebenso ein Exface-Nutzer mit dem neuen Namen.
                     // Der Nutzer mit dem alten Namen wird geloescht. Der Nutzer mit dem neuen
                     // Namen wird aktualisiert.
-                    $modelLoader->deleteUser($exfUserOld);
+                    $exfUserOld->exportDataSheet()->dataDelete();
                     
                     $exfUser->setFirstName($firstname);
                     $exfUser->setLastName($lastname);
                     $exfUser->setLocale($locale);
                     $exfUser->setEmail($useremail);
-                    $modelLoader->updateUser($exfUser);
+                    $exfUser->exportDataSheet()->dataUpdate();
                 } else {
                     // Der Nutzer wird gerade umbenannt. Es existiert ein Exface-Nutzer mit dem
                     // alten Namen. Es existiert kein Exface-Nutzer mit dem neuen Namen. Der
@@ -301,7 +301,7 @@ switch ($eventName) {
                     $exfUserOld->setLastName($lastname);
                     $exfUserOld->setLocale($locale);
                     $exfUserOld->setEmail($useremail);
-                    $modelLoader->updateUser($exfUserOld);
+                    $exfUserOld->exportDataSheet()->dataUpdate();
                 }
             } else {
                 if ($exfUser->hasModel()) {
@@ -311,11 +311,11 @@ switch ($eventName) {
                     $exfUser->setLastName($lastname);
                     $exfUser->setLocale($locale);
                     $exfUser->setEmail($useremail);
-                    $modelLoader->updateUser($exfUser);
+                    $exfUser->exportDataSheet()->dataUpdate();
                 } else {
                     // Der Nutzer wird nicht umbenannt. Es existiert kein Exface-Nutzer mit dem
                     // Namen, daher wird ein neuer Exface-Nutzer angelegt.
-                    $modelLoader->createUser(UserFactory::create($exface, $username, $firstname, $lastname, $locale, $useremail));
+                    (UserFactory::create($exface, $username, $firstname, $lastname, $locale, $useremail))->exportDataSheet()->dataCreate();
                 }
             }
         } catch (Throwable $e) {
@@ -335,7 +335,7 @@ switch ($eventName) {
             $exfUser = UserFactory::createFromModel($exface, $username);
             if ($exfUser->hasModel()) {
                 // Es existiert ein Exface-Nutzer mit dem Namen, welcher geloescht wird.
-                $exface->model()->getModelLoader()->deleteUser($exfUser);
+                $exfUser->exportDataSheet()->dataDelete();
             }
         } catch (Throwable $e) {
             generateError($e, 'Error deleting exface user');
