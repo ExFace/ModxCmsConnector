@@ -35,7 +35,7 @@ INSERT INTO exf_page (
 		, 3)
 	) as uid,
 -- name
-	msc.pagetitle as NAME,
+	LEFT(msc.pagetitle, 50) as NAME,
 -- description
    msc.description,
 -- intro
