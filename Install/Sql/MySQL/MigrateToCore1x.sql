@@ -1,5 +1,4 @@
 /* Move Pages to exf_page */
-DELETE FROM exf_page;
 INSERT IGNORE INTO exf_page (
 	oid,
 	`name`,
@@ -104,10 +103,10 @@ INSERT IGNORE INTO exf_page (
 -- modified_on
   	from_unixtime(msc.editedon),
 -- created_by_user_oid
-  	(SELECT u.oid FROM exf_user u INNER JOIN modx_manager_users mu ON mu.username = u.username WHERE mu.id = msc.createdby), 
+  	IFNULL((SELECT u.oid FROM exf_user u INNER JOIN modx_manager_users mu ON mu.username = u.username WHERE mu.id = msc.createdby), 0x00000000000000000000000000000000), 
 -- modified_by_user_oid
-  	(SELECT u.oid FROM exf_user u INNER JOIN modx_manager_users mu ON mu.username = u.username WHERE mu.id = msc.editedby),
--- parent_oid
+  	IFNULL((SELECT u.oid FROM exf_user u INNER JOIN modx_manager_users mu ON mu.username = u.username WHERE mu.id = msc.editedby), 0x00000000000000000000000000000000),
+  	-- parent_oid
   	IF(
 	  	msc.parent > 0, 
 	  	UNHEX(
@@ -173,18 +172,28 @@ FROM `modx_site_content` msc
 WHERE
 -- exclude some unneeded pages
 	msc.pagetitle NOT IN ('index', 'login', 'service', 'not-found')
--- AND Not part of the core
-	AND UNHEX(
-    	SUBSTR(
-    		(SELECT
- 				mstc.value
- 			FROM `modx_site_tmplvar_contentvalues` mstc
-				LEFT JOIN `modx_site_tmplvars` mst ON mstc.tmplvarid = mst.id
-     		WHERE msc.id = mstc.contentid
- 				AND mst.name = "ExfacePageAppAlias"
-			)
-		, 3)
-	) NOT IN (0x31000000000000000000000000000000, 0x11e680a7f9cdf732a177c0f8dae36b4f)
+-- AND Not part of the apps Core, ActionTest, ModxCmsConnector
+	AND (
+		UNHEX(
+	    	SUBSTR(
+	    		(SELECT
+	 				mstc.value
+	 			FROM `modx_site_tmplvar_contentvalues` mstc
+					LEFT JOIN `modx_site_tmplvars` mst ON mstc.tmplvarid = mst.id
+	     		WHERE msc.id = mstc.contentid
+	 				AND mst.name = "ExfacePageAppAlias"
+				)
+			, 3)
+		) NOT IN (0x31000000000000000000000000000000,0x31350000000000000000000000000000,0x11e680a7f9cdf732a177c0f8dae36b4f)
+		OR 
+		(SELECT
+			mstc.value
+		FROM `modx_site_tmplvar_contentvalues` mstc
+			LEFT JOIN `modx_site_tmplvars` mst ON mstc.tmplvarid = mst.id
+ 		WHERE msc.id = mstc.contentid
+			AND mst.name = "ExfacePageAppAlias"
+		) IS NULL
+	)
 -- AND UID exists
 	AND (SELECT
  		mstc.value
